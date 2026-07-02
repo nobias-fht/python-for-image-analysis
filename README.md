@@ -1,6 +1,6 @@
 # Python for Image Analysis
 
-First draft scaffold for a 3.5-day Python image analysis course for young life scientists.
+Draft scaffold for a 3.5-day Python image analysis course for young life scientists.
 
 The scripts are written as notebook-style Python files with `# %% [markdown]` and `# %%` cells, so they can later be converted to notebooks with tools such as Jupytext or opened directly in VSCode.
 
@@ -27,10 +27,11 @@ uv run python -m ipykernel install --user --name python-image-analysis
 uv run jupyter lab
 ```
 
-Optional readers for real microscopy formats can be introduced later:
+Optional readers for real microscopy formats can be introduced later. The course
+currently uses BioIO-style examples for vendor formats:
 
 ```bash
-uv add tifffile zarr ome-zarr bioio bioio-ome-tiff
+uv add tifffile zarr ome-zarr bioio bioio-ome-tiff bioio-ome-zarr bioio-lif bioio-nd2 bioio-czi
 ```
 
 Vendor-format readers often have extra system or Java requirements, so the course examples avoid depending on them.
