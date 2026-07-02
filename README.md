@@ -53,3 +53,11 @@ Vendor-format readers often have extra system or Java requirements, so the cours
 ## Conversion Note
 
 These scripts are intentionally compact. They are not complete lecture notes. During notebook conversion, each `# %% [markdown]` block can become a short explanation cell and each `# %%` block can become a runnable example or exercise cell.
+
+Convert the module scripts into notebooks with:
+
+```bash
+python scripts/convert_notebooks.py
+```
+
+By default, notebooks are written to `notebooks/` while preserving the module directory structure.
