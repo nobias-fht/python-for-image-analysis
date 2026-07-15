@@ -66,7 +66,9 @@ print("very elongated objects:", len(outliers))
 # %%
 filtered = df[(df["ellipticity"] < 0.8) & (df["area"] >= 50)].copy()
 filtered["log2_ratio"] = np.log2(filtered["ratio_a_over_b"])
-filtered["shape_class"] = np.where(filtered["ellipticity"] > 0.5, "elongated", "rounder")
+filtered["shape_class"] = np.where(
+    filtered["ellipticity"] > 0.5, "elongated", "rounder"
+)
 print(filtered.head())
 
 # %% [markdown]
@@ -106,7 +108,9 @@ axes[0].set_title("ratio by population")
 axes[0].set_ylabel("A/B ratio")
 
 for population, part in filtered.groupby("population", observed=True):
-    axes[1].scatter(part["ratio_a_over_b"], part["ellipticity"], alpha=0.7, label=population)
+    axes[1].scatter(
+        part["ratio_a_over_b"], part["ellipticity"], alpha=0.7, label=population
+    )
 axes[1].set_xlabel("A/B ratio")
 axes[1].set_ylabel("ellipticity")
 axes[1].legend()

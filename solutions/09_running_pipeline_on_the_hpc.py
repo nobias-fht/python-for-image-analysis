@@ -50,11 +50,21 @@ def analyze_synthetic_image(seed: int, threshold: float) -> pd.DataFrame:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Analyze a synthetic image.")
-    parser.add_argument("--seed", type=int, default=0, help="Random seed used to simulate the image.")
-    parser.add_argument("--threshold", type=float, default=0.35, help="Foreground threshold.")
-    parser.add_argument("--output", type=Path, default=Path("scratch_outputs/hpc_results.csv"))
+    parser.add_argument(
+        "--seed", type=int, default=0, help="Random seed used to simulate the image."
+    )
+    parser.add_argument(
+        "--threshold", type=float, default=0.35, help="Foreground threshold."
+    )
+    parser.add_argument(
+        "--output", type=Path, default=Path("scratch_outputs/hpc_results.csv")
+    )
     parser.add_argument("--save-image", type=Path, default=None)
-    parser.add_argument("--dry-run", action="store_true", help="Print planned work without writing files.")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print planned work without writing files.",
+    )
     return parser
 
 
@@ -78,7 +88,16 @@ def main(argv: list[str] | None = None) -> None:
 
 
 # %%
-main(["--seed", "3", "--threshold", "0.35", "--output", "scratch_outputs/module09_demo.csv"])
+main(
+    [
+        "--seed",
+        "3",
+        "--threshold",
+        "0.35",
+        "--output",
+        "scratch_outputs/module09_demo.csv",
+    ]
+)
 main(["--seed", "3", "--dry-run"])
 
 # %% [markdown]
@@ -87,7 +106,7 @@ main(["--seed", "3", "--dry-run"])
 # Save as `submit_analysis.sbatch`:
 #
 # ```bash
-# #!/bin/bash
+# !/bin/bash
 # #SBATCH --job-name=image-analysis
 # #SBATCH --time=00:10:00
 # #SBATCH --cpus-per-task=1
@@ -141,4 +160,6 @@ threshold = 0.35
 output = Path(f"results/result_seed_{seed}_threshold_{threshold:.2f}.csv")
 print(output)
 print("#SBATCH --array=20-29")
-print("Separate output files avoid write conflicts and make failed jobs easier to rerun.")
+print(
+    "Separate output files avoid write conflicts and make failed jobs easier to rerun."
+)

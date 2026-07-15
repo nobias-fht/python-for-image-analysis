@@ -232,7 +232,9 @@ readme_summary = (
     "populations, and exports reproducible measurement tables for downstream "
     "analysis."
 )
-license_choice = "BSD-3-Clause: permissive reuse while keeping attribution requirements clear."
+license_choice = (
+    "BSD-3-Clause: permissive reuse while keeping attribution requirements clear."
+)
 first_tests = [
     "segment_instances returns a label image with the same YX shape as input",
     "measure_objects returns label, area, ratio, and ellipticity columns",

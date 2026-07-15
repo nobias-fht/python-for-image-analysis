@@ -92,7 +92,13 @@ print("objects:", labels.max())
 props_a = measure.regionprops_table(
     labels,
     intensity_image=channel_a,
-    properties=("label", "area", "mean_intensity", "major_axis_length", "minor_axis_length"),
+    properties=(
+        "label",
+        "area",
+        "mean_intensity",
+        "major_axis_length",
+        "minor_axis_length",
+    ),
 )
 props_b = measure.regionprops_table(
     labels,
@@ -164,7 +170,9 @@ for min_size in [40, 80, 160]:
 # %%
 # Answer sketch (optional, removable)
 median_ratio = df["ratio_a_over_b"].median()
-df["population_median_rule"] = np.where(df["ratio_a_over_b"] >= median_ratio, "high ratio", "low ratio")
+df["population_median_rule"] = np.where(
+    df["ratio_a_over_b"] >= median_ratio, "high ratio", "low ratio"
+)
 
 area_cutoff = df["area"].quantile(0.10)
 df_filtered = df[df["area"] >= area_cutoff].copy()

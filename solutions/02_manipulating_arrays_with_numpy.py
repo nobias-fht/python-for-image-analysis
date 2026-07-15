@@ -176,7 +176,9 @@ print("ravel shape:", values_view.shape)
 print("flatten shape:", values_copy.shape)
 
 # Reshape each 2D plane into rows of pixels: T*C*Z planes by Y*X pixels.
-planes_by_pixels = image_tczyx.reshape(-1, image_tczyx.shape[-2] * image_tczyx.shape[-1])
+planes_by_pixels = image_tczyx.reshape(
+    -1, image_tczyx.shape[-2] * image_tczyx.shape[-1]
+)
 print("planes_by_pixels:", planes_by_pixels.shape)
 
 # %% [markdown]
@@ -255,7 +257,9 @@ print("same result:", np.allclose(loop_result, vector_result))
 # %%
 # Answer sketch (optional, removable)
 center_y, center_x = np.array(image_tczyx.shape[-2:]) // 2
-crop = image_tczyx[2, 0, :, center_y - 20 : center_y + 20, center_x - 20 : center_x + 20]
+crop = image_tczyx[
+    2, 0, :, center_y - 20 : center_y + 20, center_x - 20 : center_x + 20
+]
 describe("exercise crop", crop)
 
 mean_per_z = image_tczyx[0, 0].mean(axis=(1, 2))
@@ -265,7 +269,9 @@ channel_1_projection = image_tczyx[:, 1].max(axis=1)
 describe("channel_1_projection", channel_1_projection)
 
 percentiles = np.percentile(image_tczyx, (1, 99), axis=(0, 2, 3, 4), keepdims=True)
-channel_normalized = np.clip((image_tczyx - percentiles[0]) / (percentiles[1] - percentiles[0]), 0, 1)
+channel_normalized = np.clip(
+    (image_tczyx - percentiles[0]) / (percentiles[1] - percentiles[0]), 0, 1
+)
 describe("channel_normalized", channel_normalized)
 
 y_coords, x_coords = np.indices(plane.shape)

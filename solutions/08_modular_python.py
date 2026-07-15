@@ -114,7 +114,9 @@ def validate_same_shape(*arrays: np.ndarray) -> None:
         raise ValueError(f"Expected matching shapes, got {sorted(shapes)}")
 
 
-def make_foreground_mask(channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings) -> tuple[np.ndarray, float]:
+def make_foreground_mask(
+    channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings
+) -> tuple[np.ndarray, float]:
     """Create a binary foreground mask from two channels."""
     validate_same_shape(channel_a, channel_b)
     combined = channel_a + channel_b
@@ -126,7 +128,9 @@ def make_foreground_mask(channel_a: np.ndarray, channel_b: np.ndarray, settings:
     return mask, threshold
 
 
-def segment_instances(channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings) -> tuple[np.ndarray, float]:
+def segment_instances(
+    channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings
+) -> tuple[np.ndarray, float]:
     """Segment foreground objects into instance labels."""
     mask, threshold = make_foreground_mask(channel_a, channel_b, settings)
     distance = ndi.distance_transform_edt(mask)
@@ -135,15 +139,25 @@ def segment_instances(channel_a: np.ndarray, channel_b: np.ndarray, settings: Se
     return segmentation.clear_border(labels), threshold
 
 
-def measure_objects(labels: np.ndarray, channel_a: np.ndarray, channel_b: np.ndarray) -> pd.DataFrame:
+def measure_objects(
+    labels: np.ndarray, channel_a: np.ndarray, channel_b: np.ndarray
+) -> pd.DataFrame:
     """Measure per-object intensity and shape features."""
     validate_same_shape(labels, channel_a, channel_b)
     props_a = measure.regionprops_table(
         labels,
         intensity_image=channel_a,
-        properties=("label", "area", "mean_intensity", "major_axis_length", "minor_axis_length"),
+        properties=(
+            "label",
+            "area",
+            "mean_intensity",
+            "major_axis_length",
+            "minor_axis_length",
+        ),
     )
-    props_b = measure.regionprops_table(labels, intensity_image=channel_b, properties=("label", "mean_intensity"))
+    props_b = measure.regionprops_table(
+        labels, intensity_image=channel_b, properties=("label", "mean_intensity")
+    )
     df = pd.DataFrame(props_a).rename(columns={"mean_intensity": "mean_a"})
     df["mean_b"] = props_b["mean_intensity"]
     df["ratio_a_over_b"] = df["mean_a"] / (df["mean_b"] + 1e-6)
@@ -255,12 +269,16 @@ class CellPipeline:
         labels, threshold = segment_instances(channel_a, channel_b, self.settings)
         measurements = measure_objects(labels, channel_a, channel_b)
         measurements = classify_populations(measurements, self.settings.population_rule)
-        return PipelineResult(labels=labels, measurements=measurements, threshold=threshold)
+        return PipelineResult(
+            labels=labels, measurements=measurements, threshold=threshold
+        )
 
 
 # %%
 image_yxc, _true_labels, _population_id = make_two_channel_cells(seed=5)
-settings = SegmentationSettings(population_rule=PopulationRule.MEDIAN_RATIO, threshold_scale=1.0)
+settings = SegmentationSettings(
+    population_rule=PopulationRule.MEDIAN_RATIO, threshold_scale=1.0
+)
 pipeline = CellPipeline(settings)
 result = pipeline.run(image_yxc)
 
@@ -283,7 +301,9 @@ plt.show()
 # %%
 
 
-def run_parameter_sweep(image_yxc: np.ndarray, settings_list: list[SegmentationSettings]) -> pd.DataFrame:
+def run_parameter_sweep(
+    image_yxc: np.ndarray, settings_list: list[SegmentationSettings]
+) -> pd.DataFrame:
     """Run the pipeline for several settings and return one summary row each."""
     rows = []
     for settings in settings_list:
@@ -320,7 +340,9 @@ print(sweep_table)
 
 # %%
 assert result.labels.shape == image_yxc.shape[:2]
-assert {"label", "area", "ratio_a_over_b", "ellipticity", "population"}.issubset(result.measurements.columns)
+assert {"label", "area", "ratio_a_over_b", "ellipticity", "population"}.issubset(
+    result.measurements.columns
+)
 assert result.measurements["area"].min() > 0
 print("basic checks passed")
 
@@ -347,7 +369,15 @@ def test_split_channels_rejects_wrong_shape() -> None:
 
 
 def test_pipeline_result_has_expected_columns() -> None:
-    expected = {"label", "area", "mean_a", "mean_b", "ratio_a_over_b", "ellipticity", "population"}
+    expected = {
+        "label",
+        "area",
+        "mean_a",
+        "mean_b",
+        "ratio_a_over_b",
+        "ellipticity",
+        "population",
+    }
     missing = expected - set(result.measurements.columns)
     assert not missing, f"missing columns: {missing}"
 
@@ -444,7 +474,9 @@ except ValueError as error:
     print("caught expected error:", error)
 
 for scale in [0.8, 1.0, 1.2]:
-    scaled_result = CellPipeline(SegmentationSettings(threshold_scale=scale)).run(image_yxc)
+    scaled_result = CellPipeline(SegmentationSettings(threshold_scale=scale)).run(
+        image_yxc
+    )
     print(scale, scaled_result.labels.max())
 
 

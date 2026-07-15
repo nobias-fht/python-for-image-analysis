@@ -10,7 +10,7 @@ repos:
     hooks:
       - id: jupytext
         files: ^solutions/.*\.(ipynb|py)$
-        args: [--sync, --pipe, black]
+        args: [--sync, --pipe, "black - --target-version py313"]
         additional_dependencies:
           - black==26.5.1
 
