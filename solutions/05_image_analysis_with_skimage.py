@@ -33,7 +33,7 @@ image = make_blobs(shape=(192, 192), n_blobs=35, seed=14)
 fig, axes = plt.subplots(1, 2, figsize=(8, 3))
 # --- Exercise
 axes[0].imshow(image, cmap="gray")
-axes[0].set_title("Image")
+axes[0].set_title("image")
 axes[0].axis("off")
 axes[1].hist(image.ravel(), bins=80)
 axes[1].set_xlabel("intensity")
