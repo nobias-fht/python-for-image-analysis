@@ -4,7 +4,7 @@ ci:
   autoupdate_commit_msg: "ci(pre-commit.ci): autoupdate"
 
 
-files: solutions/*.py
+files: solutions/.*.py
 repos:
 
   - repo: https://github.com/jupytext/jupytext
