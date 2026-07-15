@@ -31,12 +31,14 @@ image = make_blobs(shape=(192, 192), n_blobs=35, seed=14)
 
 # %%
 fig, axes = plt.subplots(1, 2, figsize=(8, 3))
+# --- Exercise
 axes[0].imshow(image, cmap="gray")
 axes[0].set_title("image")
 axes[0].axis("off")
 axes[1].hist(image.ravel(), bins=80)
 axes[1].set_xlabel("intensity")
 axes[1].set_ylabel("pixel count")
+# ---
 plt.tight_layout()
 plt.show()
 
@@ -121,7 +123,9 @@ plt.show()
 # %%
 manual_mask = background_subtracted > 0.15
 otsu_mask = background_subtracted > filters.threshold_otsu(background_subtracted)
-local_threshold = filters.threshold_local(background_subtracted, block_size=35, offset=-0.02)
+local_threshold = filters.threshold_local(
+    background_subtracted, block_size=35, offset=-0.02
+)
 local_mask = background_subtracted > local_threshold
 
 fig, axes = plt.subplots(1, 4, figsize=(11, 3))
