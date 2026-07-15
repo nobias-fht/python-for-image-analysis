@@ -35,7 +35,7 @@ fig, axes = plt.subplots(1, 2, figsize=(8, 3))
 axes[0].imshow(image, cmap="gray")
 axes[0].set_title("Image")
 axes[0].axis("off")
-axes[1].hist(image.ravel(), bins=100)
+axes[1].hist(image.ravel(), bins=80)
 axes[1].set_xlabel("intensity")
 axes[1].set_ylabel("pixel count")
 # ---
