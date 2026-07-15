@@ -1,0 +1,39 @@
+name: Run solution scripts
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  run-solutions:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg # to run matplotlib headless
+      PYTHONPATH: ${{ github.workspace }} # to use utilities in course_utils
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run solution scripts
+        run: |
+          set -euo pipefail
+          find solutions -name '*.py' -print | sort | while read -r script; do
+            echo "Running ${script}"
+            uv run python "${script}"
+          done
