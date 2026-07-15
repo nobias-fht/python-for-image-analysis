@@ -5,21 +5,31 @@ ci:
 
 
 repos:
-
   - repo: https://github.com/jupytext/jupytext
     rev: v1.19.4
     hooks:
-    - id: jupytext
-      args: [--sync, --pipe, black]      
-      additional_dependencies:
-        - black==26.5.1 # Matches hook
+      - id: jupytext
+        files: ^solutions/.*\.(ipynb|py)$
+        args: [--sync, --pipe, black]
+        additional_dependencies:
+          - black==26.5.1
+
+  - repo: local
+    hooks:
+      - id: strip-exercise-code
+        name: strip exercise code
+        entry: uv run python scripts/strip_exercise_blocks.py --in-place
+        language: system
+        files: ^exercises/.*\.ipynb$
+        pass_filenames: true
+        require_serial: true
 
   - repo: https://github.com/psf/black
     rev: 26.5.1
     hooks:
-    - id: black
-      language_version: python3
-      target-version: ["py313"]
+      - id: black
+        language_version: python3
+        args: [--target-version=py313]
 
   # strip out jupyter notebooks
   - repo: https://github.com/kynan/nbstripout
