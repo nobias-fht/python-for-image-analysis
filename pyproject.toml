@@ -22,6 +22,6 @@ dependencies = [
 
 
 # pairing notebooks with scripts so that saving in jupyter saves in the script
-[tool.jupytext.formats]
-"exercises/" = "ipynb"
-"solutions/" = "py:percent"
+# [tool.jupytext.formats]
+# "exercises/" = "ipynb"
+# "solutions/" = "py:percent"
