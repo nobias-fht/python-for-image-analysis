@@ -17,7 +17,6 @@ using pre-commit by stripping the exercise clause.
     ```
 - Modify the python scripts in `solutions/`. 
 
-
 ### Implementing the modules
 
 Exercises should be marked with the following clause:
