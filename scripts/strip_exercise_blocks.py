@@ -65,7 +65,7 @@ def strip_exercise_blocks_in_notebook(notebook: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_path", type=Path)
+    parser.add_argument("input_paths", nargs="+", type=Path)
     parser.add_argument(
         "-o",
         "--output",
@@ -81,25 +81,30 @@ def main() -> int:
 
     if args.output is not None and args.in_place:
         raise ValueError("Use either --output or --in-place, not both")
+    if args.output is not None and len(args.input_paths) != 1:
+        raise ValueError("--output can only be used with a single input file")
+    if not args.in_place and len(args.input_paths) != 1:
+        raise ValueError("Multiple input files require --in-place")
 
-    if args.input_path.suffix == ".ipynb":
-        notebook = json.loads(args.input_path.read_text())
-        filtered = json.dumps(
-            strip_exercise_blocks_in_notebook(notebook),
-            indent=1,
-            ensure_ascii=True,
-        )
-        if not filtered.endswith("\n"):
-            filtered += "\n"
-    else:
-        filtered = strip_exercise_blocks(args.input_path.read_text())
+    for input_path in args.input_paths:
+        if input_path.suffix == ".ipynb":
+            notebook = json.loads(input_path.read_text())
+            filtered = json.dumps(
+                strip_exercise_blocks_in_notebook(notebook),
+                indent=1,
+                ensure_ascii=True,
+            )
+            if not filtered.endswith("\n"):
+                filtered += "\n"
+        else:
+            filtered = strip_exercise_blocks(input_path.read_text())
 
-    if args.in_place:
-        args.input_path.write_text(filtered)
-    elif args.output is None:
-        print(filtered, end="")
-    else:
-        args.output.write_text(filtered)
+        if args.in_place:
+            input_path.write_text(filtered)
+        elif args.output is None:
+            print(filtered, end="")
+        else:
+            args.output.write_text(filtered)
 
     return 0
 

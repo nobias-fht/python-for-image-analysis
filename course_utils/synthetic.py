@@ -67,4 +67,3 @@ def make_two_channel_cells(
 
     cleaned = segmentation.clear_border(labels)
     return image, cleaned, population_by_label
-

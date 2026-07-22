@@ -17,6 +17,15 @@ repos:
 
   - repo: local
     hooks:
+      - id: export-exercise-notebooks
+        name: export exercise notebooks
+        entry: python scripts/export_exercise_notebooks.py
+        language: python
+        language_version: python3
+        files: ^solutions/.*\.(ipynb|py)$
+        pass_filenames: true
+        require_serial: true
+
       - id: strip-exercise-code
         name: strip exercise code
         entry: python scripts/strip_exercise_blocks.py --in-place
