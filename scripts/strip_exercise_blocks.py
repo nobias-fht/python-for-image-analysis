@@ -9,6 +9,7 @@ from pathlib import Path
 
 EXERCISE_START = "# --- Exercise"
 EXERCISE_END = "# ---"
+EXERCISE_PLACEHOLDER_LINES = ["\n", "# your code here\n", "\n"]
 
 
 def strip_exercise_lines(lines: list[str], *, context: str = "input") -> list[str]:
@@ -31,6 +32,7 @@ def strip_exercise_lines(lines: list[str], *, context: str = "input") -> list[st
             if not inside_exercise:
                 output.append(line)
                 continue
+            output.extend(EXERCISE_PLACEHOLDER_LINES)
             output.append(line)
             inside_exercise = False
             continue
