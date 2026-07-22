@@ -19,8 +19,9 @@ repos:
     hooks:
       - id: strip-exercise-code
         name: strip exercise code
-        entry: uv run python scripts/strip_exercise_blocks.py --in-place
-        language: system
+        entry: python scripts/strip_exercise_blocks.py --in-place
+        language: python
+        language_version: python3
         files: ^exercises/.*\.ipynb$
         pass_filenames: true
         require_serial: true
