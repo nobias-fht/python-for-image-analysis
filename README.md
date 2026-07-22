@@ -37,3 +37,8 @@ Code cells as:
 ```python
 # %%
 ```
+
+
+### Pushing new content
+
+Please open a PR for new content, fixes, refactoring etc.
