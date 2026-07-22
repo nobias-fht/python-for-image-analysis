@@ -18,7 +18,7 @@ from skimage import exposure, filters, measure, morphology, segmentation
 from course_utils import make_blobs
 
 # %%
-image = make_blobs(shape=(192, 192), n_blobs=35, seed=14)
+image = make_blobs(shape=(168, 168), n_blobs=35, seed=14)
 
 # %% [markdown]
 # ## Inspect intensities first
