@@ -7,7 +7,7 @@ ci:
 
 repos:
   - repo: https://github.com/jupytext/jupytext
-    rev: v1.19.4
+    rev: v1.19.5
     hooks:
       - id: jupytext
         files: ^solutions/.*\.(ipynb|py)$
@@ -35,7 +35,7 @@ repos:
         pass_filenames: true
         require_serial: true
 
-  - repo: https://github.com/psf/black
+  - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 26.5.1
     hooks:
       - id: black
