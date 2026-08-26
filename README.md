@@ -15,6 +15,11 @@ During development python scripts and notebooks in `solutions/` are kept in sync
     uv run pre-commit install
     ```
 - Modify the python scripts in `solutions/`. 
+- To create the notebook from the script you can run:
+    ``` bash
+    uv run jupytext solutions/05_image_analysis_with_skimage.py --sync
+    ```
+- Keep it out of git tracking, and let the VSCode extension sync the modification from ipynb to py
 
 ### Implementing the modules
 

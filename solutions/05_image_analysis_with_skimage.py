@@ -3,112 +3,573 @@
 #
 # Time: 2 hours 30 minutes.
 #
-# Essential ideas: most classical bio-image pipelines combine intensity
-# inspection, noise reduction, background correction, thresholding, morphology,
-# instance separation, and measurement. The goal is not to memorize every
-# function, but to learn which operation answers which kind of problem.
+# Most classical bio-image pipelines will look like something along the lines of:
+# - Image inspection
+# - Noise reduction
+# - Background correction
+# - Thresholding
+# - Morphology
+# - Instance separation
+# - Measurement
+#
+# In this module, we will explore these operations suing `scikit-image`. The goal is not to memorize every
+# function, but to learn to navigate the `scikit-image` library.
+#
+# <div style="display: flex; align-items: center; gap: 12px;">
+#     <img src="https://raw.githubusercontent.com/scikit-image/scikit-image/refs/heads/main/doc/source/_static/logo.png" alt="Logo" style="height: 40px; width: auto;">
+#     scikit-image
+# </div>
+#
+# scikit-image, or `skimage` (as we will write to import it), is an open-source scientific image processing library.
+#
+# ### Question
+#
+# How to run standard image processing on NumPy arrays?
+#
+# ### Objective
+#
+# - Learn to navigate scikit-image
+# - Learn standard operations
+
+# %% [markdown]
+# ## 1 - Navigate `skimage`
+#
+# Scikit-image has a fantastic [gallery of examples](https://scikit-image.org/docs/stable/auto_examples/index.html).
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Click on one example in the gallery, copy paste the code in the next cell and run it!
+# </div>
 
 # %%
+# --- Exercise
+# Paste example code here
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   A colleague of yours told you to apply a Gaussian filter. Can you find in scikit-image docs the API for the Gaussian filter and import the function here?
+# </div>
+
+# %%
+# --- Exercise
+# Import the Gaussian filter method from scikit-image
+from skimage.filters import gaussian
+
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Can you find the API in scikit-image docs? What parameters does it require?
+# </div>
+
+# %% [markdown]
+# ## 2 - Inspecting an image
+
+# %%
+# --- Import what we need
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import ndimage as ndi
-from skimage import exposure, filters, measure, morphology, segmentation
-
-from course_utils import make_blobs
-
-# %%
-image = make_blobs(shape=(192, 192), n_blobs=35, seed=14)
+from skimage import filters, measure, morphology, segmentation, data
 
 # %% [markdown]
-# ## Inspect intensities first
+# Scikit-image comes with [example data](https://scikit-image.org/docs/stable/api/skimage.data.html), let's download `cells3d` and inspect the image.
 #
-# Histograms are a quick way to see background, foreground, saturation, and
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What is the shape of the image?
+# </div>
+
+# %%
+image = data.cells3d()
+
+# --- Exercise
+# Print the image shape
+print(f"Image shape: {image.shape}")
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Can you show a slice of the image and guess the axes?
+# </div>
+
+# %%
+# --- Exercise
+# Show the image
+plt.imshow(image[30, 1])
+# ---
+
+# %% [markdown]
+# It is always a good idea to start by inspecting the intensity distribution of an image. Histograms are a quick way to see background, foreground, saturation, and
 # whether a global threshold might be plausible.
 #
-# Pitfall: a histogram ignores spatial structure. Always pair it with image
-# display.
+# Let's plot the histogram next to an image using `plt.subplots`.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Plot the histogram of the image using "hist" on the right pane.
+#
+#   <b>hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
+#   using "img_slice.ravel()".
+# </div>
 
 # %%
-fig, axes = plt.subplots(1, 2, figsize=(8, 3))
-# --- Exercise
-axes[0].imshow(image, cmap="gray")
-axes[0].set_title("image")
+# --- Choose which slice of the image you want to inspect
+img_slice = image[30, 1]
+
+# We create the subplot and show the image in the left-hand panel
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(8, 4),
+    gridspec_kw={
+        "width_ratios": [1.4, 1]
+    },  # this is just to make the figure look nicer
+    constrained_layout=True,
+)
+axes[0].imshow(img_slice)
+axes[0].set_title("Image")
 axes[0].axis("off")
-axes[1].hist(image.ravel(), bins=80)
-axes[1].set_xlabel("intensity")
-axes[1].set_ylabel("pixel count")
+
+# --- Exercise
+# Plot the histogram
+axes[1].hist(img_slice.ravel(), bins=50)
+axes[1].set_xlabel("Intensity")
+axes[1].set_ylabel("Pixel count")
+axes[1].set_title("Histogram")
 # ---
-plt.tight_layout()
+
 plt.show()
 
 # %% [markdown]
-# ## Denoising and edge-enhancing filters
-#
-# When to use:
-#
-# - Gaussian: reduce high-frequency noise before thresholding.
-# - Median: reduce salt-and-pepper noise while preserving edges.
-# - Laplace/Sobel: highlight edges, usually for inspection or feature design.
-# - Unsharp mask: enhance local contrast for visualization or specific tasks.
-#
-# Pitfall: filtering changes pixel values. Do not apply filters just because the
-# image looks nicer; connect the operation to an analysis need.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What problems can you in an histogram? We've prepared some examples. Plot the iamge and its histogram side by side.
+# </div>
 
 # %%
-gaussian = filters.gaussian(image, sigma=1.5)
-median = filters.median(image, footprint=morphology.disk(2))
-laplacian = filters.laplace(image)
-sobel = filters.sobel(image)
-unsharp = filters.unsharp_mask(image, radius=2, amount=1)
+from python_for_ia import images_with_problematic_hist
 
-fig, axes = plt.subplots(2, 3, figsize=(10, 6))
-for ax, img, title in zip(
-    axes.ravel(),
-    [image, gaussian, median, laplacian, sobel, unsharp],
-    ["raw", "gaussian", "median", "laplacian", "sobel", "unsharp"],
-):
-    ax.imshow(img, cmap="gray")
-    ax.set_title(title)
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
+img_lst = images_with_problematic_hist()
+
+fig, axes = plt.subplots(len(img_lst), 2, figsize=(6, 8), constrained_layout=True)
+
+for row, (title, img_r) in enumerate(img_lst):
+    # --- Exercise
+    # Plot image `img_r` and its histogram side by side
+    axes[row, 0].imshow(img_r)
+
+    axes[row, 1].hist(img_r.ravel(), bins=64)
+    # ---
+
+    axes[row, 0].set_title(title)
+    axes[row, 0].axis("off")
+
+    axes[row, 1].set_title(f"{title} histogram")
+    axes[row, 1].set_xlabel("Intensity")
+    axes[row, 1].set_ylabel("Pixel count")
+
 
 # %% [markdown]
-# ## Background correction
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   We will re-use this code, so let's make it a function.
 #
-# A simple background estimate can be made with heavy Gaussian smoothing or a
+#   <b>Hint</b>: it is important to make sure you are using the function's parameters and
+#   not variable defined in your notebook, otherwise you will get strange results. It is a
+#   good habit to use different variable names in your functions.
+# </div>
+
+
+# %%
+def plot_histogram(img):
+    # --- Exercise
+    # Add code here
+    _, axes = plt.subplots(
+        1,
+        2,
+        figsize=(8, 4),
+        gridspec_kw={
+            "width_ratios": [1.4, 1]
+        },  # this is just to make the figure look nicer
+        constrained_layout=True,
+    )
+
+    axes[0].imshow(img, cmap="gray")
+    axes[0].set_title("Image")
+    axes[0].axis("off")
+
+    axes[1].hist(img.ravel(), bins=50)
+    axes[1].set_xlabel("Intensity")
+    axes[1].set_ylabel("Pixel count")
+    axes[1].set_title("Histogram")
+
+    plt.show()
+    # ---
+
+
+# %% [markdown]
+# ## 3 - Image filters
+#
+# An image filter is a small matrix representing a mathematical operation that gets applied to each pixel in an image (we talk of "convolutions"). An example is the following:
+#
+# $$
+# \begin{bmatrix}
+# 0 & 1 & 0 \\
+# 1 & -4 & 1 \\
+# 0 & 1 & 0
+# \end{bmatrix}
+# $$
+#
+# There are many reason to use an image filter: it can help smooth an image before segmentation, it can highlights particular features (e.g. edges), etc. Filtering changes pixel values, therefore they should be applied with reason dependeing on the analysis need, and filtered image should not be used for intensity quantification. But they can be used to help downstream analysis separate region for later intensity quantification on the original image.
+#
+# Here are a few standard image filters: Gaussian, Median, Sobel. Let's play around with them!
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Apply the Gaussian filter to a slice of our image. What does it do?
+#
+#   <b>hint:</b> We already imported it, but we also imported the "filters" module from scikit-image.
+# </div>
+
+# %%
+# --- Choose the slice
+img_slice = image[30, 1]
+
+# --- Exercise
+# Apply the Gaussian filter and show the original and result next to each other.
+slice_gauss = filters.gaussian(img_slice, sigma=1.5)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(slice_gauss)
+axes[1].set_title("Gaussian-filtered")
+axes[1].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Do the same for the median filter. What does it do?
+# </div>
+
+# %%
+# --- Choose the slice
+img_slice = image[30, 1]
+
+# --- Exercise
+# Apply the Gaussian filter and show the original and result next to each other.
+slice_median = filters.median(img_slice)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(slice_median)
+axes[1].set_title("Median-filtered")
+axes[1].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Let's try again the median filter, but this time let's pretend our image has a lot of hot pixels.
+# </div>
+
+# %%
+from skimage.util import random_noise
+
+# --- Choose the slice
+img_slice = image[30, 1]
+
+# We add noise for the purpose of the exercise
+img_slice = random_noise(img_slice, mode="s&p", amount=0.05)
+
+# --- Exercise
+# Use the same code as previously
+slice_median = filters.median(img_slice)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(slice_median)
+axes[1].set_title("Median-filtered")
+axes[1].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Last filter: the famous Sobel. What does it do?
+# </div>
+
+# %%
+# --- Choose the slice
+img_slice = image[30, 0]
+
+# --- Exercise
+# Apply the Gaussian filter and show the original and result next to each other.
+slice_sobel = filters.sobel(img_slice)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(slice_sobel)
+axes[1].set_title("Sobel-filtered")
+axes[1].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#  Let's try it on another image.
+# </div>
+
+# %%
+# --- Choose the slice
+sobel_image = data.human_mitosis()[:200, :200]
+
+# --- Exercise
+# Apply the Gaussian filter and show the original and result next to each other.
+slice_sobel = filters.sobel(sobel_image)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(sobel_image)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(slice_sobel)
+axes[1].set_title("Sobel-filtered")
+axes[1].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Explore more filters from scikit-image.
+# </div>
+#
+#
+# ### Conclusion
+#
+#
+# <details>
+#   <summary>So what are these filters used for?</summary>
+#
+#   <ul>
+#     <li><strong>Gaussian:</strong> reduce high-frequency noise (smoothing) before thresholding.</li>
+#     <li><strong>Median:</strong> reduce salt-and-pepper noise while preserving edges.</li>
+#     <li><strong>Sobel:</strong> highlight edges, usually for inspection or feature design.</li>
+#   </ul>
+# </details>
+
+# %% [markdown]
+# ## 4 - Background correction
+#
+# There are many ways to deal with background, and they are all specific to the type of
+# background you are battling with. You will not deal with uneven background the same way
+# than uniform one for instance.
+#
+# Two main methods are used for background correction: averaging a stack when your signal
+# is moving but not the background, or separating the background from signal when they have
+# different spatial frequencies (background is varying slowly across the image, while
+# signal is changing on the small scale).
+#
+# In the second case, a simple background estimate can be made with heavy Gaussian smoothing or a
 # morphological top-hat. These are not universal solutions, but they introduce
 # an important principle: separate slow background variation from object signal.
 #
-# When to use:
-#
-# - Gaussian background: smooth uneven illumination.
-# - White top-hat: emphasize bright objects smaller than the structuring
-#   element.
-#
-# Pitfall: choose the scale from object size. If the background filter is too
-# small, it removes real objects.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#  Let's see what our image with background looks like. Explore the image.
+# </div>
 
 # %%
-background = filters.gaussian(image, sigma=20)
-background_subtracted = np.clip(image - background, 0, None)
-top_hat = morphology.white_tophat(image, footprint=morphology.disk(12))
+from python_for_ia import image_with_background
 
-fig, axes = plt.subplots(1, 4, figsize=(12, 3))
-for ax, img, title in zip(
-    axes,
-    [image, background, background_subtracted, top_hat],
-    ["raw", "estimated background", "subtracted", "white top-hat"],
-):
-    ax.imshow(img, cmap="gray")
-    ax.set_title(title)
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
+img = image_with_background()
+
+# --- Exercise
+plot_histogram(img)
+# ---
 
 # %% [markdown]
-# ## Thresholding
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Now let's apply our Gaussian filter to the image and see what we see. How can you subtract the background from the image?
+#
+#   <b>Hint</b>: don't forget to look at the histogram.
+# </div>
+
+# %%
+#
+# TODO plot rather the images next to each other including bg
+# # --- Exercise
+# Apply Gaussian filter and subtract background
+bg = filters.gaussian(img, sigma=20)
+plot_histogram(img - bg)
+# ---
+
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   There is a way to directly filter the backgroudn from the image using "morphology.white_tophat(img, footprint=morphology.disk(16))". Give it a try.
+# </div>
+#
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Check out the rolling-ball algorithm from scikit-image example gallery.
+# </div>
+#
+
+# %% [markdown]
+# ## 5 - Thresholding
 #
 # A threshold turns an intensity image into a foreground/background mask.
 #
@@ -174,7 +635,7 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ## Skeletonization
+# ## Skeletonization - Optional?
 #
 # Skeletonization reduces binary objects to thin centerlines. It is useful for
 # neurites, filaments, vessels, roots, or other elongated structures where
