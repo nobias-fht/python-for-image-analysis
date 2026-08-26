@@ -188,6 +188,41 @@ axes[1].set_title("Histogram")
 
 plt.show()
 
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What problems can you in an histogram? We've prepared some examples. Plot the iamge and its histogram side by side.
+# </div>
+
+# %%
+from python_for_ia import images_with_problematic_hist
+
+img_lst = images_with_problematic_hist()
+
+fig, axes = plt.subplots(len(img_lst), 2, figsize=(6, 8), constrained_layout=True)
+
+for row, (title, img_r) in enumerate(img_lst):
+    # --- Exercise
+    # Plot image `img_r` and its histogram side by side
+    axes[row, 0].imshow(img_r)
+
+    axes[row, 1].hist(img_r.ravel(), bins=64)
+    # ---
+
+    axes[row, 0].set_title(title)
+    axes[row, 0].axis("off")
+
+    axes[row, 1].set_title(f"{title} histogram")
+    axes[row, 1].set_xlabel("Intensity")
+    axes[row, 1].set_ylabel("Pixel count")
+
 
 # %% [markdown]
 # <div style="
@@ -232,31 +267,6 @@ def plot_histogram(img):
 
     plt.show()
     # ---
-
-
-# %%
-
-# %%
-from python_for_ia import images_with_problematic_hist
-
-img_lst = images_with_problematic_hist()
-
-fig, axes = plt.subplots(len(img_lst), 2, figsize=(8, 12), constrained_layout=True)
-
-for row, (title, img_r) in enumerate(img_lst):
-    # --- Exercise
-    # Plot image and histogram side by side
-    axes[row, 0].imshow(img_r)
-
-    axes[row, 1].hist(img_r.ravel(), bins=64)
-    # ---
-
-    axes[row, 0].set_title(title)
-    axes[row, 0].axis("off")
-
-    axes[row, 1].set_title(f"{title} histogram")
-    axes[row, 1].set_xlabel("Intensity")
-    axes[row, 1].set_ylabel("Pixel count")
 
 
 # %% [markdown]
@@ -506,28 +516,27 @@ img = image_with_background()
 plot_histogram(img)
 # ---
 
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Now let's apply our Gaussian filter to the image and see what we see. How can you subtract the background from the image?
+#
+#   <b>Hint</b>: don't forget to look at the histogram.
+# </div>
+
 # %%
-filters.gaussian(bg, sigma=15)
-
-
-# %%
-img = noisy + bg
-a
-background = filters.gaussian(img, sigma=20)
-background_subtracted = np.clip(img - background, 0, None)
-top_hat = morphology.white_tophat(img, footprint=morphology.disk(12))
-
-fig, axes = plt.subplots(1, 4, figsize=(12, 3))
-for ax, img, title in zip(
-    axes,
-    [img, background, background_subtracted, top_hat],
-    ["raw", "estimated background", "subtracted", "white top-hat"],
-):
-    ax.imshow(img)
-    ax.set_title(title)
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
+# --- Exercise
+# Apply Gaussian filter and subtract background
+bg = filters.gaussian(img, sigma=20)
+plot_histogram(img - bg)
+# ---
 
 
 # %% [markdown]
@@ -540,23 +549,22 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   Check out the rolling-ball algorithm from scikit-image example gallery.
+#   There is a way to directly filter the backgroudn from the image using "morphology.white_tophat(img, footprint=morphology.disk(16))". Give it a try.
 # </div>
 #
 #
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Check out the rolling-ball algorithm from scikit-image example gallery.
+# </div>
 #
-# ### Conclusion
-#
-#
-# <details>
-#   <summary>So what are these filters used for?</summary>
-#
-#   <ul>
-#     <li><strong>Gaussian background:</strong> smooth uneven illumination.</li>
-#     <li><strong>White top-hat:</strong> emphasize bright objects smaller than the structuring
-#   element.</li>
-#   </ul>
-# </details>
 
 # %% [markdown]
 # ## 5 - Thresholding
