@@ -7,8 +7,7 @@
 
 ### Set up
 
-During development python scripts and notebooks in `solutions/` are kept in sync using [jupytext](https://jupytext.readthedocs.io/en/latest/). To ensure that the notebooks are correctly formatted and up to date, we use [pre-commit](https://pre-commit.com/) to run jupytext automatically. In addition, you should install the `jupytext` VSCode extension to maintain both ways synchronization between notebooks and scripts. Finally, the `exercises/` notebooks are generated
-using pre-commit by stripping the exercise clause.
+During development python scripts and notebooks in `solutions/` are kept in sync using [jupytext](https://jupytext.readthedocs.io/en/latest/). You should install the `jupytext` VSCode extension to maintain both ways synchronization between notebooks and scripts
 
 - Install the `jupytext` VSCode extension.
 - Install pre-commit
