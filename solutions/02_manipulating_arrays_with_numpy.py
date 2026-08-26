@@ -13,7 +13,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-from course_utils import make_blobs
+from src.python_for_ia import make_blobs
 
 
 def describe(name: str, array: np.ndarray) -> None:

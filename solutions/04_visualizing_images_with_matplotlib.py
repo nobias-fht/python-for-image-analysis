@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage import color, exposure, filters, measure, segmentation
 
-from course_utils import make_blobs
+from src.python_for_ia import make_blobs
 
 # %%
 image = make_blobs(seed=11)

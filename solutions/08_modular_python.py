@@ -21,7 +21,7 @@ import pandas as pd
 from scipy import ndimage as ndi
 from skimage import filters, measure, morphology, segmentation
 
-from course_utils import make_two_channel_cells
+from src.python_for_ia import make_two_channel_cells
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger("module_08")

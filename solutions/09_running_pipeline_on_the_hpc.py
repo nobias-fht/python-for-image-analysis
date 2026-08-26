@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 from skimage import io, measure
 
-from course_utils import make_blobs
+from src.python_for_ia import make_blobs
 
 # %% [markdown]
 # ## From notebook to command-line script

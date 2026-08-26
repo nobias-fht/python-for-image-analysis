@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage import io, util
 
-from course_utils import make_blobs
+from src.python_for_ia import make_blobs
 
 # %% [markdown]
 # ## Format landscape

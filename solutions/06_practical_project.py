@@ -19,7 +19,7 @@ import pandas as pd
 from scipy import ndimage as ndi
 from skimage import color, filters, measure, morphology, segmentation
 
-from course_utils import make_two_channel_cells
+from src.python_for_ia import make_two_channel_cells
 
 # %%
 image_yxc, true_labels, true_population_id = make_two_channel_cells(seed=21)

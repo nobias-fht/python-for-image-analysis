@@ -1,0 +1,63 @@
+Metadata-Version: 2.4
+Name: python-for-image-analysis
+Version: 0.1.0
+Summary: Image analysis in Python course
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: bioio>=3.4.0
+Requires-Dist: black>=26.5.1
+Requires-Dist: jupyter>=1.1.1
+Requires-Dist: jupytext>=1.19.4
+Requires-Dist: matplotlib>=3.11.0
+Requires-Dist: numpy>=2.4.6
+Requires-Dist: pandas>=3.0.3
+Requires-Dist: pre-commit>=4.6.0
+Requires-Dist: scikit-image>=0.26.0
+Requires-Dist: scipy>=1.17.1
+Requires-Dist: tifffile>=2026.3.3
+Requires-Dist: pooch>=1.9.0
+
+# Python for BioImage Analysis
+
+
+## For students
+
+## For instructors
+
+### Set up
+
+During development python scripts and notebooks in `solutions/` are kept in sync using [jupytext](https://jupytext.readthedocs.io/en/latest/). To ensure that the notebooks are correctly formatted and up to date, we use [pre-commit](https://pre-commit.com/) to run jupytext automatically. In addition, you should install the `jupytext` VSCode extension to maintain both ways synchronization between notebooks and scripts. Finally, the `exercises/` notebooks are generated
+using pre-commit by stripping the exercise clause.
+
+- Install the `jupytext` VSCode extension.
+- Install pre-commit
+    ```python
+    uv run pre-commit install
+    ```
+- Modify the python scripts in `solutions/`. 
+
+### Implementing the modules
+
+Exercises should be marked with the following clause:
+```python
+# --- Exercise
+<code>
+# ---
+```
+
+Markdown cells are written in the following format:
+```python
+# %% [markdown]
+# <some markdown>
+#
+```
+
+Code cells as:
+```python
+# %%
+```
+
+
+### Pushing new content
+
+Please open a PR for new content, fixes, refactoring etc.
