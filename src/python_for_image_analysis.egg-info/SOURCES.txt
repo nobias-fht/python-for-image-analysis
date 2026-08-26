@@ -1,9 +1,0 @@
-README.md
-pyproject.toml
-src/python_for_ia/__init__.py
-src/python_for_ia/synthetic.py
-src/python_for_image_analysis.egg-info/PKG-INFO
-src/python_for_image_analysis.egg-info/SOURCES.txt
-src/python_for_image_analysis.egg-info/dependency_links.txt
-src/python_for_image_analysis.egg-info/requires.txt
-src/python_for_image_analysis.egg-info/top_level.txt
