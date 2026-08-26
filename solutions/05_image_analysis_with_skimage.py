@@ -130,7 +130,7 @@ print(f"Image shape: {image.shape}")
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Can you guess the axes?
+#   Can you show a slice of the image and guess the axes?
 # </div>
 
 # %%
@@ -532,7 +532,9 @@ plot_histogram(img)
 # </div>
 
 # %%
-# --- Exercise
+#
+# TODO plot rather the images next to each other including bg
+# # --- Exercise
 # Apply Gaussian filter and subtract background
 bg = filters.gaussian(img, sigma=20)
 plot_histogram(img - bg)
@@ -633,7 +635,7 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ## Skeletonization
+# ## Skeletonization - Optional?
 #
 # Skeletonization reduces binary objects to thin centerlines. It is useful for
 # neurites, filaments, vessels, roots, or other elongated structures where
