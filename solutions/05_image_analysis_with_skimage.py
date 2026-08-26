@@ -75,15 +75,15 @@ from skimage.filters import gaussian
 
 # %% [markdown]
 # <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #21457f;
+#   color: #1f5f2c;
 # ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Can you find the API in scikit-image docs? What parameters does it require?
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Can you find the Gaussian filter API in scikit-image docs? What parameters does it require?
 # </div>
 
 # %% [markdown]
@@ -109,15 +109,15 @@ from skimage import filters, measure, morphology, segmentation, data
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   What is the shape of the image?
+#   Print the shape of the image?
 # </div>
 
 # %%
-image = data.cells3d()
+image_cells = data.cells3d()
 
 # --- Exercise
 # Print the image shape
-print(f"Image shape: {image.shape}")
+print(f"Image shape: {image_cells.shape}")
 # ---
 
 # %% [markdown]
@@ -136,7 +136,7 @@ print(f"Image shape: {image.shape}")
 # %%
 # --- Exercise
 # Show the image
-plt.imshow(image[30, 1])
+plt.imshow(image_cells[30, 1])
 # ---
 
 # %% [markdown]
@@ -156,13 +156,13 @@ plt.imshow(image[30, 1])
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Plot the histogram of the image using "hist" on the right pane.
 #
-#   <b>hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
+#   <b>Hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
 #   using "img_slice.ravel()".
 # </div>
 
 # %%
 # --- Choose which slice of the image you want to inspect
-img_slice = image[30, 1]
+img_slice = image_cells[30, 1]
 
 # We create the subplot and show the image in the left-hand panel
 fig, axes = plt.subplots(
@@ -198,7 +198,18 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   What problems can you in an histogram? We've prepared some examples. Plot the iamge and its histogram side by side.
+#   What can you infer from an histogram? We've prepared some examples. Plot the images and their histogram side by side.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Can you guess what happened to the images based on the histogram?
 # </div>
 
 # %%
@@ -243,7 +254,7 @@ for row, (title, img_r) in enumerate(img_lst):
 
 
 # %%
-def plot_histogram(img):
+def plot_histogram(array):
     # --- Exercise
     # Add code here
     _, axes = plt.subplots(
@@ -256,11 +267,11 @@ def plot_histogram(img):
         constrained_layout=True,
     )
 
-    axes[0].imshow(img, cmap="gray")
+    axes[0].imshow(array, cmap="gray")
     axes[0].set_title("Image")
     axes[0].axis("off")
 
-    axes[1].hist(img.ravel(), bins=50)
+    axes[1].hist(array.ravel(), bins=50)
     axes[1].set_xlabel("Intensity")
     axes[1].set_ylabel("Pixel count")
     axes[1].set_title("Histogram")
@@ -295,14 +306,25 @@ def plot_histogram(img):
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Apply the Gaussian filter to a slice of our image. What does it do?
+#   Apply the Gaussian filter to a slice of our image.
 #
-#   <b>hint:</b> We already imported it, but we also imported the "filters" module from scikit-image.
+#   <b>Hint:</b> We already imported it, but we also imported the "filters" module from scikit-image.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What does a Gaussian filter do?
 # </div>
 
 # %%
-# --- Choose the slice
-img_slice = image[30, 1]
+# --- Select the slice
+img_slice = image_cells[30, 1]
 
 # --- Exercise
 # Apply the Gaussian filter and show the original and result next to each other.
@@ -333,8 +355,8 @@ plt.tight_layout()
 # </div>
 
 # %%
-# --- Choose the slice
-img_slice = image[30, 1]
+# --- Select the slice
+img_slice = image_cells[30, 1]
 
 # --- Exercise
 # Apply the Gaussian filter and show the original and result next to each other.
@@ -367,8 +389,8 @@ plt.tight_layout()
 # %%
 from skimage.util import random_noise
 
-# --- Choose the slice
-img_slice = image[30, 1]
+# --- Select the slice
+img_slice = image_cells[30, 1]
 
 # We add noise for the purpose of the exercise
 img_slice = random_noise(img_slice, mode="s&p", amount=0.05)
@@ -402,8 +424,8 @@ plt.tight_layout()
 # </div>
 
 # %%
-# --- Choose the slice
-img_slice = image[30, 0]
+# --- Select the slice
+img_slice = image_cells[30, 0]
 
 # --- Exercise
 # Apply the Gaussian filter and show the original and result next to each other.
@@ -434,7 +456,7 @@ plt.tight_layout()
 # </div>
 
 # %%
-# --- Choose the slice
+# --- Select the slice
 sobel_image = data.human_mitosis()[:200, :200]
 
 # --- Exercise
@@ -527,19 +549,36 @@ plot_histogram(img)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Now let's apply our Gaussian filter to the image and see what we see. How can you subtract the background from the image?
-#
-#   <b>Hint</b>: don't forget to look at the histogram.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Do you see something strange in the histogram?
 # </div>
 
 # %%
-#
-# TODO plot rather the images next to each other including bg
-# # --- Exercise
+# --- Exercise
 # Apply Gaussian filter and subtract background
 bg = filters.gaussian(img, sigma=20)
-plot_histogram(img - bg)
+result = np.clip(img - bg, 0, None)
+plot_histogram(result)
 # ---
 
+
+# %% [markdown]
+# <details>
+#   <summary>Mystery function</summary>
+#
+#   ```python
+#   img_subtraction = np.clip(resultat, 0, None) # clip negative values
+#   ```
+# </details>
 
 # %% [markdown]
 # <div style="
@@ -571,138 +610,422 @@ plot_histogram(img - bg)
 # %% [markdown]
 # ## 5 - Thresholding
 #
-# A threshold turns an intensity image into a foreground/background mask.
+# A threshold turns an intensity image into a binary mask (foreground/background). These
+# masks are useful because they allow us to select pixels from a particular area, for
+# instance to measure intensity in the foreground compared to the background.
 #
-# - Manual threshold: useful for teaching and controlled images.
-# - Otsu threshold: useful when foreground and background form separable
-#   intensity distributions.
-# - Local threshold: useful when illumination varies across the field.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Perform a manual threshold on the image, and visualize the image, the mask and an
+#   overlay of the two next to each other. Find the best threshold!
 #
-# Pitfall: thresholding is not object detection by itself. You still need QC,
-# cleanup, and measurement rules.
+#   <b>Hint</b>: Remember the module on manipulating numpy arrays and on plotting.
+# </div>
 
 # %%
-manual_mask = background_subtracted > 0.15
-otsu_mask = background_subtracted > filters.threshold_otsu(background_subtracted)
-local_threshold = filters.threshold_local(
-    background_subtracted, block_size=35, offset=-0.02
+# --- Select the slice and threshold
+img_slice = image_cells[30, 1]
+
+# absolute threshold
+threshold = 8_000  # 30_000
+
+# --- Exercise
+# Threshold the image and plot it as an overlay
+mask_man = img_slice > threshold
+
+fig, axes = plt.subplots(1, 3, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Image")
+axes[0].axis("off")
+axes[1].imshow(mask_man)
+axes[1].set_title("Mask")
+axes[1].axis("off")
+axes[2].imshow(img_slice)
+axes[2].imshow(mask_man, cmap="gray", alpha=0.5)
+axes[2].set_title("Overlay")
+axes[2].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Let's try an automatic threshold. Have you heard of Otsu method?
+#
+#   <b>Hint</b>: Choose a different name for the mask so we can reuse it later together
+#   with the previous one.
+# </div>
+
+# %%
+# --- Select the slice and threshold
+img_slice = image_cells[30, 1]
+
+# --- Exercise
+# Threshold the image using Otsu's threshold and plot it as an overlay
+mask_otsu = img_slice > filters.threshold_otsu(img_slice)
+
+fig, axes = plt.subplots(1, 3, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Image")
+axes[0].axis("off")
+axes[1].imshow(mask_otsu)
+axes[1].set_title("Mask (Otsu)")
+axes[1].axis("off")
+axes[2].imshow(img_slice)
+axes[2].imshow(mask_otsu, cmap="gray", alpha=0.5)
+axes[2].set_title("Overlay")
+axes[2].axis("off")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   One of the main issue with simple thresholding is that it is global and not region
+#   dependent. Search scikit-image <a href="https://scikit-image.org/docs/stable/api/skimage.filters.html">filters module docs</a>
+#   for a potentially better solution.
+# </div>
+
+# %%
+# --- Select the slice and threshold
+img_slice = image_cells[30, 1]
+
+# --- Exercise
+# Threshold the image using Otsu's threshold and plot it as an overlay
+mask_local = img_slice > filters.threshold_local(
+    img_slice, block_size=127  # , offset=-0.02
 )
-local_mask = background_subtracted > local_threshold
 
-fig, axes = plt.subplots(1, 4, figsize=(11, 3))
-for ax, img, title in zip(
-    axes,
-    [background_subtracted, manual_mask, otsu_mask, local_mask],
-    ["input", "manual", "otsu", "local"],
-):
-    ax.imshow(img, cmap="gray")
-    ax.set_title(title)
-    ax.axis("off")
+fig, axes = plt.subplots(1, 3, figsize=(8, 3.5))
+axes[0].imshow(img_slice)
+axes[0].set_title("Image")
+axes[0].axis("off")
+axes[1].imshow(mask_local)
+axes[1].set_title("Mask (Local)")
+axes[1].axis("off")
+axes[2].imshow(img_slice)
+axes[2].imshow(mask_local, cmap="gray", alpha=0.5)
+axes[2].set_title("Overlay")
+axes[2].axis("off")
+
 plt.tight_layout()
-plt.show()
+# ---
 
 # %% [markdown]
-# ## Morphology and filling holes
-#
-# Morphology changes binary shapes using a neighborhood called a footprint.
-#
-# - Opening removes small bright structures.
-# - Closing bridges small dark gaps.
-# - `remove_small_objects` removes connected components below an area cutoff.
-# - `remove_small_holes` or `ndi.binary_fill_holes` fills holes inside objects.
-#
-# When to use: after thresholding, before measurement, when the operation
-# matches a clear object definition.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Now, plot all three next to each other.
+# </div>
 
 # %%
-raw_mask = otsu_mask
-opened = morphology.binary_opening(raw_mask, footprint=morphology.disk(1))
-closed = morphology.binary_closing(opened, footprint=morphology.disk(2))
-size_clean = morphology.remove_small_objects(closed, min_size=40)
-holes_removed = morphology.remove_small_holes(size_clean, area_threshold=80)
-filled_holes = ndi.binary_fill_holes(size_clean)
+# --- Exercise
+fig, axes = plt.subplots(1, 3, figsize=(8, 3.5))
+axes[0].imshow(mask_man)
+axes[0].set_title("Manual")
+axes[0].axis("off")
+axes[1].imshow(mask_otsu)
+axes[1].set_title("Otsu")
+axes[1].axis("off")
+axes[2].imshow(mask_local)
+axes[2].set_title("Local")
+axes[2].axis("off")
 
-fig, axes = plt.subplots(1, 5, figsize=(13, 3))
-for ax, img, title in zip(
-    axes,
-    [raw_mask, opened, closed, size_clean, filled_holes],
-    ["raw mask", "opened", "closed", "small removed", "holes filled"],
-):
-    ax.imshow(img, cmap="gray")
-    ax.set_title(title)
-    ax.axis("off")
 plt.tight_layout()
-plt.show()
+# ---
 
 # %% [markdown]
-# ## Skeletonization - Optional?
-#
-# Skeletonization reduces binary objects to thin centerlines. It is useful for
-# neurites, filaments, vessels, roots, or other elongated structures where
-# length and branching matter more than area.
-#
-# Pitfall: skeletons are extremely sensitive to segmentation noise. Clean the
-# mask first and inspect the result.
-
-# %%
-elongated = image > np.percentile(image, 80)
-elongated = morphology.binary_closing(elongated, footprint=morphology.disk(2))
-elongated = morphology.remove_small_objects(elongated, min_size=120)
-skeleton = morphology.skeletonize(elongated)
-
-fig, axes = plt.subplots(1, 3, figsize=(9, 3))
-for ax, img, title in zip(
-    axes,
-    [image, elongated, skeleton],
-    ["image", "clean mask", "skeleton"],
-):
-    ax.imshow(img, cmap="gray")
-    ax.set_title(title)
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
-
-print("skeleton length in pixels:", skeleton.sum())
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What could we do to improve the masks?
+# </div>
 
 # %% [markdown]
-# ## Watershed for touching objects
+# ## 6 - Morphological operations
 #
-# Watershed can split touching objects when a distance transform has meaningful
-# peaks near object centers.
+# Morphological operations change binary shapes. For instance, they can be used to remove
+# small bright structures, closing small gaps, fill holes etc.
 #
-# When to use: roundish touching cells or nuclei. It is less appropriate for
-# highly irregular objects unless markers are carefully designed.
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#   Scikit-image often uses a `footprint` as kernel for the morphological operations. Check out
+#   <a href="https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_structuring_elements.html">this page</a>
+#   for some examples.
+# </div>
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Go to the docs page of `skimage.morphology` and browse the various operations. Try applying
+#   two-three of them to the mask of your choice from the previous section. Show the results
+#   side by side in a plot.
+#
+#   <b>Hint</b>: You can apply the operations on top of each other.
+# </div>
 
 # %%
-clean = holes_removed
-distance = ndi.distance_transform_edt(clean)
-peaks = morphology.local_maxima(distance)
-markers = measure.label(peaks)
-labels = segmentation.watershed(-distance, markers, mask=clean)
+# --- Choose a mask from the previous section
+raw_mask = mask_man
 
-fig, axes = plt.subplots(1, 4, figsize=(11, 3))
-for ax, img, title in zip(
-    axes,
-    [clean, distance, markers, labels],
-    ["clean mask", "distance", "markers", "watershed labels"],
-):
-    ax.imshow(img, cmap="gray" if title != "watershed labels" else "nipy_spectral")
-    ax.set_title(title)
-    ax.axis("off")
+# --- Exercise
+remove_obj = morphology.remove_small_objects(raw_mask, max_size=40)
+closed = morphology.closing(remove_obj, footprint=morphology.disk(1))
+remove_holes = morphology.remove_small_holes(closed, max_size=100, connectivity=2)
+final_mask = morphology.opening(remove_holes, footprint=morphology.disk(15))
+
+
+lst_images = [
+    ("Original mask", raw_mask),
+    ("Remove small objects", remove_obj),
+    ("Closed", closed),
+    ("Remove small holes", remove_holes),
+    ("Opened", final_mask),
+]
+
+fig, axes = plt.subplots(1, 5, figsize=(12, 3.5))
+
+for idx, (title, img_idx) in enumerate(lst_images):
+    axes[idx].imshow(img_idx)
+    axes[idx].set_title(title)
+    axes[idx].axis("off")
+
 plt.tight_layout()
-plt.show()
+# ---
+
+# %% [markdown]
+# <details>
+#   <summary>Mystery functions</summary>
+#
+#   Try remove_small_objects, closing, remove_small_holes and/or opening.
+# </details>
+
+# %% [markdown]
+# ## 7 - Instance labels
+#
+# Often, it will be interesting to have more than a binary mask: all individual instances
+# of a type of object. Instances of an object are represented by unique labels identifying
+# each object, e.g. nuclei.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   The nuclei in the final mask of the previous section seem easy to separate. Use `measure.label` to get instances and plot the result.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Do you see a potential issue with the result?
+# </div>
+
+# %%
+# --- Select the mask from the previous section
+binary_mask = final_mask
+
+# --- Exercise
+from cmap import Colormap
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(measure.label(final_mask, connectivity=1))
+axes[0].axis("off")
+axes[0].set_title("Default color map")
+axes[1].imshow(
+    measure.label(final_mask, connectivity=1), cmap=Colormap("glasbey").to_matplotlib()
+)
+axes[1].axis("off")
+axes[1].set_title("Glasbey")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Let's make it more obvious, do the same using this new mask.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   How can we separate the objects?
+# </div>
+
+# %%
+fused_mask = morphology.dilation(binary_mask, morphology.disk(3))
+
+# --- Exercise
+from cmap import Colormap
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3.5))
+axes[0].imshow(measure.label(fused_mask, connectivity=1))
+axes[0].axis("off")
+axes[0].set_title("Default color map")
+axes[1].imshow(
+    measure.label(fused_mask, connectivity=1), cmap=Colormap("glasbey").to_matplotlib()
+)
+axes[1].axis("off")
+axes[1].set_title("Glasbey")
+
+plt.tight_layout()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Checkout the "Watershed segmentation" from scikit-image examples gallery and adapt it for our mask.
+# </div>
+
+# %%
+# --- Exercise
+from skimage.segmentation import watershed
+from skimage.feature import peak_local_max
+
+distance = ndi.distance_transform_edt(fused_mask)
+coords = peak_local_max(distance, footprint=np.ones((12, 12)), labels=fused_mask)
+mask = np.zeros(distance.shape, dtype=bool)
+mask[tuple(coords.T)] = True
+markers, _ = ndi.label(mask)
+watershed_labels = watershed(-distance, markers, mask=fused_mask)
+
+fig, axes = plt.subplots(ncols=3, figsize=(9, 3), sharex=True, sharey=True)
+ax = axes.ravel()
+
+ax[0].imshow(fused_mask, cmap=plt.cm.gray)
+ax[0].set_title("Overlapping objects")
+ax[1].imshow(-distance, cmap=plt.cm.gray)
+ax[1].set_title("Distances")
+ax[2].imshow(watershed_labels, cmap=plt.cm.nipy_spectral)
+ax[2].set_title("Separated objects")
+
+for a in ax:
+    a.set_axis_off()
+
+fig.tight_layout()
+# ---
 
 # %% [markdown]
 # ## Region properties
 #
-# Measurements connect image processing to biological questions. Always keep
-# the label image, measurement table, and parameters together so results can be
-# checked later.
+# Once we have labeled objects, we can perform all sorts of measurements on them. We can use
+# the individual masks to quantify the intensity in each nuclei of the raw image, we can
+# also measure properties of individual nuclei, such as their ellipticity.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Checkout the scikit-image "Measure region properties". Without spending too much time
+#   trying to understand the example, identify the call to a scikit-image method that
+#   returns a set of measurement for each labeled object and apply it on our labels.
+#
+#   <b>Hint</b>: there are two similar functions, one performs lazy evaluation on demand,
+#   the other one can take a set of measurement names and returns all results.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Can you find in the docs a list of possible measurements?
+# </div>
 
 # %%
+# --- Select the final labels from the previous section
+labels = watershed_labels
+raw_image = image_cells[30, 1]
+
+# --- Exercise
 props = measure.regionprops_table(
     labels,
-    intensity_image=image,
+    intensity_image=raw_image,
     properties=(
         "label",
         "area",
@@ -714,48 +1037,57 @@ props = measure.regionprops_table(
     ),
 )
 df = pd.DataFrame(props)
-df["ellipticity"] = 1 - df["minor_axis_length"] / df["major_axis_length"]
 print(df.head())
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#   We will see in a coming module how to process and visualize such results.
+# </div>
+#
 
 # %% [markdown]
 # ## Optional exercises
 #
-# 1. Compare object count after manual, Otsu, and local thresholding.
-# 2. Change the `min_size` parameter and plot object count versus parameter.
-# 3. Add `perimeter` and `centroid` to the region properties table.
-# 4. Use `ndi.binary_fill_holes` on `local_mask` and show before/after.
-# 5. Compute skeleton length for masks generated with two thresholds.
+# ### Skeletonization
 
 # %%
-# Answer sketch (optional, removable)
-for name, mask in [("manual", manual_mask), ("otsu", otsu_mask), ("local", local_mask)]:
-    print(name, measure.label(mask).max())
 
-min_sizes = [10, 40, 80, 160]
-counts = []
-for min_size in min_sizes:
-    cleaned = morphology.remove_small_objects(otsu_mask, min_size=min_size)
-    counts.append(measure.label(cleaned).max())
-print(list(zip(min_sizes, counts)))
+# elongated = image > np.percentile(image, 80)
+# elongated = morphology.binary_closing(elongated, footprint=morphology.disk(2))
+# elongated = morphology.remove_small_objects(elongated, min_size=120)
+# skeleton = morphology.skeletonize(elongated)
 
-props_more = measure.regionprops_table(
-    labels,
-    intensity_image=image,
-    properties=("label", "perimeter", "centroid", "mean_intensity"),
-)
-print(pd.DataFrame(props_more).head())
+# fig, axes = plt.subplots(1, 3, figsize=(9, 3))
+# for ax, img, title in zip(
+#     axes,
+#     [image, elongated, skeleton],
+#     ["image", "clean mask", "skeleton"],
+# ):
+#     ax.imshow(img, cmap="gray")
+#     ax.set_title(title)
+#     ax.axis("off")
+# plt.tight_layout()
+# plt.show()
 
-local_filled = ndi.binary_fill_holes(local_mask)
-fig, axes = plt.subplots(1, 2, figsize=(6, 3))
-axes[0].imshow(local_mask, cmap="gray")
-axes[0].set_title("local mask")
-axes[1].imshow(local_filled, cmap="gray")
-axes[1].set_title("filled")
-for ax in axes:
-    ax.axis("off")
-plt.tight_layout()
-plt.show()
+# print("skeleton length in pixels:", skeleton.sum())
 
-for threshold in [0.25, 0.4]:
-    mask = morphology.remove_small_objects(image > threshold, min_size=120)
-    print(threshold, morphology.skeletonize(mask).sum())
+# %% [markdown]
+# ## Summary
+#
+# In this module, we touched on many classical image analysis operations (image inspection,
+# filtering, thresholding, morphological, etc.). These are not independent operations, but
+# they are usually stacked in a pipeline, and the nature and number of steps depend on the
+# analysis' need. Once again, it is more valuable to have a general idea of what's possible
+# and to know where to find the answer in scikit-image docs, that to know it by heart.
+
+# %% [markdown]
+#
