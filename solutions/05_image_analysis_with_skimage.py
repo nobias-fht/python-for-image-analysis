@@ -528,6 +528,21 @@ plt.tight_layout()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #  Let's see what our image with background looks like. Explore the image.
 # </div>
+# <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">TODO</strong><br>
+#   This section is not very good, the background removal removes mostly signal... Can we
+#   do better? can we compare thresholding with and without background, and with smoothing?
+#   We should plot the background we removed as well.
+#
+#   Do white hat, it seems to work better
+# </div>
 
 # %%
 from python_for_ia import image_with_background
@@ -956,7 +971,6 @@ plt.tight_layout()
 
 # %%
 # --- Exercise
-from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 
 distance = ndi.distance_transform_edt(fused_mask)
@@ -964,7 +978,7 @@ coords = peak_local_max(distance, footprint=np.ones((12, 12)), labels=fused_mask
 mask = np.zeros(distance.shape, dtype=bool)
 mask[tuple(coords.T)] = True
 markers, _ = ndi.label(mask)
-watershed_labels = watershed(-distance, markers, mask=fused_mask)
+watershed_labels = segmentation.watershed(-distance, markers, mask=fused_mask)
 
 fig, axes = plt.subplots(ncols=3, figsize=(9, 3), sharex=True, sharey=True)
 ax = axes.ravel()
@@ -973,7 +987,7 @@ ax[0].imshow(fused_mask, cmap=plt.cm.gray)
 ax[0].set_title("Overlapping objects")
 ax[1].imshow(-distance, cmap=plt.cm.gray)
 ax[1].set_title("Distances")
-ax[2].imshow(watershed_labels, cmap=plt.cm.nipy_spectral)
+ax[2].imshow(watershed_labels, cmap=Colormap("glasbey").to_matplotlib())
 ax[2].set_title("Separated objects")
 
 for a in ax:
