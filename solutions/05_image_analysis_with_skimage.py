@@ -528,21 +528,6 @@ plt.tight_layout()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #  Let's see what our image with background looks like. Explore the image.
 # </div>
-# <div style="
-#   background: #fdecec;
-#   border-left: 6px solid #d64545;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #7f1d1d;
-# ">
-#   <strong style="color: #7f1d1d;">TODO</strong><br>
-#   This section is not very good, the background removal removes mostly signal... Can we
-#   do better? can we compare thresholding with and without background, and with smoothing?
-#   We should plot the background we removed as well.
-#
-#   Do white hat, it seems to work better
-# </div>
 
 # %%
 from python_for_ia import image_with_background
@@ -580,9 +565,50 @@ plot_histogram(img)
 # %%
 # --- Exercise
 # Apply Gaussian filter and subtract background
-bg = filters.gaussian(img, sigma=20)
-result = np.clip(img - bg, 0, None)
-plot_histogram(result)
+bg_gauss = filters.gaussian(img, sigma=20)
+result_gauss = np.clip(img - bg_gauss, 0, None)
+
+result_top_hat = morphology.white_tophat(img, footprint=morphology.disk(16))
+bg_top_hat = img - result_top_hat
+
+
+fig, axes = plt.subplots(
+    2,
+    3,
+    figsize=(10, 8),
+    gridspec_kw={
+        "width_ratios": [1.4, 1.4, 1]
+    },  # this is just to make the figure look nicer
+    constrained_layout=True,
+)
+
+axes[0, 0].imshow(result_gauss)
+axes[0, 0].set_title("Result Gauss")
+axes[0, 0].axis("off")
+
+axes[0, 1].imshow(bg_gauss)
+axes[0, 1].set_title("Background")
+axes[0, 1].axis("off")
+
+axes[0, 2].hist(result_gauss.ravel(), bins=50)
+axes[0, 2].set_xlabel("Intensity")
+axes[0, 2].set_ylabel("Pixel count")
+axes[0, 2].set_title("Histogram")
+
+axes[1, 0].imshow(result_top_hat)
+axes[1, 0].set_title("Result Top hat")
+axes[1, 0].axis("off")
+
+axes[1, 1].imshow(bg_top_hat)
+axes[1, 1].set_title("Background")
+axes[1, 1].axis("off")
+
+axes[1, 2].hist(result_top_hat.ravel(), bins=50)
+axes[1, 2].set_xlabel("Intensity")
+axes[1, 2].set_ylabel("Pixel count")
+axes[1, 2].set_title("Histogram")
+
+plt.tight_layout()
 # ---
 
 
@@ -596,19 +622,6 @@ plot_histogram(result)
 # </details>
 
 # %% [markdown]
-# <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #374151;
-# ">
-#   <strong>Optional Exercise</strong><br>
-#   There is a way to directly filter the backgroudn from the image using "morphology.white_tophat(img, footprint=morphology.disk(16))". Give it a try.
-# </div>
-#
-#
 # <div style="
 #   background: #f3f4f6;
 #   border-left: 6px solid #6b7280;
