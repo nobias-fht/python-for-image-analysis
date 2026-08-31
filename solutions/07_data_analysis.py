@@ -34,17 +34,9 @@
 
 
 # %%
-# --- Import what we need
-from pathlib import Path
+from skimage import data
 
-import numpy as np
-import pandas as pd
-from scipy import ndimage as ndi
-from skimage import data, feature, filters, measure, morphology, segmentation
-
-# %%
 image = data.cells3d()
-
 print(f"Image shape: {image.shape}")
 
 # %% [markdown]
@@ -53,6 +45,12 @@ print(f"Image shape: {image.shape}")
 
 
 # %%
+import numpy as np
+import pandas as pd
+from scipy import ndimage as ndi
+from skimage import feature, filters, measure, morphology, segmentation
+
+
 def measure_slice(membrane, nuclei):
     """Segment the nuclei of one slice and measure both channels."""
     # segment, as in module 5
@@ -103,6 +101,8 @@ def measure_slice(membrane, nuclei):
 # A pipeline saves its results to disk, one file per image. Let's do the same.
 
 # %%
+from pathlib import Path
+
 folder = Path("scratch_outputs/module_07")
 folder.mkdir(parents=True, exist_ok=True)
 
@@ -196,7 +196,7 @@ table.describe()
 # %% [markdown]
 # ## 3 - Selecting rows and columns
 #
-# Three ways of asking for a piece of a table cover most of what we need:
+# Three ways of filtering:
 #
 # - `table["area"]` returns one column, as a `Series`,
 # - `table[["label", "area"]]` returns several columns, as a dataframe,
@@ -210,8 +210,7 @@ print(f"Mean area: {table['area'].mean():.1f} pixels")
 
 # %% [markdown]
 # A condition on a column gives one `True` or `False` per row. Passing it to
-# `.loc` keeps the rows that are `True`, exactly like the boolean masks we used
-# on NumPy arrays in module 2.
+# `.loc` keeps the rows that are `True`.
 
 # %%
 is_large = table["area"] > 1000
@@ -277,38 +276,6 @@ selected.head()
 # </div>
 
 # %% [markdown]
-# Creating a column works like assigning to a dictionary key, on the whole column
-# at once and without a `for` loop.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Add two columns: the "ellipticity" of each object, and the ratio of its mean
-#   membrane intensity over its mean nuclei intensity.
-#
-#   <b>Hint</b>: ellipticity is "1 - minor axis / major axis", so a circle gives
-#   0. You need "axis_major_length", "axis_minor_length",
-#   "mean_intensity_membrane" and "mean_intensity_nuclei".
-# </div>
-
-# %%
-# --- Exercise
-# Add the two columns
-table["ellipticity"] = 1 - table["axis_minor_length"] / table["axis_major_length"]
-table["intensity_ratio"] = (
-    table["mean_intensity_membrane"] / table["mean_intensity_nuclei"]
-)
-# ---
-
-table[["label", "ellipticity", "intensity_ratio"]].head()
-
-# %% [markdown]
 # ## 4 - Putting tables together
 #
 # One image is never enough. Our files share the same columns, so `pd.concat`
@@ -323,7 +290,7 @@ table[["label", "ellipticity", "intensity_ratio"]].head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Read all the files and concatenate them into one dataframe, "measurements".
+#   Read all the files and concatenate them into one dataframe called "measurements".
 #
 #   <b>Hint</b>: build a list of dataframes, then call
 #   "pd.concat(tables, ignore_index=True)".
@@ -425,6 +392,10 @@ measurements[["image_id", "label", "area", "area_um2"]].head()
 # </div>
 
 # %% [markdown]
+# The table is complete, so we can derive from it. Creating a column works like
+# assigning to a dictionary key, on the whole column at once and without a
+# `for` loop.
+#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -434,13 +405,17 @@ measurements[["image_id", "label", "area", "area_um2"]].head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   "measurements" was built from the files, so the two columns of section 3 are
-#   gone. Add them again, this time to "measurements".
+#   Add two columns to "measurements": the "ellipticity" of each object, and the
+#   ratio of its mean membrane intensity over its mean nuclei intensity.
+#
+#   <b>Hint</b>: ellipticity is "1 - minor axis / major axis", so a circle gives
+#   0. You need "axis_major_length", "axis_minor_length",
+#   "mean_intensity_membrane" and "mean_intensity_nuclei".
 # </div>
 
 # %%
 # --- Exercise
-# Add the columns to the concatenated table
+# Add the two columns
 measurements["ellipticity"] = (
     1 - measurements["axis_minor_length"] / measurements["axis_major_length"]
 )
@@ -448,6 +423,8 @@ measurements["intensity_ratio"] = (
     measurements["mean_intensity_membrane"] / measurements["mean_intensity_nuclei"]
 )
 # ---
+
+measurements[["image_id", "label", "ellipticity", "intensity_ratio"]].head()
 
 # %% [markdown]
 # ## 5 - Summarizing per image
@@ -497,7 +474,70 @@ per_image
 # </div>
 
 # %% [markdown]
-# ## 6 - Distributions: the box plot
+# ## 6 - Ordered measurements: the line plot
+#
+# A line plot is for measurements that have an order: a time course, a dose, or
+# here a position in the stack. Each call to `plot` adds one line to the axes.
+#
+# Our two channels are ten times apart in absolute intensity, so sharing an axis
+# would flatten one of them. Dividing each by its value in the first slice puts
+# them on a common scale, and asks how much each one changed rather than how
+# large it is.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Add a column per channel holding its mean intensity divided by the value in
+#   the first slice, then plot both against "z_slice", with a marker on every
+#   point.
+#
+#   <b>Hint</b>: ".iloc[0]" gives the first value of a column. Call "ax.plot"
+#   twice, passing "label=" so that "ax.legend()" can name the lines, and
+#   "marker="o"" to draw the points.
+# </div>
+
+# %%
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
+
+# --- Exercise
+# Normalize each channel, then draw one line per channel
+per_image["membrane_relative"] = (
+    per_image["mean_membrane"] / per_image["mean_membrane"].iloc[0]
+)
+per_image["nuclei_relative"] = (
+    per_image["mean_nuclei"] / per_image["mean_nuclei"].iloc[0]
+)
+
+ax.plot(
+    per_image["z_slice"],
+    per_image["membrane_relative"],
+    marker="o",
+    label="membrane",
+)
+ax.plot(
+    per_image["z_slice"],
+    per_image["nuclei_relative"],
+    marker="o",
+    label="nuclei",
+)
+ax.legend()
+# ---
+
+ax.set_xlabel("z slice")
+ax.set_ylabel("Mean intensity, relative to the first slice")
+ax.set_title("Signal with depth")
+plt.show()
+
+# %% [markdown]
+# ## 7 - Distributions: the box plot
 #
 # The box spans the first to the third quartile, the line is the median, the
 # whiskers reach the points within 1.5 interquartile ranges, and the rest is
@@ -519,8 +559,6 @@ per_image
 # </div>
 
 # %%
-import matplotlib.pyplot as plt
-
 fig, ax = plt.subplots(figsize=(7, 4), constrained_layout=True)
 
 # --- Exercise
@@ -608,71 +646,10 @@ plt.show()
 
 # %%
 # --- We keep the interior objects for the rest of the module
-# ".copy()" because we will add columns to this selection later on
+# ".copy()" because we will add columns to this selection later.
 objects = measurements.loc[~measurements["on_border"]].copy()
 
 print(f"{len(objects)} objects kept out of {len(measurements)}")
-
-# %% [markdown]
-# ## 7 - Ordered measurements: the line plot
-#
-# A line plot is for measurements that have an order: a time course, a dose, or
-# here a position in the stack. Each call to `plot` adds one line to the axes.
-#
-# Our two channels are ten times apart in absolute intensity, so sharing an axis
-# would flatten one of them. Dividing each by its value in the first slice puts
-# them on a common scale, and asks how much each one changed rather than how
-# large it is.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Add a column per channel holding its mean intensity divided by the value in
-#   the first slice, then plot both against "z_slice", with a marker on every
-#   point.
-#
-#   <b>Hint</b>: ".iloc[0]" gives the first value of a column. Call "ax.plot"
-#   twice, passing "label=" so that "ax.legend()" can name the lines, and
-#   "marker="o"" to draw the points.
-# </div>
-
-# %%
-fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
-
-# --- Exercise
-# Normalize each channel, then draw one line per channel
-per_image["membrane_relative"] = (
-    per_image["mean_membrane"] / per_image["mean_membrane"].iloc[0]
-)
-per_image["nuclei_relative"] = (
-    per_image["mean_nuclei"] / per_image["mean_nuclei"].iloc[0]
-)
-
-ax.plot(
-    per_image["z_slice"],
-    per_image["membrane_relative"],
-    marker="o",
-    label="membrane",
-)
-ax.plot(
-    per_image["z_slice"],
-    per_image["nuclei_relative"],
-    marker="o",
-    label="nuclei",
-)
-ax.legend()
-# ---
-
-ax.set_xlabel("z slice")
-ax.set_ylabel("Mean intensity, relative to the first slice")
-ax.set_title("Signal with depth")
-plt.show()
 
 # %% [markdown]
 # ## 8 - Relationships: the scatter plot
@@ -728,7 +705,7 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   The points follow a curve, not a line. What relation do you expect between
+#   The points follow a curve, not a line. What relationship do you expect between
 #   the area and the perimeter of a compact shape?
 # </div>
 
@@ -913,8 +890,6 @@ print(f"Spearman: r = {spearman.statistic:.3f}, p = {spearman.pvalue:.3g}")
 #     sensitive to outliers.</li>
 #     <li><strong>Spearman</strong> works on the ranks, so it only asks whether
 #     one variable increases with the other.</li>
-#     <li>A p-value on objects from one acquisition says nothing about
-#     biological reproducibility.</li>
 #   </ul>
 # </details>
 
@@ -960,7 +935,7 @@ u, s, vt = np.linalg.svd(standardized, full_matrices=False)
 components = u * s
 explained = s**2 / np.sum(s**2)
 
-fig, ax = plt.subplots(figsize=(6, 4.5), constrained_layout=True)
+pca_fig, ax = plt.subplots(figsize=(6, 4.5), constrained_layout=True)
 
 points = ax.scatter(
     components[:, 0],
@@ -971,7 +946,7 @@ points = ax.scatter(
     alpha=0.8,
 )
 
-colorbar = fig.colorbar(points, ax=ax)
+colorbar = pca_fig.colorbar(points, ax=ax)
 colorbar.set_label("Area (um2)")
 
 ax.set_xlabel(f"PC1 ({100 * explained[0]:.0f}% of variance)")
@@ -991,11 +966,9 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   An analysis you cannot share is not finished. Save the summary of section 5
-#   as a CSV file, and the last figure as a PNG.
 #
 #   <b>Hint</b>: "to_csv(path, index=False)" and
-#   "fig.savefig(path, dpi=200, bbox_inches="tight")".
+#   "savefig(path, dpi=200, bbox_inches="tight")".
 # </div>
 
 # %%
@@ -1006,7 +979,7 @@ results = Path("scratch_outputs/results")
 results.mkdir(parents=True, exist_ok=True)
 
 per_image.to_csv(results / "per_image_summary.csv", index=False)
-fig.savefig(results / "pca.png", dpi=200, bbox_inches="tight")
+pca_fig.savefig(results / "pca.png", dpi=200, bbox_inches="tight")
 # ---
 
 print(f"Saved to {results.resolve()}")
