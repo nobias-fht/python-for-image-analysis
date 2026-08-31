@@ -3,17 +3,14 @@
 #
 # Time: 1 hour 45 minutes.
 #
-# An analysis pipeline ends on a table: one row per object, one column per
-# measurement. That table is the raw material, not the result. In this module we
-# turn it into an answer.
-#
 # <div style="display: flex; align-items: center; gap: 12px;">
 #     <img src="https://raw.githubusercontent.com/pandas-dev/pandas/main/web/pandas/static/img/pandas.svg" alt="Logo" style="height: 40px; width: auto;">
+#     pandas
 # </div>
 #
 # `pandas` is the standard library for tabular data in Python. Its `DataFrame` is
-# a table with named columns, each column holding one type, and it is the natural
-# home for the output of a measurement step.
+# a table with named columns, each column holding one type, and it is usually the best
+# choice for the output of a measurement step.
 #
 # ### Question
 #
@@ -22,15 +19,15 @@
 # ### Objective
 #
 # - Load, select and combine measurement tables
-# - Draw the three plots you will use most: box plot, scatter plot, fitted curve
-# - Fit a model to your data with `scipy`
+# - Draw the plots you will use most: line plot, box plot, scatter plot
+# - Fit a curve to your data with `scipy`
 
 # %% [markdown]
 # ## 1 - From images to a table
 #
 # We work on `cells3d`, a two-channel acquisition from the scikit-image sample
-# Segmenting a few of its z-slices and measuring both channels
-# gives us the table for this module.
+# data. Segmenting a few of its z-slices and measuring both channels gives us the
+# table for this module.
 
 
 # %%
@@ -955,6 +952,150 @@ plt.show()
 # ---
 
 # %% [markdown]
+# ### Finding groups without labels
+#
+# PCA spread the objects along the directions in which they differ most, but it
+# did not say which objects belong together. Clustering does.
+#
+# "scipy.cluster.hierarchy" builds a tree by repeatedly merging the two closest
+# groups. The height at which two objects join is how different they are, so we
+# cut the tree at a height instead of choosing a number of clusters in advance.
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Build the tree on the standardized features with "linkage", draw it with
+#   "dendrogram", then read the tree to decide where to cut it with "fcluster".<br>
+#
+#   <b>Hint</b>: "linkage(standardized, method="ward")" and
+#   "fcluster(link, n, criterion="maxclust")".
+# </div>
+
+# %%
+from scipy.cluster import hierarchy
+
+# --- Exercise
+# Build the tree, draw it, and cut it into groups
+link = hierarchy.linkage(standardized, method="ward")
+
+cluster_fig, ax = plt.subplots(figsize=(8, 4), constrained_layout=True)
+hierarchy.dendrogram(link, ax=ax, no_labels=True, color_threshold=0)
+ax.set_ylabel("distance at which groups merge")
+ax.set_title("Nuclei clustered by shape and intensity")
+
+objects["cluster"] = hierarchy.fcluster(link, 3, criterion="maxclust")
+# ---
+
+print(objects["cluster"].value_counts().to_string())
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Why do we cluster "standardized" rather than the raw columns?
+# </div>
+#
+# Ward merges the groups that are closest in Euclidean distance, and distance is
+# the sum over columns. Area is around 100 and mean intensity is around 15000,
+# so on the raw table the intensity columns would contribute almost all of the
+# distance and the shape columns none. Standardizing puts every column on the
+# same footing: one unit is one standard deviation, whatever was measured.
+
+# %% [markdown]
+# A cluster label on its own is just a number. To find out what separates the
+# two groups, summarize the measurements per cluster, exactly as we summarized
+# per image in section 5.
+
+# %%
+objects.groupby("cluster")[
+    ["area_um2", "perimeter_um", "ellipticity", "mean_intensity_nuclei"]
+].mean().round(2)
+
+# %% [markdown]
+# The three groups are readable. Cluster 3 is large and round, cluster 2 is
+# medium and elongated, and cluster 1 is a tight group of ten small, unusually
+# bright nuclei: 29 to 61 um2 against a median of 108.
+#
+# We can see the same three groups on the PCA projection, by reusing the scatter
+# of the previous exercise and coloring by cluster instead of by area.
+
+# %%
+fig, ax = plt.subplots(figsize=(6, 5), constrained_layout=True)
+for label, group in objects.groupby("cluster"):
+    ax.scatter(
+        components[objects["cluster"] == label, 0],
+        components[objects["cluster"] == label, 1],
+        label=f"cluster {label}",
+        alpha=0.8,
+    )
+ax.set_xlabel("PC1")
+ax.set_ylabel("PC2")
+ax.set_title("Clusters on the principal components")
+ax.legend()
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Cluster 1 is ten small, bright nuclei. What are they?
+# </div>
+#
+# Two things look like this. Chromatin condenses during mitosis, so a dividing
+# nucleus is smaller and brighter. A watershed that splits one nucleus in two
+# also leaves small, bright fragments.
+#
+# The measurements cannot tell them apart, so select the rows and go back to the
+# images. Use the "image_id" and "label" columns to find the objects.
+
+# %%
+suspects = objects.loc[objects["cluster"] == 1, ["image_id", "label", "area_um2"]]
+suspects.sort_values("area_um2").head()
+
+# %% [markdown]
+# A cross-tabulation counts the objects in every combination of two columns, and
+# is the quickest way to check a cluster against the acquisition.
+
+# %%
+pd.crosstab(objects["z_slice"], objects["cluster"])
+
+# %% [markdown]
+# All three clusters appear at every depth, so none of them is an artifact of
+# where we stopped slicing.
+#
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#   "fcluster" returns the number of groups you ask for, whether or not the data
+#   contains them. Read the dendrogram before choosing: cutting these objects in
+#   two isolates only the ten small ones, and below three groups the merges
+#   happen at similar heights, which is why we cut at three.
+# </div>
+
+# %% [markdown]
 # ### Saving your results
 #
 # <div style="
@@ -975,7 +1116,7 @@ plt.show()
 results = Path("scratch_outputs/results")
 
 # --- Exercise
-# Save the summary table and the figure
+# Save the summary table and the PCA figure
 results.mkdir(parents=True, exist_ok=True)
 
 per_image.to_csv(results / "per_image_summary.csv", index=False)
