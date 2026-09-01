@@ -540,6 +540,18 @@ plot_histogram(img)
 
 # %% [markdown]
 # <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">TODO</strong><br>
+#   Offset, flatfield, background (subtraction vs division)
+#   </div>
+#
+# <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
 #   padding: 12px 16px;
@@ -1082,30 +1094,12 @@ print(df.head())
 #
 
 # %% [markdown]
-# ## Optional exercises
+# ## Going further
 #
-# ### Skeletonization
-
-# %%
-
-# elongated = image > np.percentile(image, 80)
-# elongated = morphology.binary_closing(elongated, footprint=morphology.disk(2))
-# elongated = morphology.remove_small_objects(elongated, min_size=120)
-# skeleton = morphology.skeletonize(elongated)
-
-# fig, axes = plt.subplots(1, 3, figsize=(9, 3))
-# for ax, img, title in zip(
-#     axes,
-#     [image, elongated, skeleton],
-#     ["image", "clean mask", "skeleton"],
-# ):
-#     ax.imshow(img, cmap="gray")
-#     ax.set_title(title)
-#     ax.axis("off")
-# plt.tight_layout()
-# plt.show()
-
-# print("skeleton length in pixels:", skeleton.sum())
+# Image analysis is a rich field and there is never one-size-fits-all solution. Knowing where to find resources and helps to perform your analysis is paramount. Here is a selection:
+#
+# - Pete Bankhead's [BioImage Analysis Book](https://bioimagebook.github.io/index.html)
+# - [image.sc forum](image.sc): the bioimage analysis community is fantastic and eager to help you!
 
 # %% [markdown]
 # ## Summary
@@ -1115,6 +1109,7 @@ print(df.head())
 # they are usually stacked in a pipeline, and the nature and number of steps depend on the
 # analysis' need. Once again, it is more valuable to have a general idea of what's possible
 # and to know where to find the answer in scikit-image docs, that to know it by heart.
+#
 
 # %% [markdown]
 #

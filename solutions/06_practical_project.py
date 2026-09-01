@@ -70,6 +70,20 @@ for i in range(len(images)):
     axes[i, 2].hist(images[i][1].ravel(), bins=64, alpha=0.5)
     axes[i, 2].set_title("Histogram")
 
+# %% [markdown]
+# <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">Warning</strong><br>
+#   Make bg more bg and not flatfield? alternatively, make it a flat
+# field (multiply).
+# </div>
+
 # %%
 # Background removal with white hat filtering
 fig, axes = plt.subplots(len(images), 3, figsize=(6, 12))
