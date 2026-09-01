@@ -3,95 +3,204 @@
 #
 # Time: 1 hour 30 minutes.
 #
-# Essential ideas: publication-ready code is understandable, runnable, citeable,
-# legally reusable, and connected to the data and results it produced. It does
-# not need to be perfect software, but it should let a future reader reproduce
-# the analysis without guessing.
+# If you ever tried using code from GitHub, then you probably ran into any of
+# the following issues:
+# - No instruction for installing the package
+# - No example script to reproduce the published results
+# - No example data to explore how the package work
+# - No user documentation on how to use the various features
+# - No code documentation helping to understand the package design
+# - Package depends on unmaintained packages or non-compatible packages
+# - No license, so you don't know how to legally use it
+# - etc.
+#
+# ```markdown
+# image-analysis-scripts/
+# ├── analyze_new2.py
+# ├── analyze_new3.py
+# ├── cell2.py
+# ├── crop_final.py
+# ├── data.py
+# ├── debug.py
+# ├── draft.ipynb
+# ├── img2.py
+# ├── process_all.py
+# └── weird_thresholds.csv
+# ```
+#
+# It does not matter if the code is not perfect, as (publicly-funded) researchers, it is
+# our duty to the public and fellow scientists to produce reproducible results. It is much
+# easier to set up code to be reproduced than bench experiments. In this module, we will
+# go through a list of checkmarks to help you be a leading practitioner of FAIRness in
+# scientific code.
+#
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>What's FAIRness?</strong><br>
+#   Findability, Accessibility, Interoperability, and Reusability (FAIR) principles have
+#   been adapted for [data](https://www.nature.com/articles/sdata201618) and is directly
+#   applicable to code:
+#   - Findability: it is released on the internet
+#   - Accessibility: it can be viewed and downloaded by anyone
+#   - Interoperability: it is compatible with the relevant existing software/analysis
+#   - Reusability: it can be installed by anyone easily
+# </div>
+#
 
 # %% [markdown]
-# ## When to turn analysis code into a package
+# ## 1 - When to turn analysis code into a package
 #
 # A package is useful when:
 #
-# - several scripts reuse the same functions,
-# - collaborators need to install the code,
-# - the pipeline will be run on new datasets,
-# - tests should import core functions,
-# - a paper or preprint needs a stable, citable version.
+# - Several scripts reuse the same functions
+# - Collaborators need to install the code
+# - The pipeline will be run on new datasets
+# - A paper or preprint needs a stable, citable version.
 #
 # A single script may be enough when the analysis is small, one-off, and fully
-# documented. Do not package code only for appearance; package it when it lowers
-# future friction.
+# documented. Do not package code only for appearance.
 
 # %% [markdown]
-# ## Minimal package layout
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Let's say you have a collection of scripts for a publication, what would be your pre-publicationFAIR
+#   checkbox list?
+# </div>
+
+# %% [markdown]
+# \# --- Exercise
 #
-# ```text
-# image-analysis-project/
-#   README.md
-#   LICENSE
-#   pyproject.toml
-#   CITATION.cff
-#   CHANGELOG.md
-#   .gitignore
-#   src/
-#     image_analysis_project/
-#       __init__.py
-#       io.py
-#       segmentation.py
-#       measurements.py
-#       visualization.py
-#       cli.py
-#   tests/
-#     test_segmentation.py
-#     test_measurements.py
-#   scripts/
-#     run_pipeline.py
-#   notebooks/
-#     exploratory_analysis.ipynb
-#   docs/
-#     workflow.md
-#   data/
-#     README.md
+# <input type="checkbox" checked> Code is on GitHub <br/>
+# <input type="checkbox"> Example data has been released online <br/>
+# <input type="checkbox"> License file <br/>
+# <input type="checkbox"> Links to pre-print and data (README.md) <br/>
+# <input type="checkbox"> Installation instructions (README.md) <br/>
+# <input type="checkbox"> User documentation (README.md) <br/>
+# <input type="checkbox"> Lock file for environment<br/>
+#
+# \# ---
+
+# %% [markdown]
+# <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">Warning</strong><br>
+#   Avoid putting binary files (images, data, word documents, pdfs, etc.) in a git repo, especially if they are heavy.
+# </div>
+#
+
+# %% [markdown]
+# ## 2 - Minimal package layout
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What are the ingredients of a good package? Can you comment on the various files in the following tree? What are their use?
+# </div>
+
+# %% [markdown]
+#
+#
+# ```markdown
+# image-analysis-package/
+# ├── LICENSE
+# ├── pyproject.toml
+# ├── README.md
+# ├── uv.lock
+# ├── .python-version
+# ├── docs/
+# │   └──  image_analysis_package/
+# │       └── ... (*.md)
+# ├── src/
+# │   └── image_analysis_package/
+# │       ├── __init__.py
+# │       └── ... (*.py)
+# └── tests/
+#     ├── __init__.py
+#     └── ... (*.py)
 # ```
-#
-# Pitfall: do not commit large raw microscopy datasets into git. Use a data
-# repository, institutional storage, OMERO, BioImage Archive, Zenodo, or another
-# system appropriate for the project.
 
 # %% [markdown]
-# ## pyproject sketch
-#
-# ```toml
-# [project]
-# name = "image-analysis-project"
-# version = "0.1.0"
-# description = "Reproducible image analysis workflow for ..."
-# readme = "README.md"
-# requires-python = ">=3.11"
-# license = { text = "BSD-3-Clause" }
-# authors = [{ name = "Your Name" }]
-# dependencies = [
-#   "numpy",
-#   "pandas",
-#   "scikit-image",
-#   "scipy",
-#   "matplotlib",
-# ]
-#
-# [project.optional-dependencies]
-# dev = ["pytest", "ruff"]
-# notebooks = ["jupyter", "ipykernel"]
-#
-# [project.scripts]
-# analyze-images = "image_analysis_project.cli:main"
-# ```
-#
-# When to use optional dependencies: put heavy viewers, notebook tools, or
-# format-specific readers in extras when not every user needs them.
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>pyproject.toml</strong><br>
+#   This configuration file holds metadata for packaging (who are the authors, where is the source code, etc.),
+#   but also instructions for building the package (dependencies, optional dependencies, developer tools configuration, etc.). More
+#   on the specifications on the <a href="https://packaging.python.org/en/latest/guides/writing-pyproject-toml/">Python documentation</a>.
+# </div>
 
 # %% [markdown]
-# ## README contents
+# ## 3 - Choosing a license
+#
+# Choose a license before sharing code publicly.
+#
+# - MIT or BSD-3-Clause: permissive reuse.
+# - GPL: derivatives must remain open under compatible terms.
+# - Apache-2.0: permissive reuse with explicit patent language.
+#
+# Add `CITATION.cff` so users and citation tools know how to cite the code.
+# Archive releases with Zenodo (which gives you a DOI, can be cited if you don't have
+# a publication).
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>More on licenses</strong><br>
+#    Have a quick look at <a href="https://choosealicense.com/">this website</a>.
+# </div>
+#
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#   Data should have licenses as well! Open licenses are usually CC-0 and CC-BY for fully
+#   open and modifyiable data.
+# </div>
+#
+
+# %% [markdown]
+# ## 4 - README contents
 #
 # A useful README answers:
 #
@@ -104,38 +213,81 @@
 # - Where are example data or test data?
 # - How should the code be cited?
 #
-# Pitfall: a README that only says "run the notebook" is not enough for a
-# reproducible workflow.
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#   A README that says "run the notebook" is not enough, provide the full command-line
+#   instructions.
+# </div>
 
 # %% [markdown]
-# ## Licensing and citation
+# ## 5 - Documentation
 #
-# Choose a license before sharing code publicly.
+# Documentation can refer to two things:
+# - API or usage of the code
+# - Docstring: documentation of the code itself
 #
-# - MIT or BSD-3-Clause: permissive reuse.
-# - GPL: derivatives must remain open under compatible terms.
-# - Apache-2.0: permissive reuse with explicit patent language.
-#
-# Add `CITATION.cff` so users and citation tools know how to cite the code.
-# Archive releases with Zenodo or an institutional repository when the code
-# supports a publication.
 
 # %% [markdown]
-# ## Tests and continuous integration
-#
-# Tests should cover the small functions that carry the analysis logic:
-#
-# - segmentation returns labels with the expected shape,
-# - empty images fail clearly or return empty results,
-# - measurement tables contain required columns,
-# - CLI parsing accepts documented arguments,
-# - a tiny example pipeline runs end to end.
-#
-# Continuous integration can run tests automatically on GitHub, GitLab, or other
-# platforms. Start small: one test file and one workflow is already useful.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What needs documenting in this function? How would you do it?
+# </div>
+
+
+# %%
+def remove_background(img, func, params):
+    bg = func(**params)
+    res = img - bg
+    return img, bg
+
+
+# %%
+from typing import Any, Callable
+from numpy.typing import NDArray
+
+
+def remove_background(
+    img: NDArray, func: Callable, params: dict[str, Any]
+) -> tuple[NDArray, NDArray]:
+    """Remove background by computing the background from `img` and subtracting it.
+
+    Parameters
+    ----------
+    img : numpy.ndarray
+        Image from which to remove background.
+    func : Callable
+        Background estimation function.
+    params : dict[str, Any]
+        Parameters to be passed to `func`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Background-free image
+    numpy.ndarray
+        Estimated background removed from the image.
+    """
+    bg = func(**params)
+    res = img - bg
+    return res, bg
+
 
 # %% [markdown]
-# ## Documentation and provenance
+# ## 6 - Code reproducibility
 #
 # Keep enough information to understand how results were produced:
 #
@@ -149,41 +301,72 @@
 #
 # When to use a parameter file: when a command has many options or when the same
 # pipeline is run across experiments with different settings.
-
-# %% [markdown]
-# ## Repository hosting and release choices
 #
-# GitHub, GitLab, and Codeberg can all host public code. The important parts are
-# not the platform logo, but whether the repository has:
 #
-# - issue tracking or a contact route,
-# - releases or tags,
-# - a license,
-# - clear installation instructions,
-# - archived versions for published results,
-# - documentation for data access.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Try to run the following code multiple times, what do you observe?
+#
+#   Then pass a number to `default_rng()`.
+# </div>
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What is the name of the parameter we passed?
+# </div>
 
 # %%
-from pathlib import Path
+import numpy as np
 
-layout_paths = [
-    "README.md",
-    "LICENSE",
-    "pyproject.toml",
-    "CITATION.cff",
-    "CHANGELOG.md",
-    "src/image_analysis_project/__init__.py",
-    "src/image_analysis_project/segmentation.py",
-    "src/image_analysis_project/measurements.py",
-    "tests/test_segmentation.py",
-    "tests/test_measurements.py",
-    "scripts/run_pipeline.py",
-    "docs/workflow.md",
-    "data/README.md",
-]
+# -- Exercise
+rng = np.random.default_rng(42)
+# ---
 
-for path in layout_paths:
-    print(Path(path))
+# Here are some experimental results
+results = np.asarray([0.1, 4.5, 6.1, 2.1, 0.5, 6.3, 4.2, 6.2, 9.1, 0.8, 4.2, 2.7])
+
+# Estimate the uncertainty of the results mean by bootstrapping the results randomly
+bootstrap_means = np.array(
+    [rng.choice(results, size=len(results), replace=True).mean() for _ in range(20)]
+)
+
+mean = results.mean()
+bootstrap_se = bootstrap_means.std(ddof=1)
+ci_95 = np.percentile(bootstrap_means, [2.5, 97.5])
+
+print("Mean:", mean)
+print("Bootstrap standard error:", bootstrap_se)
+print("Approximate 95% CI:", ci_95)
+
+# %% [markdown]
+# ## 7 - Advanced package features
+#
+# Tests, CI
+#
+# Tests should cover the small functions that carry the analysis logic:
+#
+# - segmentation returns labels with the expected shape,
+# - empty images fail clearly or return empty results,
+# - measurement tables contain required columns,
+# - CLI parsing accepts documented arguments,
+# - a tiny example pipeline runs end to end.
+#
+# Continuous integration can run tests automatically on GitHub, GitLab, or other
+# platforms. Start small: one test file and one workflow is already useful.
 
 # %% [markdown]
 # ## A small release checklist
@@ -200,60 +383,3 @@ for path in layout_paths:
 # - Large data and private data are not committed.
 # - A release tag is created for the submitted version.
 # - Citation instructions are present.
-
-# %%
-release_checklist = {
-    "license": True,
-    "readme_install": True,
-    "declared_dependencies": True,
-    "example_or_data_note": False,
-    "tests": False,
-    "citation": True,
-}
-
-missing = [name for name, ok in release_checklist.items() if not ok]
-print("Missing before release:", missing)
-
-# %% [markdown]
-# ## Optional exercises
-#
-# 1. Draft a one-paragraph README summary for the two-channel pipeline.
-# 2. Choose a license and explain the tradeoff in one sentence.
-# 3. Write three tests you would add first.
-# 4. Draft a `CITATION.cff` entry with title, authors, version, and date.
-# 5. Write a short data availability note for raw microscopy files that cannot
-#    be committed to git.
-
-# %%
-# Answer sketch (optional, removable)
-readme_summary = (
-    "This project segments two-channel fluorescence microscopy images, measures "
-    "per-object intensity ratio and shape, classifies objects into two "
-    "populations, and exports reproducible measurement tables for downstream "
-    "analysis."
-)
-license_choice = (
-    "BSD-3-Clause: permissive reuse while keeping attribution requirements clear."
-)
-first_tests = [
-    "segment_instances returns a label image with the same YX shape as input",
-    "measure_objects returns label, area, ratio, and ellipticity columns",
-    "the CLI writes a CSV for a tiny synthetic input",
-]
-citation_cff = {
-    "cff-version": "1.2.0",
-    "title": "Two-channel microscopy image analysis pipeline",
-    "authors": [{"family-names": "Scientist", "given-names": "Ada"}],
-    "version": "0.1.0",
-    "date-released": "2026-07-02",
-}
-data_note = (
-    "Raw microscopy files are stored in the institutional data repository under "
-    "accession XYZ. A small synthetic example is included for testing."
-)
-
-print(readme_summary)
-print(license_choice)
-print(first_tests)
-print(citation_cff)
-print(data_note)
