@@ -1,14 +1,14 @@
 """Synthetic image helpers used by multiple draft modules."""
 
-from __future__ import annotations
-
 import numpy as np
-from scipy.ndimage import gaussian_filter
 from skimage import data, filters
 
 
 def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
-    """Process images so that their histograms have issues."""
+    """Process images so that their histograms have issues.
+
+    Used in module 05.
+    """
     img = data.cells3d()[30, 1]
 
     # normalize to [0, 1] for controlled manipulations
@@ -24,19 +24,32 @@ def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
 
 
 def image_with_background(noise_level: int = 1_000) -> np.ndarray:
-    """Add noise and background to a cells3d slice."""
+    """Add noise and background to a cells3d slice.
+
+    Used in module 05.
+    """
     rng = np.random.default_rng()
 
     img = data.cells3d()
     img_slice = img[30, 1]
 
-    # generate background by averaging, smoothing and scaling
-    bg = np.sum(img[:15, 1], axis=0)
-    bg = filters.gaussian(bg, sigma=10)
-    bg = 10 * bg * img_slice.mean() / bg.mean()
+    # generate background as a single gaussian
+    yy, xx = np.indices(img_slice.shape)
+    bg = np.zeros_like(img_slice)
+    cy = 0.4 * img_slice.shape[0]
+    cx = 0.7 * img_slice.shape[1]
+    sigma = 80
+
+    bg = np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * sigma**2))
+    bg = img_slice.mean() * bg  # controls background strength
+
+    # # generate background by averaging, smoothing and scaling
+    # bg = np.sum(img[:15, 1], axis=0)
+    # bg = filters.gaussian(bg, sigma=10)
+    # bg = 10 * bg * img_slice.mean() / bg.mean()
 
     # use Poisson distributed noise
-    noisy = noise_level * rng.poisson(img_slice / noise_level)
+    noisy = img_slice + rng.normal(0, noise_level, img_slice.shape)
 
     # generate final image with same mean as the original
     tot_float = noisy + bg

@@ -540,6 +540,18 @@ plot_histogram(img)
 
 # %% [markdown]
 # <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">TODO</strong><br>
+#   Offset, flatfield, background (subtraction vs division)
+#   </div>
+#
+# <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
 #   padding: 12px 16px;
@@ -565,9 +577,50 @@ plot_histogram(img)
 # %%
 # --- Exercise
 # Apply Gaussian filter and subtract background
-bg = filters.gaussian(img, sigma=20)
-result = np.clip(img - bg, 0, None)
-plot_histogram(result)
+bg_gauss = filters.gaussian(img, sigma=20)
+result_gauss = np.clip(img - bg_gauss, 0, None)
+
+result_top_hat = morphology.white_tophat(img, footprint=morphology.disk(16))
+bg_top_hat = img - result_top_hat
+
+
+fig, axes = plt.subplots(
+    2,
+    3,
+    figsize=(10, 8),
+    gridspec_kw={
+        "width_ratios": [1.4, 1.4, 1]
+    },  # this is just to make the figure look nicer
+    constrained_layout=True,
+)
+
+axes[0, 0].imshow(result_gauss)
+axes[0, 0].set_title("Result Gauss")
+axes[0, 0].axis("off")
+
+axes[0, 1].imshow(bg_gauss)
+axes[0, 1].set_title("Background")
+axes[0, 1].axis("off")
+
+axes[0, 2].hist(result_gauss.ravel(), bins=50)
+axes[0, 2].set_xlabel("Intensity")
+axes[0, 2].set_ylabel("Pixel count")
+axes[0, 2].set_title("Histogram")
+
+axes[1, 0].imshow(result_top_hat)
+axes[1, 0].set_title("Result Top hat")
+axes[1, 0].axis("off")
+
+axes[1, 1].imshow(bg_top_hat)
+axes[1, 1].set_title("Background")
+axes[1, 1].axis("off")
+
+axes[1, 2].hist(result_top_hat.ravel(), bins=50)
+axes[1, 2].set_xlabel("Intensity")
+axes[1, 2].set_ylabel("Pixel count")
+axes[1, 2].set_title("Histogram")
+
+plt.tight_layout()
 # ---
 
 
@@ -581,19 +634,6 @@ plot_histogram(result)
 # </details>
 
 # %% [markdown]
-# <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #374151;
-# ">
-#   <strong>Optional Exercise</strong><br>
-#   There is a way to directly filter the backgroudn from the image using "morphology.white_tophat(img, footprint=morphology.disk(16))". Give it a try.
-# </div>
-#
-#
 # <div style="
 #   background: #f3f4f6;
 #   border-left: 6px solid #6b7280;
@@ -956,7 +996,6 @@ plt.tight_layout()
 
 # %%
 # --- Exercise
-from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 
 distance = ndi.distance_transform_edt(fused_mask)
@@ -964,7 +1003,7 @@ coords = peak_local_max(distance, footprint=np.ones((12, 12)), labels=fused_mask
 mask = np.zeros(distance.shape, dtype=bool)
 mask[tuple(coords.T)] = True
 markers, _ = ndi.label(mask)
-watershed_labels = watershed(-distance, markers, mask=fused_mask)
+watershed_labels = segmentation.watershed(-distance, markers, mask=fused_mask)
 
 fig, axes = plt.subplots(ncols=3, figsize=(9, 3), sharex=True, sharey=True)
 ax = axes.ravel()
@@ -973,7 +1012,7 @@ ax[0].imshow(fused_mask, cmap=plt.cm.gray)
 ax[0].set_title("Overlapping objects")
 ax[1].imshow(-distance, cmap=plt.cm.gray)
 ax[1].set_title("Distances")
-ax[2].imshow(watershed_labels, cmap=plt.cm.nipy_spectral)
+ax[2].imshow(watershed_labels, cmap=Colormap("glasbey").to_matplotlib())
 ax[2].set_title("Separated objects")
 
 for a in ax:
@@ -1055,30 +1094,12 @@ print(df.head())
 #
 
 # %% [markdown]
-# ## Optional exercises
+# ## Going further
 #
-# ### Skeletonization
-
-# %%
-
-# elongated = image > np.percentile(image, 80)
-# elongated = morphology.binary_closing(elongated, footprint=morphology.disk(2))
-# elongated = morphology.remove_small_objects(elongated, min_size=120)
-# skeleton = morphology.skeletonize(elongated)
-
-# fig, axes = plt.subplots(1, 3, figsize=(9, 3))
-# for ax, img, title in zip(
-#     axes,
-#     [image, elongated, skeleton],
-#     ["image", "clean mask", "skeleton"],
-# ):
-#     ax.imshow(img, cmap="gray")
-#     ax.set_title(title)
-#     ax.axis("off")
-# plt.tight_layout()
-# plt.show()
-
-# print("skeleton length in pixels:", skeleton.sum())
+# Image analysis is a rich field and there is never one-size-fits-all solution. Knowing where to find resources and helps to perform your analysis is paramount. Here is a selection:
+#
+# - Pete Bankhead's [BioImage Analysis Book](https://bioimagebook.github.io/index.html)
+# - [image.sc forum](image.sc): the bioimage analysis community is fantastic and eager to help you!
 
 # %% [markdown]
 # ## Summary
@@ -1088,6 +1109,7 @@ print(df.head())
 # they are usually stacked in a pipeline, and the nature and number of steps depend on the
 # analysis' need. Once again, it is more valuable to have a general idea of what's possible
 # and to know where to find the answer in scikit-image docs, that to know it by heart.
+#
 
 # %% [markdown]
 #
