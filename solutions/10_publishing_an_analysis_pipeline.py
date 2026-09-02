@@ -252,7 +252,7 @@
 def remove_background(img, func, params):
     bg = func(**params)
     res = img - bg
-    return img, bg
+    return res, bg
 
 
 # %%
@@ -291,16 +291,11 @@ def remove_background(
 #
 # Keep enough information to understand how results were produced:
 #
-# - code version or git commit,
-# - package versions or lock file,
-# - raw data location and checksum when possible,
-# - parameter file,
-# - command used to run the analysis,
-# - output directory and date,
-# - known limitations and QC decisions.
-#
-# When to use a parameter file: when a command has many options or when the same
-# pipeline is run across experiments with different settings.
+# - use git!
+# - code version or git commit used for the results
+# - lock file (remember `uv`?)
+# - parameter/configuration file for running scripts
+# - if possible, tag the commits used to create results (see [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging))
 #
 #
 # <div style="
@@ -355,31 +350,52 @@ print("Approximate 95% CI:", ci_95)
 # %% [markdown]
 # ## 7 - Advanced package features
 #
-# Tests, CI
+# Here are some advanced software engineering features worth mentining to improve code
+# quality, reproducibility and maintainability.
 #
-# Tests should cover the small functions that carry the analysis logic:
 #
-# - segmentation returns labels with the expected shape,
-# - empty images fail clearly or return empty results,
-# - measurement tables contain required columns,
-# - CLI parsing accepts documented arguments,
-# - a tiny example pipeline runs end to end.
-#
-# Continuous integration can run tests automatically on GitHub, GitLab, or other
-# platforms. Start small: one test file and one workflow is already useful.
+# - Tests are a suite of small functions that validate that each piece of software does
+# exactly what was intended. They are used to catch bugs and change of behaviours.
+# - Continuous Integration (CI) is the automation of the tests to continuously run them
+# against the latest changes.
+# - Continuous Deployment (CD) is the automation of the package release.
 
 # %% [markdown]
-# ## A small release checklist
+# ## 8 - A small release checklist
 #
 # Use a checklist before making a repository public or submitting a manuscript:
 #
-# - The repository has a license.
-# - The README contains install and run instructions.
-# - Dependencies are declared in `pyproject.toml` or equivalent.
-# - Example data or a clear data-access note exists.
-# - The analysis can run from a clean environment.
-# - Generated outputs are not mixed with source code.
-# - Core functions have at least small tests.
-# - Large data and private data are not committed.
-# - A release tag is created for the submitted version.
-# - Citation instructions are present.
+#
+# <input type="checkbox" checked> Code is on GitHub (or alternatives)<br/>
+# <input type="checkbox" checked> Code has a (open-source) license <br/>
+# <input type="checkbox" checked> (Optional, if applicable) Code is packageable <br/>
+# <input type="checkbox" checked> README contains clear install and run instructions <br/>
+# <input type="checkbox" checked> Dependencies are declared in `pyproject.toml` <br/>
+# <input type="checkbox" checked> A lockfile is provided <br/>
+# <input type="checkbox" checked> Example data has been released (e.g. Zenodo or BioImage Archive) <br/>
+# <input type="checkbox" checked> Example code runs on the example data <br/>
+# <input type="checkbox" checked> Reproducibility (and deterministic) scripts are provided <br/>
+# <input type="checkbox" checked> Core functionalities and output generation are not mixed <br/>
+# <input type="checkbox" checked> A release tag is created for the submitted pre-print/paper <br/>
+# <input type="checkbox" checked> Citation instructions are present <br/>
+#
+# <div style="
+#   background: #fdecec;
+#   border-left: 6px solid #d64545;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #7f1d1d;
+# ">
+#   <strong style="color: #7f1d1d;">Critical</strong><br>
+#   Don't underestimate how important and time-intensive data release is. You need to document
+#   scientifically and accurately how the data was acquired, (pre-)processed and analyzed. You need
+#   to describe the type, image size, bit depth, channel names, axes organization of the raw
+#   data.
+#
+#   Your future self and colleagues will thank you.
+#   </div>
+#
+
+# %% [markdown]
+#
