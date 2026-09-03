@@ -396,6 +396,3 @@ print("Approximate 95% CI:", ci_95)
 #   Your future self and colleagues will thank you.
 #   </div>
 #
-
-# %% [markdown]
-#
