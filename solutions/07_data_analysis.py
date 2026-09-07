@@ -53,7 +53,7 @@ def measure_slice(membrane, nuclei):
     # segment, as in module 5
     smoothed = filters.gaussian(nuclei, sigma=2, preserve_range=True)
     mask = smoothed > filters.threshold_otsu(smoothed)
-    mask = morphology.remove_small_objects(mask, min_size=200)
+    mask = morphology.remove_small_objects(mask, max_size=199)
     mask = ndi.binary_fill_holes(mask)
 
     # separate touching nuclei with a watershed
@@ -62,7 +62,7 @@ def measure_slice(membrane, nuclei):
     markers = np.zeros(mask.shape, dtype=int)
     markers[tuple(peaks.T)] = np.arange(1, len(peaks) + 1)
     labels = segmentation.watershed(-distance, markers, mask=mask)
-    labels = morphology.remove_small_objects(labels, min_size=200)
+    labels = morphology.remove_small_objects(labels, max_size=199)
 
     # measure both channels at once, by stacking them along the last axis
     table = pd.DataFrame(
@@ -193,7 +193,7 @@ table.describe()
 # %% [markdown]
 # ## 3 - Selecting rows and columns
 #
-# Three ways of filtering:
+# Three ways of selecting:
 #
 # - `table["area"]` returns one column, as a `Series`,
 # - `table[["label", "area"]]` returns several columns, as a dataframe,
@@ -476,8 +476,8 @@ per_image
 # A line plot is for measurements that have an order: a time course, a dose, or
 # here a position in the stack. Each call to `plot` adds one line to the axes.
 #
-# Our two channels are ten times apart in absolute intensity, so sharing an axis
-# would flatten one of them. Dividing each by its value in the first slice puts
+# Our two channels are about eight times apart in absolute intensity, so sharing
+# an axis would flatten one of them. Dividing each by its value in the first slice puts
 # them on a common scale, and asks how much each one changed rather than how
 # large it is.
 #
@@ -958,8 +958,7 @@ plt.show()
 # did not say which objects belong together. Clustering does.
 #
 # "scipy.cluster.hierarchy" builds a tree by repeatedly merging the two closest
-# groups. The height at which two objects join is how different they are, so we
-# cut the tree at a height instead of choosing a number of clusters in advance.
+# groups, then cuts that tree into as many groups as we ask for.
 #
 # <div style="
 #   background: #f3f4f6;
@@ -970,8 +969,8 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   Build the tree on the standardized features with "linkage", draw it with
-#   "dendrogram", then read the tree to decide where to cut it with "fcluster".<br>
+#   Build the tree on the standardized features with "linkage", then cut it into
+#   three groups with "fcluster".<br>
 #
 #   <b>Hint</b>: "linkage(standardized, method="ward")" and
 #   "fcluster(link, n, criterion="maxclust")".
@@ -981,14 +980,8 @@ plt.show()
 from scipy.cluster import hierarchy
 
 # --- Exercise
-# Build the tree, draw it, and cut it into groups
+# Build the tree and cut it into three groups
 link = hierarchy.linkage(standardized, method="ward")
-
-cluster_fig, ax = plt.subplots(figsize=(8, 4), constrained_layout=True)
-hierarchy.dendrogram(link, ax=ax, no_labels=True, color_threshold=0)
-ax.set_ylabel("distance at which groups merge")
-ax.set_title("Nuclei clustered by shape and intensity")
-
 objects["cluster"] = hierarchy.fcluster(link, 3, criterion="maxclust")
 # ---
 
@@ -1007,11 +1000,14 @@ print(objects["cluster"].value_counts().to_string())
 #   Why do we cluster "standardized" rather than the raw columns?
 # </div>
 #
-# Ward merges the groups that are closest in Euclidean distance, and distance is
-# the sum over columns. Area is around 100 and mean intensity is around 15000,
-# so on the raw table the intensity columns would contribute almost all of the
-# distance and the shape columns none. Standardizing puts every column on the
-# same footing: one unit is one standard deviation, whatever was measured.
+# Ward groups objects that are close together, and it measures closeness by
+# adding up the difference in every column. Our columns are not on the same
+# scale: area is around 100 um2, mean intensity around 15000. A difference in
+# intensity is therefore about a hundred times bigger than a difference in
+# area, so on the raw table intensity would decide the groups on its own.
+#
+# Standardizing rescales each column to a mean of 0 and a standard deviation of
+# 1. A difference of 1 then means the same thing in every column.
 
 # %% [markdown]
 # A cluster label on its own is just a number. To find out what separates the
@@ -1026,7 +1022,7 @@ objects.groupby("cluster")[
 # %% [markdown]
 # The three groups are readable. Cluster 3 is large and round, cluster 2 is
 # medium and elongated, and cluster 1 is a tight group of ten small, unusually
-# bright nuclei: 29 to 61 um2 against a median of 108.
+# bright objects: 29 to 61 um2 against a median of 108.
 #
 # We can see the same three groups on the PCA projection, by reusing the scatter
 # of the previous exercise and coloring by cluster instead of by area.
@@ -1055,29 +1051,31 @@ ax.legend()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Cluster 1 is ten small, bright nuclei. What are they?
+#   Cluster 1 is ten small, bright objects. What are they?
 # </div>
 #
-# Two things look like this. Chromatin condenses during mitosis, so a dividing
-# nucleus is smaller and brighter. A watershed that splits one nucleus in two
-# also leaves small, bright fragments.
+# Two explanations fit. Chromatin condenses during mitosis, so a dividing
+# nucleus really is smaller and brighter. But a watershed that splits one
+# nucleus down the middle also leaves small, bright pieces.
 #
-# The measurements cannot tell them apart, so select the rows and go back to the
-# images. Use the "image_id" and "label" columns to find the objects.
+# Both produce the same numbers, so the table cannot choose between them. What
+# it can do is tell us where to look: select the rows, then use "image_id" and
+# "label" to find these ten objects in the images.
 
 # %%
 suspects = objects.loc[objects["cluster"] == 1, ["image_id", "label", "area_um2"]]
 suspects.sort_values("area_um2").head()
 
 # %% [markdown]
-# A cross-tabulation counts the objects in every combination of two columns, and
-# is the quickest way to check a cluster against the acquisition.
+# One thing the table can settle on its own is whether cluster 1 is an artifact
+# of how we acquired the data. "pd.crosstab" counts the objects in every
+# combination of two columns, here cluster against depth.
 
 # %%
 pd.crosstab(objects["z_slice"], objects["cluster"])
 
 # %% [markdown]
-# All three clusters appear at every depth, so none of them is an artifact of
+# All three clusters appear at every depth, so cluster 1 is not an effect of
 # where we stopped slicing.
 #
 # <div style="
@@ -1090,9 +1088,10 @@ pd.crosstab(objects["z_slice"], objects["cluster"])
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #   "fcluster" returns the number of groups you ask for, whether or not the data
-#   contains them. Read the dendrogram before choosing: cutting these objects in
-#   two isolates only the ten small ones, and below three groups the merges
-#   happen at similar heights, which is why we cut at three.
+#   contains them. Nothing here proves there are three. Ask for two and you get
+#   the ten small objects against everything else; ask for four and the large
+#   round group splits in two. Always look at what the groups contain, as we did
+#   above, before believing in them.
 # </div>
 
 # %% [markdown]
@@ -1107,6 +1106,8 @@ pd.crosstab(objects["z_slice"], objects["cluster"])
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#   Save the per-image summary as a CSV and the PCA figure as a PNG, both into a
+#   "results" folder.
 #
 #   <b>Hint</b>: "to_csv(path, index=False)" and
 #   "savefig(path, dpi=200, bbox_inches="tight")".
@@ -1127,6 +1128,20 @@ print(f"Saved to {results.resolve()}")
 
 # %% [markdown]
 # ## Summary
-# what's the next module?
-# Tying this module into data visualization which comes next
+#
+# In this module we turned a folder of per-image measurements into a single
+# table, and the table into figures. We loaded and inspected it, selected rows
+# and columns, concatenated the images and merged in the metadata the pipeline
+# did not know, derived new columns, and summarized per image with "groupby".
+#
+# We then created 4 useful plots which help us to answer different
+# questions: a line plot for measurements that have an order, a box
+# plot for a distribution, a scatter plot for two variables at once with a third
+# in the color, and a fitted curve when a model is worth testing against the
+# data.
+#
+# The optional exercises help us to describe the objects and look for
+# for structure among them with correlations, as well as PCA and a clustering.
+#
+# More interesting ways to analyse and visualize data:
 #
