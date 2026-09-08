@@ -34,7 +34,7 @@
 # %% [markdown]
 # ## 1 - Navigate `skimage`
 #
-# Scikit-image has a fantastic [gallery of examples](https://scikit-image.org/docs/stable/auto_examples/index.html).
+# Scikit-image also has a fantastic [gallery of examples](https://scikit-image.org/docs/stable/auto_examples/index.html).
 #
 # <div style="
 #   background: #accffb;
