@@ -121,25 +121,6 @@ print(f"Image shape: {image_cells.shape}")
 # ---
 
 # %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Can you show a slice of the image and guess the axes?
-# </div>
-
-# %%
-# --- Exercise
-# Show the image
-plt.imshow(image_cells[30, 1])
-# ---
-
-# %% [markdown]
 # It is always a good idea to start by inspecting the intensity distribution of an image. Histograms are a quick way to see background, foreground, saturation, and
 # whether a global threshold might be plausible.
 #
@@ -1109,7 +1090,4 @@ print(df.head())
 # they are usually stacked in a pipeline, and the nature and number of steps depend on the
 # analysis' need. Once again, it is more valuable to have a general idea of what's possible
 # and to know where to find the answer in scikit-image docs, that to know it by heart.
-#
-
-# %% [markdown]
 #

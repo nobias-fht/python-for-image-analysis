@@ -389,7 +389,7 @@ plt.show()
 
 
 # %% [markdown]
-# ## Histogram
+# ## 4 - Image histogram
 #
 # It is always a good idea to start by inspecting the intensity distribution of an image. Histograms are a quick way to see background, foreground, saturation, and
 # whether a global threshold might be plausible.
@@ -403,7 +403,10 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Plot histogram
+#   Plot the histogram of a slice of the image.
+#
+#   <b>Hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
+#   using "img_slice.ravel()".
 # </div>
 
 # %%
@@ -419,10 +422,11 @@ plt.title("Image histogram")
 plt.show()
 
 # %% [markdown]
-# ## X - Subplots
+# ## 5 - Assembling figures with subplots
 
 # %% [markdown]
-# Let's plot the histogram next to an image using `plt.subplots`.
+# We have already briefly used `subplots`. It is quite powerful as it allows you to generate
+# complex figures.
 #
 # <div style="
 #   background: #accffb;
@@ -435,30 +439,21 @@ plt.show()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Let's plot the histogram next to an image using `plt.subplots`, using "hist" on the right pane.
 #
-#   <b>Hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
-#   using "img_slice.ravel()".
 # </div>
 
 # %%
-# --- Choose which slice of the image you want to inspect
 img_slice = image_cells[30, 1]
 
 # We create the subplot and show the image in the left-hand panel
-fig, axes = plt.subplots(
-    1,
-    2,
-    figsize=(8, 4),
-    gridspec_kw={
-        "width_ratios": [1.4, 1]
-    },  # this is just to make the figure look nicer
-    constrained_layout=True,
-)
+fig, axes = plt.subplots(1, 2)  # 1 row x 2 columns
+
+# Access the first panel using `axes[0]`
 axes[0].imshow(img_slice)
 axes[0].set_title("Image")
 axes[0].axis("off")
 
+# Plot the histogram in the second panel
 # --- Exercise
-# Plot the histogram
 axes[1].hist(img_slice.ravel(), bins=50)
 axes[1].set_xlabel("Intensity")
 axes[1].set_ylabel("Pixel count")
@@ -466,7 +461,6 @@ axes[1].set_title("Histogram")
 # ---
 
 plt.show()
-
 
 # %% [markdown]
 # <div style="
@@ -478,60 +472,173 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   We will re-use this code, so let's make it a function.
 #
-#   <b>Hint</b>: it is important to make sure you are using the function's parameters and
-#   not variable defined in your notebook, otherwise you will get strange results. It is a
-#   good habit to use different variable names in your functions.
+#   That does not look pretty. Play with the following parameters that can be passed
+#   to the `subplots` function:
+#   - `figsize`: tuple
+#   - `constrained_layout`: bool
+#   - `gridspec_kw{"width_ratios": [1.4, 1]}`
 # </div>
 
-
 # %%
-def plot_histogram(array):
-    # --- Exercise
-    # Add code here
-    _, axes = plt.subplots(
-        1,
-        2,
-        figsize=(8, 4),
-        gridspec_kw={
-            "width_ratios": [1.4, 1]
-        },  # this is just to make the figure look nicer
-        constrained_layout=True,
-    )
+img_slice = image_cells[30, 1]
 
-    axes[0].imshow(array, cmap="gray")
-    axes[0].set_title("Image")
-    axes[0].axis("off")
-
-    axes[1].hist(array.ravel(), bins=50)
-    axes[1].set_xlabel("Intensity")
-    axes[1].set_ylabel("Pixel count")
-    axes[1].set_title("Histogram")
-
-    plt.show()
-    # ---
-
-
-# %%
-
-# %%
-# simple
-
-
-# %%
-# with loop
-
-
-# %%
-# change layout and sizes
-
-# %% [markdown]
-# ## X - Saving figures
-
-# %%
 # --- Exercise
-plt.savefig()
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(8, 4),  # size of the figure (hight, width)
+    gridspec_kw={  # this is just to make the figure look nicer
+        "width_ratios": [1.4, 1]
+    },
+    constrained_layout=True,
+)
 # ---
 
+# Access the first panel using `axes[0]`
+axes[0].imshow(img_slice)
+axes[0].set_title("Image")
+axes[0].axis("off")
+
+# Plot the histogram in the second panel
+axes[1].hist(img_slice.ravel(), bins=50)
+axes[1].set_xlabel("Intensity")
+axes[1].set_ylabel("Pixel count")
+axes[1].set_title("Histogram")
+
+
+plt.show()
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What if we have more images and we want more than one row? Plot the same pairs of
+#   image and histogram, but this time for each channel, in the same plot.
+#
+#   <b>Hint</b>: think of how to loop over the figure.
+# </div>
+
 # %%
+img_slice = image_cells[30]  # we only select the Z slice
+
+# --- Exercise
+n_channels = img_slice.shape[0]
+fig_size = (8, 4 * n_channels)
+
+fig, axes = plt.subplots(
+    n_channels,
+    2,
+    figsize=fig_size,
+    gridspec_kw={"width_ratios": [1.4, 1]},
+    constrained_layout=True,
+)
+
+for idx in range(n_channels):
+    axes[idx, 0].imshow(img_slice[idx])
+    axes[idx, 0].set_title(f"Channel {idx}")
+    axes[idx, 0].axis("off")
+
+    # Plot the histogram in the second panel
+    axes[idx, 1].hist(img_slice[idx].ravel(), bins=50)
+    axes[idx, 1].set_xlabel("Intensity")
+    axes[idx, 1].set_ylabel("Pixel count")
+    axes[idx, 1].set_title("Histogram")
+# ---
+
+plt.show()
+
+# %% [markdown]
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#
+#   Automating your figure creation with scripts is going to save you tons of time in your
+#   projects.
+# </div>
+
+# %% [markdown]
+# ## 6 - Saving figures
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Once you have produced the perfect figure, it is important to save it. No need for
+#   screenshots, `matplotlib` has you covered with `plt.savefig`. Save a figure!
+# </div>
+
+# %%
+img_slice = image_cells[30]  # we only select the Z slice
+
+n_channels = img_slice.shape[0]
+fig_size = (8, 4 * n_channels)
+
+fig, axes = plt.subplots(
+    n_channels,
+    2,
+    figsize=fig_size,
+    gridspec_kw={"width_ratios": [1.4, 1]},
+    constrained_layout=True,
+)
+
+for idx in range(n_channels):
+    axes[idx, 0].imshow(img_slice[idx])
+    axes[idx, 0].set_title(f"Channel {idx}")
+    axes[idx, 0].axis("off")
+
+    # Plot the histogram in the second panel
+    axes[idx, 1].hist(img_slice[idx].ravel(), bins=50)
+    axes[idx, 1].set_xlabel("Intensity")
+    axes[idx, 1].set_ylabel("Pixel count")
+    axes[idx, 1].set_title("Histogram")
+
+# --- Exercise
+plt.savefig("channels_histogram.png")
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What is the best export format for editing your figures for a paper or presentation?
+# </div>
+
+# %% [markdown]
+# ## Going further
+#
+# - `matplotlib` [example gallery](https://matplotlib.org/stable/gallery/index.html)
+# - There are alternative ways to explore images in python:
+#     - other packages, e.g. `seaborn`, `plotnine`
+#     - real image viewers, such as `napari`
+
+# %% [markdown]
+# ## Summary
+#
+# In this module, we learned to navigate `matplotlib` docs and perform everyday plotting:
+# single images, overlays, and subplots. A large portion of your need are covered with these
+# examples, but there is an infinite world of possibilities with `matplotlib`.
