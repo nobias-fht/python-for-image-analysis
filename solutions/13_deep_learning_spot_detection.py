@@ -1,0 +1,8 @@
+# %% [markdown]
+# # Module 13: spot detection with Spotiflow
+#
+# %%
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from tifffile import imread, imwrite
