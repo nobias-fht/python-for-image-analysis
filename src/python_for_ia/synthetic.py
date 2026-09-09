@@ -43,11 +43,6 @@ def image_with_background(noise_level: int = 1_000) -> np.ndarray:
     bg = np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * sigma**2))
     bg = img_slice.mean() * bg  # controls background strength
 
-    # # generate background by averaging, smoothing and scaling
-    # bg = np.sum(img[:15, 1], axis=0)
-    # bg = filters.gaussian(bg, sigma=10)
-    # bg = 10 * bg * img_slice.mean() / bg.mean()
-
     # use Poisson distributed noise
     noisy = img_slice + rng.normal(0, noise_level, img_slice.shape)
 

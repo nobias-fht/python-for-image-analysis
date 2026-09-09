@@ -34,7 +34,7 @@
 # %% [markdown]
 # ## 1 - Navigate `skimage`
 #
-# Scikit-image has a fantastic [gallery of examples](https://scikit-image.org/docs/stable/auto_examples/index.html).
+# Scikit-image also has a fantastic [gallery of examples](https://scikit-image.org/docs/stable/auto_examples/index.html).
 #
 # <div style="
 #   background: #accffb;
@@ -118,25 +118,6 @@ image_cells = data.cells3d()
 # --- Exercise
 # Print the image shape
 print(f"Image shape: {image_cells.shape}")
-# ---
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Can you show a slice of the image and guess the axes?
-# </div>
-
-# %%
-# --- Exercise
-# Show the image
-plt.imshow(image_cells[30, 1])
 # ---
 
 # %% [markdown]
@@ -1109,7 +1090,4 @@ print(df.head())
 # they are usually stacked in a pipeline, and the nature and number of steps depend on the
 # analysis' need. Once again, it is more valuable to have a general idea of what's possible
 # and to know where to find the answer in scikit-image docs, that to know it by heart.
-#
-
-# %% [markdown]
 #

@@ -99,6 +99,20 @@ Code cells as:
   Optional exercises in gray
 </div>
 
+### Notes in yellow
+<div style="
+  background: #fff8db;
+  border-left: 6px solid #e2b200;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 0;
+  color: #8a6a00;
+">
+  <strong style="color: #8a6a00;">Note</strong><br>
+  
+  Notes in yellow.
+</div>
+
 ```
 
 
