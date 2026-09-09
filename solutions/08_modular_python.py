@@ -3,11 +3,18 @@
 #
 # Time: 2 hours 30 minutes.
 #
-# Essential ideas: a notebook prototype becomes reusable when separate concerns
-# are given names. Functions name actions, dataclasses bundle settings, enums
-# avoid magic strings, type hints document expectations, validation fails early,
-# logging records what happened, and small classes can coordinate state when
-# that helps.
+# Essential ideas:
+# - packaging
+# - functions
+# - documentation and typing
+# - no hard coded parameters
+# - classes
+# - dataclasses
+# - error raising
+# - separation of concerns
+# - mention testing
+# - immutability
+#
 
 # %%
 import logging
@@ -20,11 +27,6 @@ import numpy as np
 import pandas as pd
 from scipy import ndimage as ndi
 from skimage import filters, measure, morphology, segmentation
-
-from course_utils import make_two_channel_cells
-
-logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
-logger = logging.getLogger("module_08")
 
 # %% [markdown]
 # ## Concepts worth carrying from notebooks into software
