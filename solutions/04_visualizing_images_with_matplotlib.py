@@ -92,9 +92,23 @@ plt.show()
 # </div>
 
 # %% [markdown]
-# ## 2 - Inspecting an image
+# ## 2 - Color maps
 #
-# Let's start simple and just explore one image.
+# Color maps help us to visually interpret image data by showing us what value a pixel has.
+# Different types of color maps have different use-cases.
+# Matplotlib provides access to many color maps, take a look matplotlib's [color map reference](https://matplotlib.org/stable/gallery/color/colormap_reference.html).
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Matplotlib's color map reference splits the color maps into different categories, how do you think the use cases for <em>Sequential</em>, <em>Diverging</em> and <em>Cyclic</em> color maps differ?
+# </div>
 
 # %%
 # --- Import what we need
@@ -120,8 +134,8 @@ from skimage import data
 # %%
 image_cells = data.cells3d()
 
-# --- Exercise
 # Print the image shape
+# --- Exercise
 print(f"Image shape: {image_cells.shape}")
 # ---
 
@@ -136,18 +150,33 @@ print(f"Image shape: {image_cells.shape}")
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Can you show a slice of the image using `plt.imshow` and guess the axes?
+#   Use `plt.imshow` to show the the membrane slice, use `plt.colorbar` to show which intensity values the color map corresponds to.
 # </div>
 
 # %%
+membrane_slice = image_cells[30, 0]
+
 # --- Exercise
 # Show the image
-plt.imshow(image_cells[30, 0])
-plt.show()
+plt.imshow(membrane_slice)
+plt.colorbar()
 # ---
 
 # %% [markdown]
-# Part of visualizing data involves also choosing colormaps and contrast ranges that allow
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What is matplotlib's default color map?
+# </div>
+
+# %% [markdown]
+# Part of visualizing data involves also choosing color maps and contrast ranges that allow
 # you to correctly visualize the features you are interested in. Sometimes, it is also
 # a matter of taste.
 #
@@ -163,7 +192,7 @@ plt.show()
 #
 #   Let's change the contrast using `vmin` and `vmax` values.
 #
-#   <b>Hint</b>: what are the maximum values in the slice you are interested in?
+#   <b>Hint</b>: what are the maximum values in the slice you are interested in? Try using the function `np.percentile` to set the range.
 # </div>
 #
 #
@@ -177,21 +206,33 @@ plt.show()
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   What is the default contrast behaviour of `plt.imshow`?
+#   What is the default contrast behavior of `plt.imshow`?
 # </div>
 
 # %%
-image_slice = image_cells[30, 0]
-
 # --- Exercise
-# get vmin, vmax
-vmin, vmax = image_slice.min(), image_slice.max()
-print(f"vmin: {vmin}, vmax: {vmax}")
+lower_percentile = 1
+upper_percentile = 99
+vmin = np.percentile(membrane_slice, lower_percentile)
+vmax = np.percentile(membrane_slice, upper_percentile)
 
 # Show the image
-plt.imshow(image_slice, vmin=1_500, vmax=20_000)
-plt.show()
+plt.imshow(membrane_slice, vmin=vmin, vmax=vmax)
+plt.colorbar()
 # ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   How has the range changed on the colorbar?
+# </div>
 
 # %% [markdown]
 # <div style="
@@ -204,22 +245,106 @@ plt.show()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Let's change the color map using `cmap`.
+#   Let's change the color map using the `cmap` argument. Plot two images side by side: the default color map next to your chosen color map.
 #
-#   <b>Hint</b>: Can you list the colormaps?
+#   <b>Hint</b>: To use `plt.colorbar` in subplots you have to pass it the "mappable" returned from `plt.imshow` and the correct "axes" to the `ax` argument.
 # </div>
 
 # %%
-image_slice = image_cells[30, 0]
-
+# Use a figsize of (10, 4) - it is an argument to the `subplots` function.
 # --- Exercise
-# list colormaps
-from matplotlib import colormaps
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 
-print(f"List of colormaps: {list(colormaps)}")
+m1 = axes[0].imshow(membrane_slice, vmin=vmin, vmax=vmax)
+plt.colorbar(m1, ax=axes[0])
+m2 = axes[1].imshow(membrane_slice, cmap="cool", vmin=vmin, vmax=vmax)
+plt.colorbar(m2, ax=axes[1])
+# ---
 
-# Show the image
-plt.imshow(image_slice, cmap="twilight")
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   Can a color map change how you interpret the data?
+#   Look at the following image, do you think this color map is good or bad at representing the data compared to the default color map?
+# </div>
+
+# %%
+nuclear_slice = image_cells[30, 1]
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+vmin = 2_600
+vmax = 27_000
+
+m = axes[0].imshow(nuclear_slice, vmin=vmin, vmax=vmax)
+plt.colorbar(m, ax=axes[0])
+axes[0].set_title("viridis")
+m = axes[1].imshow(nuclear_slice, cmap="jet", vmin=vmin, vmax=vmax)
+plt.colorbar(m, ax=axes[1])
+axes[1].set_title("jet")
+
+# %% [markdown]
+# ### Diverging color maps
+#
+# Diverging color maps can be useful when you have positive and negative values.
+# Let's use a diverging color map to show how far from the median each pixel is.
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What is wrong with the image displayed below?
+#
+#   <details>
+#   <summary><strong>Hint❓</strong></summary>
+#     Think about what we want the central white value in the color map to be.
+#   </details>
+# </div>
+
+# %%
+median = np.median(nuclear_slice)
+median_diff = nuclear_slice - median
+
+plt.imshow(median_diff, cmap="bwr")
+plt.colorbar()
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Fix the example above so that we can interpret the data correctly.
+#
+#   <details>
+#   <summary><strong>Hint ❓</strong></summary>
+#     Choose appropriate values for <code>vmin</code> and <code>vmax</code>.
+#   </details>
+# </div>
+
+# %%
+# --- Exercise
+v = np.abs(median_diff).max()
+plt.imshow(median_diff, cmap="bwr", vmin=-v, vmax=v)
+plt.colorbar()
 # ---
 
 # %% [markdown]
@@ -249,7 +374,7 @@ plt.imshow(image_slice, cmap="twilight")
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #
-#   We often omit `plt.show()` because Jupyter notebooks are interactive envrionment that
+#   We often omit `plt.show()` because Jupyter notebooks are interactive environment that
 #   automatically trigger it. In scripts, you may have to add it.
 # </div>
 #
@@ -276,10 +401,10 @@ plt.imshow(image_slice, cmap="twilight")
 #
 
 # %%
-image_slice = image_cells[30, 0]
+membrane_slice = image_cells[30, 0]
 
 # --- Exercise
-plt.imshow(image_slice, cmap="gray")
+plt.imshow(nuclear_slice, cmap="gray")
 plt.title("My image")
 plt.axis("off")
 plt.show()
@@ -301,7 +426,7 @@ plt.show()
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   What's a good usecase for overlays?
+#   What's a good use-case for overlays?
 # </div>
 #
 # <div style="
@@ -316,7 +441,7 @@ plt.show()
 #
 #   Create an overlay with the image by using `ax.imshow`.
 #
-#   <b>Hint</b>: Use the `gray` and `inferno` colormaps, and play on the contrast.
+#   <b>Hint</b>: Use the `gray` and `inferno` color maps, and play on the contrast.
 # </div>
 
 # %%
@@ -343,9 +468,9 @@ plt.show()
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   What is wrong with this two-channels image?
+#   What is wrong with the two-channels image below?
 #
-#   <b>Hint</b>: the answer might be clear from knowing who cannot see this image "correctly".
+#   <b>Hint</b>: think about people who might not be able to see the image "correctly".
 # </div>
 
 # %%
@@ -373,13 +498,13 @@ plt.show()
 # </div>
 
 # %%
-image_slice = image_cells[30, 1]
-labels = image_slice > 25_000
+nuclear_slice = image_cells[30, 1]
+labels = nuclear_slice > 25_000
 
 fig, ax = plt.subplots()
 
 # --- Exercise
-ax.imshow(image_slice, cmap="gray")
+ax.imshow(nuclear_slice, cmap="gray")
 ax.imshow(labels, alpha=0.4)
 # ---
 
@@ -410,10 +535,10 @@ plt.show()
 # </div>
 
 # %%
-image_slice = image_cells[30, 1]
+nuclear_slice = image_cells[30, 1]
 
 # --- Exercise
-plt.hist(image_slice.ravel(), bins=256)
+plt.hist(nuclear_slice.ravel(), bins=256)
 plt.xlabel("Pixel intensity")
 plt.ylabel("Pixel count")
 # ---
