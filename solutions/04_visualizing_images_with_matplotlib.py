@@ -192,7 +192,7 @@ plt.colorbar()
 #
 #   Let's change the contrast using `vmin` and `vmax` values.
 #
-#   <b>Hint</b>: what are the maximum values in the slice you are interested in? Try using the function `np.percentile` to set the range.
+#   <b>Hint</b>: what are the maximum values in the slice you are interested in? Try using the function `np.percentile` to clip the range.
 # </div>
 #
 #
@@ -404,7 +404,7 @@ plt.colorbar()
 membrane_slice = image_cells[30, 0]
 
 # --- Exercise
-plt.imshow(nuclear_slice, cmap="gray")
+plt.imshow(membrane_slice, cmap="gray")
 plt.title("My image")
 plt.axis("off")
 plt.show()
