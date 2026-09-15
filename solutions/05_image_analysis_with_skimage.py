@@ -235,7 +235,7 @@ for row, (title, img_r) in enumerate(img_lst):
 
 
 # %%
-def plot_histogram(array):
+def plot_histogram(array: np.ndarray, label: str = ""):
     # --- Exercise
     # Add code here
     _, axes = plt.subplots(
@@ -255,7 +255,7 @@ def plot_histogram(array):
     axes[1].hist(array.ravel(), bins=50)
     axes[1].set_xlabel("Intensity")
     axes[1].set_ylabel("Pixel count")
-    axes[1].set_title("Histogram")
+    axes[1].set_title(f"Histogram {label}")
 
     plt.show()
     # ---
@@ -486,10 +486,53 @@ plt.tight_layout()
 # ## 4 - Background correction
 #
 # There are many ways to deal with background, and they are all specific to the type of
-# background you are battling with. You will not deal with uneven background the same way
-# than uniform one for instance.
+# background you are battling with. The first thing is to be aware that not all that is
+# perceived as background is true background, and understanding what the source of
+# image degradations is crucial to know what recipe to apply.
 #
-# Two main methods are used for background correction: averaging a stack when your signal
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#  Let's investigate a few degraded images. How can we investigate what the degradation might be?
+#
+#  <b>Hint</b>: the first image is the image without degradation, for reference.
+# </div>
+
+# %%
+from python_for_ia import images_with_various_degradations
+
+img_1, img_2, img_3, img_4, img_5 = images_with_various_degradations()
+
+# --- Exercise
+plot_histogram(img_1, "Vanilla")
+plot_histogram(img_2, "Offset")
+plot_histogram(img_3, "Background")
+plot_histogram(img_4, "Uneven illumination")
+plot_histogram(img_5, "All")
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What can be done to correct each of these cases?
+# </div>
+
+# %% [markdown]
+#
+# Let;s focus on simple background correction. Two main methods are used for background correction: averaging a stack when your signal
 # is moving but not the background, or separating the background from signal when they have
 # different spatial frequencies (background is varying slowly across the image, while
 # signal is changing on the small scale).
@@ -520,18 +563,6 @@ plot_histogram(img)
 # ---
 
 # %% [markdown]
-# <div style="
-#   background: #fdecec;
-#   border-left: 6px solid #d64545;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #7f1d1d;
-# ">
-#   <strong style="color: #7f1d1d;">TODO</strong><br>
-#   Offset, flatfield, background (subtraction vs division)
-#   </div>
-#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -627,6 +658,29 @@ plt.tight_layout()
 #   Check out the rolling-ball algorithm from scikit-image example gallery.
 # </div>
 #
+
+# %%
+# --- Exercise
+import skimage
+from python_for_ia import image_with_background
+
+image = image_with_background()
+background = skimage.restoration.rolling_ball(image, radius=30)
+result = np.clip(image - background, 0, None)
+
+fig, axes = plt.subplots(1, 3, figsize=(8, 6))
+axes[0].imshow(image)
+axes[0].set_title("Original")
+axes[0].axis("off")
+axes[1].imshow(background)
+axes[1].set_title("Background")
+axes[1].axis("off")
+axes[2].imshow(result)
+axes[2].set_title("Result")
+axes[2].axis("off")
+
+plt.tight_layout()
+# ---
 
 # %% [markdown]
 # ## 5 - Thresholding
