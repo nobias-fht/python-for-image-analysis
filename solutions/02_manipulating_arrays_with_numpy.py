@@ -113,30 +113,6 @@ print(zeros_array)
 # ---
 
 # %% [markdown]
-# Some other useful creational functions, which we will use throughout the module, include
-#
-# - [`np.arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html): create a 1D array of integers between for a given range and step difference.
-# - [`np.linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html): create a 1D array of `N` evenly spaced numbers for a given range.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#
-#   Look at the documentation for either `np.arange` or `np.linspace` and create a 1D array with the function of your choice.
-# </div>
-
-# %%
-# --- Exercise
-np.linspace(0, 1, 8, endpoint=False)
-# ---
-
-# %% [markdown]
 # <div style="
 #   background: #fff8db;
 #   border-left: 6px solid #e2b200;
@@ -147,9 +123,14 @@ np.linspace(0, 1, 8, endpoint=False)
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #
-#   Calling `np.arange(20)` is equivalent to `np.arange(0, 20, 1)`.
-# </div>
+#   Some other useful creational functions, which we will use throughout the module, include
 #
+#   - [`np.arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html): create a 1D array of integers between for a given range and step difference.
+#   - [`np.linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html): create a 1D array of `N` evenly spaced numbers for a given range.
+#
+#   We will us `np.arange` through the module to create example arrays.
+# </div>
+
 # %% [markdown]
 # ### Useful array properties
 #
@@ -183,13 +164,22 @@ print(f"itemsize: {a.itemsize}")
 # reshaped_array = array.reshape(4, 3, 2)
 # ```
 #
-# ### Flattening
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
 #
 # Sometimes we want to convert our array to a 1D array, for this we can use either the:
 # - `np.ravel` function or the `.ravel` method or
 # - the `.flatten` method.
 #
 # Make sure to check out the documentation!
+# </div>
 
 # %% [markdown]
 # <div style="
@@ -342,25 +332,30 @@ print("Removing the remaining singleton dimensions with a.squeeze()")
 a = a.squeeze()
 print(f"Shape after squeeze: {a.shape}")
 # %% [markdown]
-# ### A note on element order (Optional)
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note: </strong>Element order<br>
 #
 # Notice that if we reshape a 1D array into 2D or 3D to get the original order we read the elements along the last dimension followed by the second last etc. This is because NumPy is has row major ordering also known as being C-ordered because it is the order that the language C uses. However, it is not the only way to reshape an array, if an array is Fortran-ordered (F-ordered) the first dimension is traversed first, followed by the second etc.
-
-# %%
-print("C-ordered reshaping")
-a = np.arange(24).reshape(2, 3, 4)
-print(a)
-
-# %%
-print("F-ordered reshaping")
-a = np.arange(24).reshape(2, 3, 4, order="F")
-print(a)
-# %% [markdown]
-# The same ordering needs to be used when flattening to recover the original array
-
-# %%
-print("Flattened F-ordered array")
-print(a.flatten(order="F"))
+# </div>
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   Experiment with the `order` argument in `reshape`.
+# </div>
 
 # %% [markdown]
 # ## 3 - Mathematical operations & Broadcasting
@@ -423,7 +418,6 @@ print("Original array:")
 print(a)
 
 print("\nScaled array:")
-
 # scale the values in the array so that their range is [0, 1], print the result
 # --- Exercise
 scaled = (a - start) / (end - 1 - start)
@@ -707,7 +701,8 @@ a[:, :, 2]
 # </div>
 
 # %%
-a = np.random.random((5, 5))
+rng = np.random.default_rng()  # random number generator
+a = rng.random((5, 5))  # uniform distribution between 0 and 1
 
 print("Elements greater than the median:")
 # --- Exercise
@@ -813,9 +808,18 @@ print("Original array:")
 print(a)
 
 # %% [markdown]
-# #### How to tell if an array is a copy or a view?
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note:</strong> How can we tell if an array is a copy or a view?<br>
 #
 # The `base` property can be used, if an array is a view it will return the original array, if it is a copy is will return `None`. Check out NumPy's [documentation](https://numpy.org/doc/stable/user/basics.copies.html#how-to-tell-if-the-array-is-a-view-or-a-copy).
+# </div>
 
 # %% [markdown]
 # ## 6 - Data Types
