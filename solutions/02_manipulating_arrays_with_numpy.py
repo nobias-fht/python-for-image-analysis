@@ -277,7 +277,7 @@ a = np.transpose(a, (0, 2, 1))  # Solution 1
 # a = np.moveaxis(a, (1, 2), (2, 1))  # Solution 2
 # a = np.swapaxes(a, 1, 2)  # Solution 3
 # ---
-print(f"Shape after manipulation : {a.shape}\n")
+print(f"Shape after manipulation : {a.shape}")
 
 # %% [markdown]
 # <div style="
@@ -672,16 +672,21 @@ print(a[0, 1:-1, 1:-1])
 # ---
 
 # %% [markdown]
-# We can use the ***ellipsis*** `...` to expand dimensions selected with the empty slice `:`, for example we can select the middle columns of the previous array by doing:
-
-# %%
-a[..., 2]
-
-# %% [markdown]
-# This is equivalent to using the empty slice `:`, e.g.:
-
-# %%
-a[:, :, 2]
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#
+#   We can use the ***ellipsis*** `...` to expand dimensions selected with the empty slice `:`, for example if array `a` has 3 dimensions then the following indexing is equivalent:
+#
+#   - `a[..., 2]`
+#   - `a[:, :, a]`
+# </div>
 
 # %% [markdown]
 # #### Boolean indexing
@@ -711,9 +716,18 @@ print(a[a > median])
 # ---
 
 # %% [markdown]
-# #### Integer array indexing
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note:</strong> Integer array indexing<br>
 #
-# We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coorindates are passed as 1D arrays seperated by a comma. Broadcasting rules also apply to array indices. Check out the [documentation](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing) if you want to learn more!
+#   We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coorindates are passed as 1D arrays seperated by a comma. Broadcasting rules also apply to array indices. Check out the [documentation](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing) if you want to learn more!
+# </div>
 
 # %% [markdown]
 # ### Setting values
