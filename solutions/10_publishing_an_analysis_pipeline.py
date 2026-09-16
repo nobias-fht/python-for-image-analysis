@@ -14,8 +14,10 @@
 # - No license, so you don't know how to legally use it
 # - etc.
 #
+# The repository for the ground-breaking method that will solve your issues looking like this:
+#
 # ```markdown
-# image-analysis-scripts/
+# best_method_ever/
 # ├── analyze_new2.py
 # ├── analyze_new3.py
 # ├── cell2.py
@@ -33,7 +35,6 @@
 # easier to set up code to be reproduced than bench experiments. In this module, we will
 # go through a list of checkmarks to help you be a leading practitioner of FAIRness in
 # scientific code.
-#
 #
 # <div style="
 #   background: #f3f4f6;
@@ -96,6 +97,18 @@
 
 # %% [markdown]
 # <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   What did we learn that is important for releasing code but not reflected in the layout of your repository?
+# </div>
+#
+# <div style="
 #   background: #fdecec;
 #   border-left: 6px solid #d64545;
 #   padding: 12px 16px;
@@ -110,6 +123,10 @@
 
 # %% [markdown]
 # ## 2 - Minimal package layout
+#
+# Not every code needs to be a package, but we being packageable means that people can
+# easily use your code along side their own. We've have used `uv`, which makes this a lot
+# easier. Here we just have a peek at what a modern python package looks like.
 #
 # <div style="
 #   background: #accffb;
@@ -350,8 +367,8 @@ print("Approximate 95% CI:", ci_95)
 # %% [markdown]
 # ## 7 - Advanced package features
 #
-# Here are some advanced software engineering features worth mentining to improve code
-# quality, reproducibility and maintainability.
+# Here are some advanced software engineering features worth mentioning to improve code
+# quality, reproducibility and maintainability. We will not use them here.
 #
 #
 # - Tests are a suite of small functions that validate that each piece of software does
