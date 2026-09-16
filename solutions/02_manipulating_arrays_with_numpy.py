@@ -1125,57 +1125,6 @@ plt.imshow(data[1, :, :, 128])
 # </div>
 
 # %% [markdown]
-# ### Line profile example
-#
-# If we select data along a row of an image, we can plot it as a line profile, which can sometimes help us to interpret the data.
-
-# %%
-row_idx = 128  # Try chaning the row index!
-row_data = data[1, 30, row_idx, :]
-
-# Making a matplotlib figure with two plots
-fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-axes[0].imshow(data[1, 30])
-axes[0].plot([0, 256], [row_idx, row_idx], c="r")
-axes[0].set_xlim(0, 256)
-
-axes[1].plot(row_data, c="r")
-axes[1].set_ylim(0, None)
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Extract the a column from the 30th z-slice and plot the line profile.
-# </div>
-
-# %%
-# --- Exercise
-column_data = data[1, 30, :, 128]
-plt.plot(column_data, c="r")
-# ---
-
-# %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   From the line profiles above, can you estimate the intensity value of the background?
-# </div>
-#
-
-# %% [markdown]
 # ### Projections
 #
 # We call functions that can project the image to a lower dimension "projections", it can help us visualize 3D data in 2D. Common ways to project a 3D volume to 2D is to either:
@@ -1251,6 +1200,65 @@ plt.imshow(result)
 result = data[1, 30].astype(np.float64) * 3
 plt.imshow(result)
 # ---
+
+# %% [markdown]
+# ### Line profile (Optional)
+#
+# If we select data along a row of an image, we can plot it as a line profile, which can sometimes help us to interpret the data.
+
+# %%
+row_idx = 128  # Try chaning the row index!
+row_data = data[1, 30, row_idx, :]
+
+# Making a matplotlib figure with two plots
+fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+axes[0].imshow(data[1, 30])
+axes[0].plot([0, 256], [row_idx, row_idx], c="r")
+axes[0].set_xlim(0, 256)
+
+axes[1].plot(row_data, c="r")
+axes[1].set_ylim(0, None)
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Extract the a column from the 30th z-slice and plot the line profile.
+# </div>
+
+# %%
+# --- Exercise
+column_idx = 128
+
+column_data = data[1, 30, :, column_idx]
+
+# Making a matplotlib figure with two plots
+fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+axes[0].imshow(data[1, 30])
+axes[0].plot([column_idx, column_idx], [265, 0], c="r")
+axes[0].set_ylim(255, -1)
+axes[1].plot(column_data, c="r")
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   From the line profiles above, can you estimate the intensity value of the background?
+# </div>
+#
 
 # %% [markdown]
 # ### Meshgrid (Optional)
