@@ -17,8 +17,8 @@ class Pipeline:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    def run_image(self, image: NDArray) -> pd.DataFrame:
-        """Measure one image of shape (channel, y, x). Return one row per nucleus."""
+    def run_image(self, image: NDArray) -> tuple[NDArray, pd.DataFrame]:
+        """Return a 2D label image and one measurement row per nucleus."""
         if image.ndim != 3:
             raise ValueError(
                 f"Expected an image of shape (channel, y, x), got {image.shape}."
@@ -29,14 +29,14 @@ class Pipeline:
         mask = make_mask(corrected, self.settings)
         mask = clean_mask(mask, self.settings)
         labels = separate_objects(mask, self.settings)
-        return measure_objects(labels, target)
+        return labels, measure_objects(labels, target)
 
     def run_folder(self, folder: str | Path) -> pd.DataFrame:
         """Measure every image of a folder. Return one table, with an image column."""
         paths, images = load_images(folder)
         tables = []
         for path, image in zip(paths, images):
-            table = self.run_image(image)
+            _, table = self.run_image(image)
             table.insert(0, "image", path.stem)
             tables.append(table)
         return pd.concat(tables, ignore_index=True)
