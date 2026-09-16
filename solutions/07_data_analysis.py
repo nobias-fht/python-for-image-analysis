@@ -12,6 +12,8 @@
 # a table with named columns, each column holding one type, and it is usually the best
 # choice for the output of a measurement step.
 #
+# If in doubt, always check out the [user documentation](https://pandas.pydata.org/docs/user_guide/index.html#user-guide).
+#
 # ### Question
 #
 # How do we go from a table of measurements to a figure?
@@ -23,98 +25,11 @@
 # - Fit a curve to your data with `scipy`
 
 # %% [markdown]
-# ## 1 - From images to a table
+# ## 1 - Loading a table
 #
-# We work on `cells3d`, a two-channel acquisition from the scikit-image sample
-# data. Segmenting a few of its z-slices and measuring both channels gives us the
-# table for this module.
-
-
-# %%
-from skimage import data
-
-image = data.cells3d()
-print(f"Image shape: {image.shape}")
-
-# %% [markdown]
-# The pipeline below is the one from this morning: filter, threshold, clean up,
-# separate, measure. Read it, but do not retype it.
-
-
-# %%
-import numpy as np
-import pandas as pd
-from scipy import ndimage as ndi
-from skimage import feature, filters, measure, morphology, segmentation
-
-
-def measure_slice(membrane, nuclei):
-    """Segment the nuclei of one slice and measure both channels."""
-    # segment, as in module 5
-    smoothed = filters.gaussian(nuclei, sigma=2, preserve_range=True)
-    mask = smoothed > filters.threshold_otsu(smoothed)
-    mask = morphology.remove_small_objects(mask, max_size=199)
-    mask = ndi.binary_fill_holes(mask)
-
-    # separate touching nuclei with a watershed
-    distance = ndi.distance_transform_edt(mask)
-    peaks = feature.peak_local_max(distance, min_distance=20, labels=mask)
-    markers = np.zeros(mask.shape, dtype=int)
-    markers[tuple(peaks.T)] = np.arange(1, len(peaks) + 1)
-    labels = segmentation.watershed(-distance, markers, mask=mask)
-    labels = morphology.remove_small_objects(labels, max_size=199)
-
-    # measure both channels at once, by stacking them along the last axis
-    table = pd.DataFrame(
-        measure.regionprops_table(
-            labels,
-            intensity_image=np.stack([membrane, nuclei], axis=-1),
-            properties=(
-                "label",
-                "area",
-                "perimeter",
-                "eccentricity",
-                "axis_major_length",
-                "axis_minor_length",
-                "intensity_mean",
-            ),
-        )
-    )
-    table = table.rename(
-        columns={
-            "intensity_mean-0": "mean_intensity_membrane",
-            "intensity_mean-1": "mean_intensity_nuclei",
-        }
-    )
-
-    # objects touching the image border are truncated, flag them
-    interior = np.unique(segmentation.clear_border(labels))
-    table["on_border"] = ~table["label"].isin(interior)
-
-    return table
-
-
-# %% [markdown]
-# A pipeline saves its results to disk, one file per image. Let's do the same.
-
-# %%
-from pathlib import Path
-
-folder = Path("scratch_outputs/module_07")
-folder.mkdir(parents=True, exist_ok=True)
-
-z_slices = [24, 28, 32, 36, 40, 44]
-
-for index, z in enumerate(z_slices):
-    table = measure_slice(image[z, 0], image[z, 1])
-    table.insert(0, "image_id", f"image_{index:02d}")
-    table.to_csv(folder / f"image_{index:02d}.csv", index=False)
-
-files = sorted(folder.glob("*.csv"))
-print(f"{len(files)} files written")
-
-# %% [markdown]
-# ## 2 - Loading a table
+# Oftentimes, a pipeline will result in measurements, as we've seen during the practical. Here,
+# we will assume that some measurements were created and saved to .csv files.
+#
 #
 # <div style="
 #   background: #accffb;
@@ -125,12 +40,17 @@ print(f"{len(files)} files written")
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Read the first file into a dataframe and show its first rows.
 #
-#   <b>Hint</b>: "pd.read_csv" takes a path, and every dataframe has a "head()".
+#   Read the first file into a dataframe (`pd.read_csv`) and show its first rows (`dataframe.head()`).
 # </div>
 
 # %%
+import pandas as pd
+from python_for_ia import get_measurement_paths
+
+files = get_measurement_paths()
+print(files)
+
 # --- Exercise
 # Read the first CSV file and show the first rows
 table = pd.read_csv(files[0])
@@ -147,9 +67,10 @@ table.head()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   What does one row describe? And one column?
+#   What does one row describe? And one column? How do you reckon these measurements were obtained?
 # </div>
-#
+
+# %% [markdown]
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -191,44 +112,57 @@ table.describe()
 # </div>
 
 # %% [markdown]
-# ## 3 - Selecting rows and columns
+# ## 2 - Selecting rows and columns
 #
-# Three ways of selecting:
+# As you can imagine, Dataframes can be very large and in order to explore them, we also need
+# to select only certain elements. For instance, to select one or more columns you
+# can pass their names as a list of string in `table[...]`.
 #
-# - `table["area"]` returns one column, as a `Series`,
-# - `table[["label", "area"]]` returns several columns, as a dataframe,
-# - `table.loc[<rows>, <columns>]` returns both, where `<rows>` is a condition.
-
-# %%
-print(type(table["area"]))
-print(type(table[["label", "area"]]))
-
-print(f"Mean area: {table['area'].mean():.1f} pixels")
-
-# %% [markdown]
-# A condition on a column gives one `True` or `False` per row. Passing it to
-# `.loc` keeps the rows that are `True`.
-
-# %%
-is_large = table["area"] > 1000
-print(is_large.head())
-
-large_objects = table.loc[is_large]
-print(f"{len(large_objects)} objects out of {len(table)} are larger than 1000 px")
-
-# %% [markdown]
 # <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #1f5f2c;
+#   color: #21457f;
 # ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   What did the comparison return, and how many entries does it have? Compare
-#   that with the length of "large_objects".
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Select two columns from the dataframe.
 # </div>
+#
+#
+#
+
+# %%
+# --- Exercise
+table[["label", "area"]]
+# ---
+
+# %% [markdown]
+# More interesting is to be able to select conditionally certain rows. A condition on a column gives one `True` or `False` per row. Passing it to
+# the `.loc` method keeps the rows that are `True`.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Use the condition to select a subset of the table.
+# </div>
+#
+
+# %%
+# condition
+is_large = table["area"] > 1000
+
+# --- Exercise
+large_objects = table.loc[is_large]
+print(f"{len(large_objects)} objects out of {len(table)} are larger than 1000 px")
+# ---
 
 # %% [markdown]
 # <div style="
@@ -241,10 +175,9 @@ print(f"{len(large_objects)} objects out of {len(table)} are larger than 1000 px
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Select the label and area of the objects larger than 1000 pixels that do not
-#   touch the border, sorted by decreasing area.
+#   touch the border, sorted by decreasing area. Built it one condition at a time!
 #
-#   <b>Hint</b>: combine conditions with "&" and "~", each in its own
-#   parentheses. Sort with "sort_values(by=..., ascending=False)".
+#   <b>Hint</b>: combine conditions with "&" (and) and "~" (not), each condition surrounded by parenthesis. Sort with "sort_values(by=..., ascending=False)".
 # </div>
 
 # %%
@@ -260,23 +193,24 @@ selected.head()
 
 # %% [markdown]
 # <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #8a6a00;
+#   color: #374151;
 # ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#   The parentheses are not optional, "&" binds more tightly than ">". And on
-#   columns you need "&", "|", "~", not "and", "or", "not".
+#   <strong>Optional Exercise</strong><br>
+#   We've used the logical AND (&) and NOT (~), what is OR?
 # </div>
 
 # %% [markdown]
-# ## 4 - Putting tables together
+# ## 3 - Concatenation and merging
 #
-# One image is never enough. Our files share the same columns, so `pd.concat`
-# stacks them into a single, longer table.
+# In the case of our example, we have loaded a single file pertaining to a single image.
+# But we actually have many frames and all these results should be gathered within the same
+# dataframe. Among the operations we can perform on a dataframe, we can use `pd.concat`
+# to stacks them into a single, larger table.
 #
 # <div style="
 #   background: #accffb;
@@ -290,7 +224,7 @@ selected.head()
 #   Read all the files and concatenate them into one dataframe called "measurements".
 #
 #   <b>Hint</b>: build a list of dataframes, then call
-#   "pd.concat(tables, ignore_index=True)".
+#   `pd.concat(tables, ignore_index=True)`.
 # </div>
 
 # %%
@@ -301,7 +235,7 @@ measurements = pd.concat(tables, ignore_index=True)
 # ---
 
 print(f"{len(measurements)} objects in {len(files)} images")
-print(measurements["image_id"].value_counts())
+measurements.head()
 
 # %% [markdown]
 # <div style="
@@ -318,21 +252,6 @@ print(measurements["image_id"].value_counts())
 # </div>
 
 # %% [markdown]
-# Everything the microscope knew and the pipeline did not lives in a separate
-# table. `pd.merge` joins the two on a shared column: each object gets the
-# metadata of the image it came from.
-
-# %%
-metadata = pd.DataFrame(
-    {
-        "image_id": [f"image_{index:02d}" for index in range(len(z_slices))],
-        "z_slice": z_slices,
-        "pixel_size_um": 0.26,  # voxel size of cells3d, in micrometers
-    }
-)
-metadata
-
-# %% [markdown]
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -342,22 +261,32 @@ metadata
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Merge the metadata into the measurements on "image_id", then convert areas
-#   and perimeters into physical units.
+#   Let's say we now want to add metadata from the images that were not in the original
+#   result tables.
+#
+#   Merge the metadata into the measurements on "image_id".
 #
 #   <b>Hint</b>: "pd.merge(left, right, on=...)". An area is a length squared.
 # </div>
 
 # %%
+# add metadata to the dataframe
+z_slices = [24, 28, 32, 36, 40, 44]
+metadata = pd.DataFrame(
+    {
+        "image_id": [f"image_{index:02d}" for index in range(len(z_slices))],
+        "z_slice": z_slices,
+        "pixel_size_um": 0.26,  # voxel size of cells3d, in micrometers
+    }
+)
+
 # --- Exercise
 # Merge, then convert to micrometers
 measurements = pd.merge(measurements, metadata, on="image_id")
-
-measurements["area_um2"] = measurements["area"] * measurements["pixel_size_um"] ** 2
-measurements["perimeter_um"] = measurements["perimeter"] * measurements["pixel_size_um"]
 # ---
 
-measurements[["image_id", "label", "area", "area_um2"]].head()
+measurements.head()
+
 
 # %% [markdown]
 # <div style="
@@ -375,6 +304,28 @@ measurements[["image_id", "label", "area", "area_um2"]].head()
 
 # %% [markdown]
 # <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   We can also create new columns similarly to new dictionary entries. Let's use the newly added metadata to convert areas
+#   and perimeters into physical units.
+# </div>
+
+# %%
+# --- Exercise
+measurements["area_um2"] = measurements["area"] * measurements["pixel_size_um"] ** 2
+measurements["perimeter_um"] = measurements["perimeter"] * measurements["pixel_size_um"]
+# ---
+
+measurements[["image_id", "label", "area", "area_um2"]].head()
+
+# %% [markdown]
+# <div style="
 #   background: #fff8db;
 #   border-left: 6px solid #e2b200;
 #   padding: 12px 16px;
@@ -389,9 +340,6 @@ measurements[["image_id", "label", "area", "area_um2"]].head()
 # </div>
 
 # %% [markdown]
-# The table is complete, so we can derive from it. Creating a column works like
-# assigning to a dictionary key, on the whole column at once and without a
-# `for` loop.
 #
 # <div style="
 #   background: #accffb;
@@ -404,11 +352,11 @@ measurements[["image_id", "label", "area", "area_um2"]].head()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Add two columns to "measurements": the "ellipticity" of each object, and the
 #   ratio of its mean membrane intensity over its mean nuclei intensity.
-#
-#   <b>Hint</b>: ellipticity is "1 - minor axis / major axis", so a circle gives
-#   0. You need "axis_major_length", "axis_minor_length",
-#   "mean_intensity_membrane" and "mean_intensity_nuclei".
 # </div>
+#
+# $$\epsilon = 1 - \frac{A_{minor}}{A_{major}}$$
+#
+# where $A_{minor} corresponds to `"axis_minor_lenth"`, and $A_{major}$ to its major counterpart.
 
 # %%
 # --- Exercise
@@ -424,7 +372,7 @@ measurements["intensity_ratio"] = (
 measurements[["image_id", "label", "ellipticity", "intensity_ratio"]].head()
 
 # %% [markdown]
-# ## 5 - Summarizing per image
+# ## 4 - Summarizing per image
 #
 # `groupby` splits the table into groups, computes something on each, and puts
 # the results back together. It answers "one number per image", or per condition.
@@ -466,20 +414,52 @@ per_image
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   This summary has one row per image, all from a single acquisition. What
+#   This summary has one row per image. What
 #   would you need before putting any of these numbers in a paper?
 # </div>
 
 # %% [markdown]
-# ## 6 - Ordered measurements: the line plot
+# ## 5 - Ordered measurements: the line plot
 #
-# A line plot is for measurements that have an order: a time course, a dose, or
-# here a position in the stack. Each call to `plot` adds one line to the axes.
+# We can use the dataframe to plot particular aspects of the measurements.
 #
-# Our two channels are about eight times apart in absolute intensity, so sharing
-# an axis would flatten one of them. Dividing each by its value in the first slice puts
-# them on a common scale, and asks how much each one changed rather than how
-# large it is.
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Let's plot mean intensity of each channel over the Z slice. If we are not interested in
+#   comparing absolute intensities but rate of changes, what is the issue with this plot?
+# </div>
+
+# %%
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
+
+ax.plot(
+    per_image["z_slice"],
+    per_image["membrane_relative"],
+    marker="o",
+    label="membrane",
+)
+ax.plot(
+    per_image["z_slice"],
+    per_image["nuclei_relative"],
+    marker="o",
+    label="nuclei",
+)
+ax.legend()
+ax.set_xlabel("z slice")
+ax.set_ylabel("Mean intensity, relative to the first slice")
+ax.set_title("Signal with depth")
+plt.show()
+
+# %% [markdown]
 #
 # <div style="
 #   background: #accffb;
@@ -490,13 +470,8 @@ per_image
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Add a column per channel holding its mean intensity divided by the value in
-#   the first slice, then plot both against "z_slice", with a marker on every
-#   point.
-#
-#   <b>Hint</b>: ".iloc[0]" gives the first value of a column. Call "ax.plot"
-#   twice, passing "label=" so that "ax.legend()" can name the lines, and
-#   "marker="o"" to draw the points.
+#   Create two new columns in the dataframe that would allow us to plot the relative rates of changes
+#   and plot them for each channel.
 # </div>
 
 # %%
@@ -534,7 +509,7 @@ ax.set_title("Signal with depth")
 plt.show()
 
 # %% [markdown]
-# ## 7 - Distributions: the box plot
+# ## 6 - Distributions: the box plot
 #
 # The box spans the first to the third quartile, the line is the median, the
 # whiskers reach the points within 1.5 interquartile ranges, and the rest is
@@ -574,19 +549,6 @@ ax.set_title("Area distribution per image")
 plt.show()
 
 # %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Can you tell, from the boxes alone, how many objects each one summarizes?
-# </div>
-
-# %% [markdown]
 # The same plot, grouped by a property of the objects instead. Objects touching
 # the border are cut off by the field of view, and the pipeline flagged them.
 #
@@ -607,6 +569,8 @@ plt.show()
 # </div>
 
 # %%
+import numpy as np
+
 rng = np.random.default_rng(42)
 
 border = measurements.loc[measurements["on_border"], "area_um2"]
@@ -1114,6 +1078,8 @@ pd.crosstab(objects["z_slice"], objects["cluster"])
 # </div>
 
 # %%
+from pathlib import Path
+
 results = Path("scratch_outputs/results")
 
 # --- Exercise
