@@ -1,492 +1,458 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.4
+#   kernelspec:
+#     display_name: python-for-image-analysis (3.13.5)
+#     language: python
+#     name: python3
+# ---
+
 # %% [markdown]
-# # Module 8: modular Python
+# # Module 8: a reusable image-analysis pipeline
 #
-# Time: 2 hours 30 minutes.
+# Your collaborator wants to use your pipeline and analyse another image with a different background removal radius.
 #
-# Essential ideas:
-# - packaging
-# - functions
-# - documentation and typing
-# - no hard coded parameters
-# - classes
-# - dataclasses
-# - error raising
-# - separation of concerns
-# - mention testing
-# - immutability
+# Start from your module 6 notebook and make that step reusable.
 #
+# Then organise your full analysis into reusable Python modules.
+
+# %% [markdown]
+# ## 1 - From a notebook cell to a function
+#
+# Time: 10 minutes.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Open your module 6 notebook. Find the background-removal step and copy the
+#   code needed to run it on <strong>one image</strong> into the cell below.
+#   Bring over imports and loading code as needed, and adapt the file path.
+#   Use radius <code>16</code>. Keep the loaded image as <code>image</code> and
+#   the corrected nucleus channel as <code>original_result</code>.<br>
+#   Run it here. Which other variables or cells did you need to bring along?
+# </div>
 
 # %%
-import logging
-from dataclasses import asdict, dataclass, replace
-from enum import Enum
+# --- Exercise
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from scipy import ndimage as ndi
-from skimage import filters, measure, morphology, segmentation
+from skimage import morphology
+from tifffile import imread
+
+project_root = Path.cwd()
+if project_root.name in {"solutions", "exercises"}:
+    project_root = project_root.parent
+image_folder = project_root / "data/practical_project/noisy"
+image_paths = sorted(image_folder.glob("*.tif"))
+if not image_paths:
+    raise FileNotFoundError(f"Place the module 6 TIFF images in {image_folder}.")
+image = imread(image_paths[0])
+channel = image[0]
+radius = 16
+original_result = morphology.white_tophat(channel, footprint=morphology.disk(radius))
+plt.imshow(original_result, cmap="gray")
+plt.title("Background removed")
+plt.axis("off")
+plt.show()
+# ---
 
 # %% [markdown]
-# ## Concepts worth carrying from notebooks into software
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Which variables must exist before your copied code can run?
+#   What would you copy or change to process a second image while keeping the first result?
+# </div>
 #
-# In scientific Python, "software engineering" does not mean making everything
-# abstract. It means making the analysis easier to understand, rerun, test, and
-# change without breaking hidden assumptions.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Extract the computation into <code>remove_background(channel, radius)</code>.
+#   Take a 2D channel and a radius in pixels, and return the corrected image.
+#   Receive both inputs through arguments. Keep loading and plotting outside
+#   the function, and preserve the original computation.
+# </div>
 #
-# Useful concepts in this module:
-#
-# - **Pure functions**: same input gives same output, with no hidden file writes.
-#   They are easy to test.
-# - **Side effects at the boundary**: saving files, printing, plotting, and
-#   logging should be explicit.
-# - **Type hints**: lightweight documentation for humans and tools.
-# - **Docstrings**: short explanations of purpose, parameters, and returned
-#   values.
-# - **Validation**: fail early when images, settings, or tables are invalid.
-# - **Configuration objects**: keep parameters together instead of scattering
-#   numbers across cells.
-# - **Small tests**: executable assumptions that protect you while refactoring.
+# ```python
+# def remove_background(channel, radius):
+#     # Compute the corrected image here.
+#     return corrected
+# ```
 
-# %% [markdown]
-# ## From notebook cells to functions
-#
-# A good function usually:
-#
-# - has one main responsibility,
-# - has a name that says what it does,
-# - receives inputs explicitly,
-# - returns outputs rather than relying on global variables.
-#
-# Utility: functions let students rerun the same analysis on a new image without
-# copying five notebook cells and accidentally changing one of them.
-#
-# Pitfall: turning every line into a tiny function can make code harder to read.
-# Refactor around concepts that you expect to reuse or test.
 
 # %%
+# --- Exercise
+# Write remove_background here.
+def remove_background(channel, radius):
+    footprint = morphology.disk(radius)
+    return morphology.white_tophat(channel, footprint=footprint)
 
 
-class PopulationRule(Enum):
-    """Available rules for assigning objects to two populations."""
+# ---
 
-    RATIO_ONE = "ratio_one"
-    MEDIAN_RATIO = "median_ratio"
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Call your function twice on <code>image[0]</code>, with radii
+#   <code>16</code> and <code>8</code>. Keep both outputs as
+#   <code>result_16</code> and <code>result_8</code>.
+#   Plot them side by side with titles identifying the radii.
+# </div>
+
+# %%
+# --- Exercise
+# Run your function and plot the result.
+result_16 = remove_background(image[0], 16)
+result_8 = remove_background(image[0], 8)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+vmax = max(result_16.max(), result_8.max())
+axes[0].imshow(result_16, cmap="gray", vmin=0, vmax=vmax)
+axes[0].set_title("Radius: 16 pixels")
+axes[1].imshow(result_8, cmap="gray", vmin=0, vmax=vmax)
+axes[1].set_title("Radius: 8 pixels")
+for ax in axes:
+    ax.set_axis_off()
+plt.tight_layout()
+plt.show()
+# ---
+
+# %% [markdown]
+# Check that extracting the function preserved the result. This assertion
+# passes silently if the two arrays match; otherwise it raises an error.
+
+# %%
+import numpy as np
+
+np.testing.assert_array_equal(result_16, original_result)
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Did changing the radius require editing the function?
+#   How would you call it on a second image? What stays the same?
+# </div>
+
+# %% [markdown]
+# ## 2 - Move the function into a module
+#
+# Time: 10 minutes.
+#
+# A module is a Python file that we can import. Keep reusable computation in
+# that file, and keep image loading, experiments, and plots in the notebook.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Create <code>analysis.py</code> beside your notebook in VS Code.
+#   Move <code>remove_background</code> into it, together with the
+#   <code>morphology</code> import it needs. Do not copy the image loading or plots.<br>
+#   Replace your earlier function-definition cell with
+#   <code>from analysis import remove_background</code>.
+#   Save the file, restart the kernel, and run from the top through the
+#   two-radius comparison. The plots and equality check should still work.
+# </div>
+
+# %% [markdown]
+# Confirm that we can also call the function through its module name.
+# This makes it visible which file provides the computation.
+
+# %%
+# --- Exercise
+import analysis
+
+module_result_16 = analysis.remove_background(image[0], 16)
+module_result_8 = analysis.remove_background(image[0], 8)
+# ---
+
+# %%
+np.testing.assert_array_equal(module_result_16, result_16)
+np.testing.assert_array_equal(module_result_8, result_8)
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Why does <code>analysis.py</code> need its own import, even though the notebook
+#   already imports <code>morphology</code>? Could a second notebook use this file?
+# </div>
+#
+# Python caches imported modules. After editing <code>analysis.py</code>, save
+# it, restart the kernel, and rerun the notebook to load the updated code.
+
+# %% [markdown]
+# ## 3 - Make parameters explicit
+#
+# Time: 10 minutes.
+#
+# A settings object gives names and defaults to the parameters of an analysis.
+# We start with one parameter; later the same object can hold smoothing and
+# segmentation parameters too. The dataclass syntax is supplied below.
+# `frozen=True` prevents changing fields on an existing settings object.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Copy this scaffold into the next cell. Replace <code>pass</code> with a
+#   field named <code>tophat_radius</code>, with type <code>int</code> and
+#   default <code>16</code>. The radius is measured in pixels.
+# </div>
+#
+# ```python
+# from dataclasses import dataclass
+#
+# @dataclass(frozen=True)
+# class Settings:
+#     pass  # field syntax: name: type = default
+# ```
+
+# %%
+# --- Exercise
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class SegmentationSettings:
-    """Parameters that control the segmentation and classification workflow."""
-
-    min_size: int = 80
-    hole_area: int = 80
-    threshold_scale: float = 1.0
-    population_rule: PopulationRule = PopulationRule.RATIO_ONE
-
-    def __post_init__(self) -> None:
-        if self.min_size <= 0:
-            raise ValueError("min_size must be positive.")
-        if self.hole_area < 0:
-            raise ValueError("hole_area cannot be negative.")
-        if self.threshold_scale <= 0:
-            raise ValueError("threshold_scale must be positive.")
+class Settings:
+    tophat_radius: int = 16
 
 
-@dataclass
-class PipelineResult:
-    """Outputs from one pipeline run."""
-
-    labels: np.ndarray
-    measurements: pd.DataFrame
-    threshold: float
-
-
-def split_channels(image_yxc: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Return channel A and channel B from a YXC image."""
-    if image_yxc.ndim != 3 or image_yxc.shape[-1] != 2:
-        raise ValueError("Expected image with shape Y, X, C and two channels.")
-    return image_yxc[..., 0], image_yxc[..., 1]
-
-
-def validate_same_shape(*arrays: np.ndarray) -> None:
-    """Raise an error if input arrays do not share the same shape."""
-    shapes = {array.shape for array in arrays}
-    if len(shapes) != 1:
-        raise ValueError(f"Expected matching shapes, got {sorted(shapes)}")
-
-
-def make_foreground_mask(
-    channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings
-) -> tuple[np.ndarray, float]:
-    """Create a binary foreground mask from two channels."""
-    validate_same_shape(channel_a, channel_b)
-    combined = channel_a + channel_b
-    threshold = filters.threshold_otsu(combined) * settings.threshold_scale
-    mask = combined > threshold
-    mask = morphology.remove_small_objects(mask, min_size=settings.min_size)
-    mask = morphology.remove_small_holes(mask, area_threshold=settings.hole_area)
-    mask = ndi.binary_fill_holes(mask)
-    return mask, threshold
-
-
-def segment_instances(
-    channel_a: np.ndarray, channel_b: np.ndarray, settings: SegmentationSettings
-) -> tuple[np.ndarray, float]:
-    """Segment foreground objects into instance labels."""
-    mask, threshold = make_foreground_mask(channel_a, channel_b, settings)
-    distance = ndi.distance_transform_edt(mask)
-    markers = measure.label(morphology.local_maxima(distance))
-    labels = segmentation.watershed(-distance, markers, mask=mask)
-    return segmentation.clear_border(labels), threshold
-
-
-def measure_objects(
-    labels: np.ndarray, channel_a: np.ndarray, channel_b: np.ndarray
-) -> pd.DataFrame:
-    """Measure per-object intensity and shape features."""
-    validate_same_shape(labels, channel_a, channel_b)
-    props_a = measure.regionprops_table(
-        labels,
-        intensity_image=channel_a,
-        properties=(
-            "label",
-            "area",
-            "mean_intensity",
-            "major_axis_length",
-            "minor_axis_length",
-        ),
-    )
-    props_b = measure.regionprops_table(
-        labels, intensity_image=channel_b, properties=("label", "mean_intensity")
-    )
-    df = pd.DataFrame(props_a).rename(columns={"mean_intensity": "mean_a"})
-    df["mean_b"] = props_b["mean_intensity"]
-    df["ratio_a_over_b"] = df["mean_a"] / (df["mean_b"] + 1e-6)
-    df["ellipticity"] = 1 - df["minor_axis_length"] / df["major_axis_length"]
-    return df
-
-
-def classify_populations(df: pd.DataFrame, rule: PopulationRule) -> pd.DataFrame:
-    """Return a copy of the table with a population column."""
-    required = {"ratio_a_over_b"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns: {sorted(missing)}")
-
-    df = df.copy()
-    if rule == PopulationRule.RATIO_ONE:
-        threshold = 1.0
-    elif rule == PopulationRule.MEDIAN_RATIO:
-        threshold = df["ratio_a_over_b"].median()
-    else:
-        raise ValueError(f"Unknown rule: {rule}")
-    df["population"] = np.where(df["ratio_a_over_b"] >= threshold, "A-high", "B-high")
-    return df
-
-
-def save_measurements(df: pd.DataFrame, path: str | Path) -> None:
-    """Save a measurement table to CSV.
-
-    This function has a side effect: it writes a file. Keeping that side effect
-    in one small function makes the rest of the pipeline easier to test.
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
-
+# ---
 
 # %% [markdown]
-# ## Type hints, docstrings, and validation
+# Create a separate settings object for each configuration. Use the defaults
+# with `Settings()`, or supply a named value with `Settings(tophat_radius=8)`.
 #
-# Type hints do not make Python run faster, and they are not a substitute for
-# tests. Their utility is communication: they tell readers and editors what
-# kind of object a function expects.
-#
-# Docstrings answer "why does this function exist?" Validation catches mistakes
-# near their source. A clear `ValueError` is much more useful than a mysterious
-# error five functions later.
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Create <code>settings_16 = Settings()</code> and
+#   <code>settings_8 = Settings(tophat_radius=8)</code>.<br>
+#   Print each object, then call <code>analysis.remove_background</code> with its
+#   <code>tophat_radius</code>. Keep the outputs as <code>configured_16</code>
+#   and <code>configured_8</code>, and plot them side by side.
+#   Leave the function in <code>analysis.py</code> unchanged.
+# </div>
 
 # %%
-print("split_channels annotations:")
-print(split_channels.__annotations__)
-print("split_channels docstring:")
-print(split_channels.__doc__)
+# --- Exercise
+settings_16 = Settings()
+settings_8 = Settings(tophat_radius=8)
+print(settings_16)
+print(settings_8)
 
-try:
-    split_channels(np.zeros((32, 32)))
-except ValueError as error:
-    print("clear validation error:", error)
+configured_16 = analysis.remove_background(image[0], settings_16.tophat_radius)
+configured_8 = analysis.remove_background(image[0], settings_8.tophat_radius)
 
-
-# %% [markdown]
-# ## Configuration objects and immutable settings
-#
-# A dataclass is a compact way to keep parameters together.
-#
-# Utility:
-#
-# - one object can be passed through the pipeline,
-# - parameters can be saved with results,
-# - defaults are visible in one place,
-# - validation can live next to the settings.
-#
-# Here `SegmentationSettings` is frozen, meaning it cannot be modified after
-# creation. For parameter sweeps, use `dataclasses.replace` to create a changed
-# copy instead of mutating the original.
-
-# %%
-default_settings = SegmentationSettings()
-relaxed_settings = replace(default_settings, min_size=40, threshold_scale=0.9)
-
-print("default settings:", asdict(default_settings))
-print("relaxed settings:", asdict(relaxed_settings))
-
-try:
-    SegmentationSettings(min_size=-1)
-except ValueError as error:
-    print("invalid settings caught early:", error)
-
-
-# %% [markdown]
-# ## A small pipeline class
-#
-# A class is useful here because settings are shared across multiple steps. If
-# there is no shared state, plain functions are often simpler.
-#
-# Utility: this class gives us a single object representing "the pipeline with
-# these settings". It remains small because the real work still happens in
-# testable functions.
-
-# %%
-
-
-class CellPipeline:
-    def __init__(self, settings: SegmentationSettings):
-        self.settings = settings
-
-    def run(self, image_yxc: np.ndarray) -> PipelineResult:
-        logger.info("running pipeline with settings: %s", asdict(self.settings))
-        channel_a, channel_b = split_channels(image_yxc)
-        labels, threshold = segment_instances(channel_a, channel_b, self.settings)
-        measurements = measure_objects(labels, channel_a, channel_b)
-        measurements = classify_populations(measurements, self.settings.population_rule)
-        return PipelineResult(
-            labels=labels, measurements=measurements, threshold=threshold
-        )
-
-
-# %%
-image_yxc, _true_labels, _population_id = make_two_channel_cells(seed=5)
-settings = SegmentationSettings(
-    population_rule=PopulationRule.MEDIAN_RATIO, threshold_scale=1.0
-)
-pipeline = CellPipeline(settings)
-result = pipeline.run(image_yxc)
-
-print("threshold:", result.threshold)
-print(result.measurements.head())
-
-plt.imshow(result.labels, cmap="nipy_spectral")
-plt.axis("off")
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+vmax = max(configured_16.max(), configured_8.max())
+for ax, corrected, config in zip(
+    axes, [configured_16, configured_8], [settings_16, settings_8]
+):
+    ax.imshow(corrected, cmap="gray", vmin=0, vmax=vmax)
+    ax.set_title(f"Radius: {config.tophat_radius} pixels")
+    ax.set_axis_off()
+plt.tight_layout()
 plt.show()
+# ---
 
 # %% [markdown]
-# ## Parameter sweeps without copy-paste
-#
-# A common notebook smell is copy-pasting the same analysis cell with one number
-# changed. A small loop over settings is usually safer and easier to summarize.
-#
-# When to use: checking sensitivity to thresholds, object-size filters, or other
-# parameters before deciding which settings are robust enough for a dataset.
+# Check that both configurations reproduce the previous results and that
+# creating the second settings object left the first unchanged.
 
 # %%
-
-
-def run_parameter_sweep(
-    image_yxc: np.ndarray, settings_list: list[SegmentationSettings]
-) -> pd.DataFrame:
-    """Run the pipeline for several settings and return one summary row each."""
-    rows = []
-    for settings in settings_list:
-        sweep_result = CellPipeline(settings).run(image_yxc)
-        rows.append(
-            {
-                "min_size": settings.min_size,
-                "threshold_scale": settings.threshold_scale,
-                "population_rule": settings.population_rule.value,
-                "threshold": sweep_result.threshold,
-                "n_objects": int(sweep_result.labels.max()),
-                "mean_ratio": sweep_result.measurements["ratio_a_over_b"].mean(),
-            }
-        )
-    return pd.DataFrame(rows)
-
-
-sweep_settings = [
-    replace(default_settings, threshold_scale=scale, min_size=min_size)
-    for scale in [0.8, 1.0, 1.2]
-    for min_size in [40, 80]
-]
-sweep_table = run_parameter_sweep(image_yxc, sweep_settings)
-print(sweep_table)
+assert settings_16.tophat_radius == 16
+assert settings_8.tophat_radius == 8
+np.testing.assert_array_equal(configured_16, result_16)
+np.testing.assert_array_equal(configured_8, result_8)
 
 # %% [markdown]
-# ## Lightweight checks
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Which object describes each analysis? Where would you add a smoothing
+#   parameter when the pipeline grows? Why keep both settings objects?
+# </div>
 #
-# These are not a full test suite, but they show the habit of checking
-# assumptions near the code.
+# A printed settings object is a record of how a result was made. Store that line
+# beside the result, and you can reproduce it. A loose variable named
+# <code>radius</code> does not tell you that.
 #
-# Utility: checks protect the behavior while you refactor. Later these can move
-# into `tests/test_pipeline.py` and run automatically with `pytest`.
-
-# %%
-assert result.labels.shape == image_yxc.shape[:2]
-assert {"label", "area", "ratio_a_over_b", "ellipticity", "population"}.issubset(
-    result.measurements.columns
-)
-assert result.measurements["area"].min() > 0
-print("basic checks passed")
+# Your analysis has one parameter here, so passing
+# <code>settings_16.tophat_radius</code> is longer than passing <code>16</code>.
+# It pays off once there are eight parameters. In section 4 you write one entry
+# point that receives the whole settings object, and that call stops growing when
+# you add a parameter.
 
 # %% [markdown]
-# ## Test-shaped functions
+# ## 4 - Build a reusable analysis project
 #
-# A test is just a small function that makes an expectation executable. In a
-# real project, these functions would live in a `tests/` directory and use
-# `pytest`.
+# Time: 1 hour of independent work.
 #
-# Start with tests for mistakes you are likely to make: wrong channel order,
-# missing columns, empty masks, or parameter changes that silently alter output
-# shape.
-
-# %%
-
-
-def test_split_channels_rejects_wrong_shape() -> None:
-    try:
-        split_channels(np.zeros((32, 32, 3)))
-    except ValueError:
-        return
-    raise AssertionError("split_channels should reject images with three channels.")
-
-
-def test_pipeline_result_has_expected_columns() -> None:
-    expected = {
-        "label",
-        "area",
-        "mean_a",
-        "mean_b",
-        "ratio_a_over_b",
-        "ellipticity",
-        "population",
-    }
-    missing = expected - set(result.measurements.columns)
-    assert not missing, f"missing columns: {missing}"
-
-
-test_split_channels_rejects_wrong_shape()
-test_pipeline_result_has_expected_columns()
-print("test-shaped checks passed")
-
-# %% [markdown]
-# ## Logging instead of scattered print calls
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Organise your module 6 analysis into importable Python modules.
+#   Another researcher should be able to run a second image with different
+#   settings without editing your analysis code.<br>
+#   Choose how to group your functions. Keep this notebook for loading images,
+#   calling your code, and inspecting results.
+# </div>
 #
-# `print` is fine in a notebook. Logging is better in scripts and HPC jobs
-# because messages can include severity levels, module names, and timestamps.
+# Work through the checklist in order. Keep your existing algorithm unchanged.
 #
-# Utility:
+# ### 1. Keep a result to compare against
 #
-# - `INFO`: normal progress messages,
-# - `WARNING`: unexpected but recoverable situations,
-# - `ERROR`: failures that need attention.
+# - [ ] Run your module 6 notebook on one image.
+# - [ ] Keep its labels, measurement table, and parameter values for comparison.
 #
-# Pitfall: logging every pixel-level step creates noise. Log run-level events,
-# parameters, file paths, and summary counts.
-
-# %%
-logger.info("finished one run with %s objects", result.labels.max())
-if result.labels.max() == 0:
-    logger.warning("no objects were detected")
-
-# %% [markdown]
-# ## Separation of concerns
+# ### 2. Move the computations into modules
 #
-# A later repository version could split this into:
+# - [ ] Group related functions into `.py` files beside your notebook.
+# - [ ] Extract segmentation and measurement functions, with explicit arguments and return values.
+# - [ ] Keep image loading, saving, and plotting outside these functions.
 #
-# - `io.py`: loading images and validating axis order,
-# - `segmentation.py`: masks and labels,
-# - `measurements.py`: regionprops and tables,
-# - `visualization.py`: plotting and QC overlays,
-# - `settings.py`: dataclasses and enums,
-# - `cli.py`: command-line entry point.
+# Each module needs its own imports. Update the notebook imports when you move
+# functions, including the ones used in the warmups.
 #
-# When to split files: when one file becomes hard to navigate or when different
-# concepts change for different reasons. Do not split just to look professional.
+# **20-minute checkpoint:** call one newly extracted function from the notebook
+# and check that it matches the original result.
 #
-# Related concepts:
+# ### 3. Connect the steps
 #
-# - **Cohesion**: keep code that changes together in the same module.
-# - **Coupling**: reduce unnecessary dependence between modules.
-# - **Public API**: decide which functions students/users should call directly.
-# - **Private helpers**: prefix with `_` when a helper is internal to a module.
-# - **Reproducibility**: keep settings, code version, inputs, and outputs linked.
-
-# %% [markdown]
-# ## Common Python pitfalls in scientific code
+# - [ ] Move `Settings` into a module and add your analysis parameters.
+# - [ ] Create one entry point that receives an image and settings and calls your functions.
+# - [ ] Return the label image and measurement table.
+# - [ ] Add a short docstring describing the input image, settings, and returned results.
 #
-# - Mutable default arguments: avoid `def f(items=[])`; use `None` or a
-#   dataclass `default_factory`.
-# - Hidden globals: a function that silently reads a variable from an earlier
-#   notebook cell is hard to reuse.
-# - In-place mutation: changing a dataframe or array inside a function can
-#   surprise callers. Return a copy unless mutation is intentional.
-# - Broad `except:` blocks: catching every error can hide real bugs.
-# - Hard-coded paths: prefer `Path` objects and pass paths as parameters.
-# - Mixed units: make units explicit in names or metadata.
-
-# %% [markdown]
-# ## Optional exercises
+# For example, `labels, table = run_image(image, settings)`.
+# You can use a function or a class; choose the approach you can explain.
 #
-# 1. Add a `max_area` setting and filter objects larger than that value.
-# 2. Add a `summarize_measurements` function returning counts per population.
-# 3. Save measurements to CSV using `save_measurements`.
-# 4. Write one assertion that catches an image with the wrong number of channels.
-# 5. Change `threshold_scale` and compare the number of labels.
-# 6. Add a test-shaped function for `classify_populations`.
-# 7. Add one logging message to `save_measurements`.
-
-# %%
-# Answer sketch (optional, removable)
-
-
-def summarize_measurements(df: pd.DataFrame) -> pd.DataFrame:
-    return (
-        df.groupby("population")
-        .agg(n_objects=("label", "count"), mean_ratio=("ratio_a_over_b", "mean"))
-        .reset_index()
-    )
-
-
-print(summarize_measurements(result.measurements))
-save_measurements(result.measurements, "scratch_outputs/module08_measurements.csv")
-
-try:
-    split_channels(np.zeros((32, 32, 3)))
-except ValueError as error:
-    print("caught expected error:", error)
-
-for scale in [0.8, 1.0, 1.2]:
-    scaled_result = CellPipeline(SegmentationSettings(threshold_scale=scale)).run(
-        image_yxc
-    )
-    print(scale, scaled_result.labels.max())
-
-
-def test_classify_populations_adds_expected_values() -> None:
-    tiny = pd.DataFrame({"ratio_a_over_b": [0.5, 2.0]})
-    classified = classify_populations(tiny, PopulationRule.RATIO_ONE)
-    assert classified["population"].tolist() == ["B-high", "A-high"]
-
-
-test_classify_populations_adds_expected_values()
-logger.info("saved measurements exercise output")
+# A docstring is a triple-quoted string immediately inside a function or method.
+# It tells someone how to use your code without reading its implementation.
+# Describe the image shape and channel order, parameter units, and what each
+# returned value contains. For example, adapt this to your own analysis:
+#
+# ```python
+# def run_image(image, settings):
+#     """Analyse an image of shape (channel, y, x).
+#
+#     Channel 0 contains nuclei; channel 1 contains the target signal.
+#     Settings specify filter radii in pixels and size thresholds in pixel counts.
+#     Return a 2D label image (0 is background) and a table with one row per nucleus.
+#     """
+#     # Your analysis steps go here.
+# ```
+#
+# **40-minute checkpoint:** run one image through all steps with one call.
+#
+# ### 4. Check the result and reuse it
+#
+# - [ ] Import your code here, display the labels, and inspect the table.
+# - [ ] Restart the kernel and run from the top with the original parameters.
+# - [ ] Compare labels and measurements with your saved module 6 result.
+# - [ ] Run a second image with different settings and keep both results.
+#
+# **60-minute checkpoint:** show that the second analysis required no edits
+# inside your analysis modules.
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise 1</strong><br>
+#   If time remains, add folder processing or compare several parameter values.
+# </div>
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise 2</strong><br>
+#   Explore the <a href="../src/nuclei_pipeline/">reference pipeline</a>, starting
+#   with <a href="../src/nuclei_pipeline/pipeline.py">pipeline.py</a>.
+#   Compare it with your implementation. What differs in the organisation of
+#   files, function inputs and outputs, and handling of settings?
+#   Note one design choice you would keep in your version and one you might change.
+# </div>
