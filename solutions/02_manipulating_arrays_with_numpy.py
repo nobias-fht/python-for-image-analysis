@@ -378,6 +378,12 @@ plt.imshow(data[30, 1, 130:185, 85:140])
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
 #   Instead of an XY-plane, can you display a ZY-plane?
+#
+#   <details>
+#   <summary><strong>Hint</strong></summary>
+#
+#   We want to index a single `X` location but select everything in the `Z` and `Y` axes.
+#   </details>
 # </div>
 
 # %%
@@ -430,6 +436,8 @@ plt.imshow(data[:, 1, :, 128])
 #   </summary>
 #
 #   If `a` is the array to index, and `b` is the boolean array the syntax for boolean indexing is `a[b]`.
+#
+#   You can create a boolean array from a list of `True` and `False` values.
 #   </details>
 # </div>
 
@@ -765,7 +773,7 @@ print(a * b)
 # </div>
 
 # %%
-# Find the maximum of each channel independently
+# Find the mean of each channel independently
 # --- Exercise
 channel_means = data.mean(axis=(1, 2, 3))
 print(f"Channel means: {channel_means}")
@@ -929,7 +937,9 @@ print(~a)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   For the 30th z-slice of the nuclei channel of `data` create and display a boolean mask showing pixels above the median intensity.
+#   Use the 30th z-slice of the nuclei channel of `data`.
+#
+#   Create and display a boolean mask showing pixels above the median intensity.
 # </div>
 
 # %%
@@ -1006,15 +1016,11 @@ a = np.arange(4)
 print(f"Original data type: {a.dtype}")
 print(a)
 
-# --- Exercise
 a = a.astype(np.float64)
 print(f"\nNew data type: {a.dtype}")
 print(a)
-# ---
 
 # %% [markdown]
-# NumPy will automatically make the result of certain mathematical operations a float type.
-#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -1024,6 +1030,8 @@ print(a)
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   NumPy will automatically make the result of certain mathematical operations a float type.
 #
 #   First add `2` to the array `a` and check the `dtype`, then add `2.5` and check the `dtype` again. What do you expect to happen?
 # </div>
