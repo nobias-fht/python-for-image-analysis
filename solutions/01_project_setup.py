@@ -1,12 +1,20 @@
 # %% [markdown]
-# # Module 1: virtual environments, Jupyter, and a first image
+# # Module 1: Project setup with `uv`
 #
-# Time: 1 hour.
+# Time: 1 hour (45 minutes + 15 minutes troubleshooting).
 #
-# Essential idea: an analysis is easier to trust when the Python environment is
-# explicit, isolated, and used consistently from the terminal, VSCode, and
-# Jupyter. In this short module, students should leave with one working project
-# and one tiny image-processing example.
+# When working on scientific applications of python we will often rely on 3rd party open-source libraries which can be used through python's import system. Because of this python has a thriving open-source scientific ecosystem, however it comes with the added complication of managing dependencies and their versions. New versions of libraries are not always compatible with old code, or new versions of a second library that you might need for you project.
+#
+# In this module we will learn about the tool `uv` that will allow us to manage our dependencies effectively and keep our code reproducible in the future.
+#
+# ### Question
+#
+# What is the best way to manage dependencies and ensure that code remains reproducible?
+#
+# ### Objective
+#
+# - Learn how to manage dependecies with `uv`.
+# - Learn what is a lock file and why is it important.
 
 # %% [markdown]
 # ## Terminal setup with uv
