@@ -3,14 +3,17 @@
 #
 # Time: 1 hour 45 minutes.
 #
-# Bio-image data often has more than two dimension, including 3 spatial dimensions, multiple channels, time, and multiple fields of view or samples. For example a bio-image might have the shape:
+# Bio-image data often has more than two dimensions, including 3 spatial dimensions, multiple channels, time, and multiple fields of view or samples. For example a bio-image might have the shape:
 # ```
 # Shape: (60, 2, 100, 1024, 1024), Axes: (Time, Channels, Z, Y, X)
 # ```
 # This is already a 5 dimensional array! 🤯
 #
-# So, being able to manipulate multi-dimensional arrays is essential for bio-image analysis.
-# We will be working with [NumPy](https://numpy.org/doc/stable/index.html), a very popular library used in many scientific fields for representating and manipulating of multi-dimensional arrays.
+# <div style="display: flex; align-items: center; gap: 12px;">
+#     <img src="https://raw.githubusercontent.com/numpy/numpy/main/branding/logo/primary/numpylogo.svg" alt="Logo" style="height: 40px; width: auto;">
+# </div>
+#
+# We will be working with [NumPy](https://numpy.org/doc/stable/index.html), a very popular library used in many scientific fields for representing and manipulating multi-dimensional arrays.
 #
 # ### Question
 #
@@ -26,10 +29,7 @@
 # NumPy is an open source library which is very commonly used in python for handling arrays.
 # It provides many useful functions and mathematical operations, most of the underlying code is written in C, making it usually much faster than native python loops.
 #
-# NumPy provides a great user [guide](http://numpy.org/doc/stable/user/basics.html) that explains fundementals and usage.
-# We will cover many of the concepts presented in their guide in this module, but we encourage looking through the guides in your own time.
-#
-# Also, check out the [API reference](https://numpy.org/doc/stable/reference/index.html) that lists every NumPy function, grouped by theme.
+# Further reading: the NumPy [user guide](http://numpy.org/doc/stable/user/basics.html) covers fundamentals and usage, and the [API reference](https://numpy.org/doc/stable/reference/index.html) lists functions by theme.
 
 # %%
 # Import numpy into the notebook so we can use it!
@@ -123,7 +123,7 @@ print(zeros_array)
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #
-#   Another other useful creational function, which we will use throughout the module, is [`np.arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html). It creates a 1D array of integers for a given range and step difference.
+#   Another useful creational function, which we will use throughout the module, is [`np.arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html). It creates a 1D array of integers for a given range and step difference.
 # </div>
 
 # %% [markdown]
@@ -150,30 +150,34 @@ print(f"itemsize: {a.itemsize}")
 #
 # #### Pixels
 #
-# A pixel is the smallest sampled spatial unit in a digital image, and its intensity is usually proportional to the number of photons or electrons detected and converted into an electrical signal. How pixels are recorded depends on the imaging system: in most cameras, physical sensor pixels detect light falling on different areas of the detector, whereas in SEM, each image pixel records the signal from emitted or scattered electrons at a particular beam position. The physical area of the specimen represented by each image pixel can be determined through calibration and is usually recorded in the image metadata. Each element of our NumPy array is a pixel.
+# Each element of an image array stores an intensity measurement. A pixel represents a physical area of the specimen; its dimensions are usually recorded in the image metadata.
+#
+# <details>
+# <summary>Optional reading: recording pixels</summary>
+#
+# Pixel intensity is usually proportional to the number of photons or electrons detected and converted into an electrical signal. How pixels are recorded depends on the imaging system: in most cameras, physical sensor pixels detect light falling on different areas of the detector, whereas in SEM, each image pixel records the signal from emitted or scattered electrons at a particular beam position.
+# </details>
 #
 # #### Axes
 #
-# As we have already mentioned bio-images are usually multi-dimensional with different types of information stored along each axis. The most common axes are:
+# Bio-images usually store different types of information along each axis:
 #
-# - `X`: Horizontal spatial extent.
-# - `Y`: Vertical spatial extent.
-# - `Z`: In many imaging modalities it is possible to record a volume, so we can record the depth in a 3rd spatial axis.
-# - `C`: The channel axis separates different signals, such as different wavelengths of light. For example, the red, green, and blue channels in a colour camera or channels tuned to the emission wavelengths of particular fluorophores.
-# - `T`: An axis to store samples in time, for example if we image a live sample every 10 seconds the resulting images are stored stacked along the `T` axis.
-# - `S`: The sample dimension is often used to stack different fields of view or samples from the same experiment.
+# - `X`, `Y`, `Z`: Horizontal, vertical and depth axes.
+# - `C`: Channels, such as different wavelengths or fluorophores.
+# - `T`: Time points.
+# - `S`: Samples or fields of view.
 #
-# NumPy doesn't store the axes in its metadata so we have to make sure to keep track of the meaning of all the dimensions ourselves.
+# NumPy does not track what each axis represents, so we need to keep track of the axis order ourselves.
 #
 # #### Example data
 #
-# For this next section we will be using some example data from scikit-image. We will explore scikit-image in more depth in later modules but for now we will simply access their [`cells3d`](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cells3d) example data.
+# Throughout the module we will practice applying NumPy functions and operations to some example data from scikit-image. We will explore scikit-image in more depth in later modules but for now we will simply access their [`cells3d`](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cells3d) example data.
 #
 # Looking at the documentation we see that:
 # - it has the axis order `ZCYX`,
 # - a shape of `(60, 2, 256, 256)`,
 # - the physical size represented by each pixel is 0.29 micrometers in the Z axis and 0.26 micrometers in the X and Y axes, this means the data is ***anisotropic*** (physical pixel lengths are not equal),
-# - the two channels record cell membranes and nuclei and
+# - the two channels record cell membranes and nuclei, and
 # - the data is stored as unsigned 16-bit integers.
 
 # %%
@@ -209,7 +213,7 @@ print(f"Data type: {data.dtype}")
 #
 # We will need to select subsets of data. We can do this using slices and indexes. Indexing selects an element or sub-array at a specified position along one or more dimensions of an array. Slicing can select a range of elements along a dimension.
 #
-# NumPy also provides useful [documentation](https://numpy.org/doc/stable/user/basics.indexing.html) on how indexing and slices works, which you can use to see more examples.
+# Further reading: [indexing and slicing](https://numpy.org/doc/stable/user/basics.indexing.html).
 #
 # ### Simple indexing and slicing
 #
@@ -225,13 +229,11 @@ print(f"Data type: {data.dtype}")
 #
 # #### Multi-dimensional data
 #
-# For multi-dimensional arrays, indices and slices can be combined, the index or slice for each dimension is separated by a comma.
+# For multi-dimensional arrays, indices and slices can be combined, the index or slice for each dimension is separated by a comma. e.g. for a 2D array:
 #
-# #### Displaying data
-#
-# We will also be using `matplotlib` to display the images. In the next module we will learn more about `matplotlib`, but for now we will mostly be using the `matplotlib.pyplot.imshow` function.
-#
-# We can display the images with the `matplotlib.pyplot.imshow` function, simply pass the 2D array that you want to display.
+# ```python
+# a = a[idx, start:stop:step]
+# ```
 
 # %% [markdown]
 # <div style="
@@ -247,7 +249,7 @@ print(f"Data type: {data.dtype}")
 #   We can use the ***ellipsis*** `...` to expand dimensions selected with the empty slice `:`, for example if array `a` has 3 dimensions then the following indexing is equivalent:
 #
 #   - `a[..., 2]`
-#   - `a[:, :, a]`
+#   - `a[:, :, 2]`
 # </div>
 # <div style="
 #   background: #fff8db;
@@ -257,10 +259,14 @@ print(f"Data type: {data.dtype}")
 #   margin: 12px 0;
 #   color: #8a6a00;
 # ">
-#   <strong style="color: #8a6a00;">Note:</strong> Integer array indexing<br>
+#   <strong style="color: #8a6a00;">Optional reading:</strong> Integer array indexing<br>
 #
-#   We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coordinates are passed as 1D arrays separated by a comma. Broadcasting rules also apply to array indices. Check out the [documentation](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing) if you want to learn more!
+#   We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coordinates are passed as 1D arrays separated by a comma. Broadcasting rules also apply to array indices. Further reading: [integer array indexing](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing).
 # </div>
+#
+# #### Displaying data
+#
+# We will use Matplotlib's function `plt.imshow(image_2d)` to display a 2D image. We will explore Matplotlib futher in a later module.
 
 # %%
 # plt is a commonly used alias for matplotlib.pyplot for convenience
@@ -303,6 +309,12 @@ print(a[::2])
 #   Can you use slicing to reverse the order of an array?
 # </div>
 
+# %%
+# --- Exercise
+a = np.arange(5)
+print(a[::-1])
+# ---
+
 # %% [markdown]
 # <div style="
 #   background: #accffb;
@@ -342,7 +354,7 @@ plt.imshow(data[30, 1])
 #   margin: 12px 0;
 #   color: #21457f;
 # ">
-#   <strong style="color: #21457f;">Exercise:</strong> Cropping<br>
+#   <strong style="color: #21457f;">Exercise</strong></br>
 #
 #   NumPy slicing can be used to crop the data.
 #
@@ -384,7 +396,7 @@ plt.imshow(data[:, 1, :, 128])
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   Does the shape of the cells seem different in the XY view vs the ZY view? Why is this?
+#   Do the shapes of the cells seem different in the XY view vs the ZY view? Why is this?
 #   <details>
 #   <summary>
 #   <strong>Hint</strong>
@@ -435,9 +447,9 @@ print(a[b])
 #
 # ### Reshaping
 #
-# Reshaping is an important concept, all the elements of an array can be rearranged so that the array has different dimensions.
+# Reshaping changes an array’s shape without changing its number of elements.
 #
-# It is possible to reshape an array using either the numpy function `np.reshape`, or the `.reshape` method: e.g:
+# Use the `np.reshape` function or the `.reshape` method:
 #
 # ```python
 # reshaped_array = np.reshape(array, (4, 3, 2))
@@ -458,7 +470,7 @@ print(a[b])
 # - `np.ravel` function or the `.ravel` method or
 # - the `.flatten` method.
 #
-# Make sure to check out the documentation!
+# Further reading: [`ravel`](https://numpy.org/doc/stable/reference/generated/numpy.ravel.html) and [`flatten`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html).
 # </div>
 
 # %% [markdown]
@@ -579,7 +591,7 @@ print(f"Shape in CZYX order: {data.shape}")
 #
 # Of course we can use the `reshape` method to add dimensions but there are two alternatives:
 # - `np.newaxis` notation: useful for adding new leading or trailing singleton dimensions.
-# - `np.expand_dims` function: useful for adding singleton dimensions anywhere. Make sure to check the documentation!
+# - `np.expand_dims` function: useful for adding singleton dimensions anywhere. See the [documentation](https://numpy.org/doc/stable/reference/generated/numpy.expand_dims.html).
 
 # %%
 a = np.arange(9).reshape(3, 3)
@@ -619,7 +631,7 @@ print(f"Shape after squeeze: {a.shape}")
 #   margin: 12px 0;
 #   color: #8a6a00;
 # ">
-#   <strong style="color: #8a6a00;">Note: </strong>Element order<br>
+#   <strong style="color: #8a6a00;">Optional reading:</strong> Element order<br>
 #
 # Notice that if we reshape a 1D array into 2D or 3D to get the original order we read the elements along the last dimension followed by the second last etc. This is because NumPy has row major ordering also known as being C-ordered because it is the order that the language C uses. However, it is not the only way to reshape an array, if an array is Fortran-ordered (F-ordered) the first dimension is traversed first, followed by the second etc.
 # </div>
@@ -636,12 +648,18 @@ print(f"Shape after squeeze: {a.shape}")
 #   Experiment with the `order` argument in `reshape`.
 # </div>
 
+# %%
+# --- Exercise
+a = np.arange(9).reshape(3, 3, order="F")
+print(a)
+# ---
+
 # %% [markdown]
 # ## 5 - Mathematical operations & Broadcasting
 #
 # NumPy performs element-wise operations; meaning, for example, if we multiply together two arrays `a` and `b` of the same shape, then an element of the resulting array will be the product of the elements at the corresponding position in `a` and `b`.
 #
-# Element-wise operations apply to all the mathematical function which can be applied with the standard python mathematical operations, e.g. `+`, `-`, `*`, `/`, `**`, `//`, `%`, `>`, `>=`, `<`, `<=`.
+# Element-wise operations apply to all the mathematical functions which can be applied with the standard Python mathematical operations, e.g. `+`, `-`, `*`, `/`, `**`, `//`, `%`, `>`, `>=`, `<`, `<=`.
 #
 # Operations can also be applied along a dimension or multiple dimensions, for example, multiplying each row of an array by a value, this can be achieved with *broadcasting*.
 # This also includes scalar operations where a single value operates on all the elements in an array.
@@ -660,17 +678,11 @@ print(result)
 # %% [markdown]
 # #### Broadcasting
 #
-# If two arrays are not the same shape, NumPy will attempt to do what is known as *broadcasting*. Broadcasting is a way to make differently shaped arrays compatible for arithmetic operations, under certain constraints. For example if we have a 2D array `a`, NumPy allows us to multiply it with a 1D array `b` that has the same number of elements as `a` has columns; the operation will be applied across the columns of `a`.
+# Broadcasting lets NumPy operate on arrays with different shapes. Compare dimensions from right to left: their sizes must match, or one must be 1. Missing dimensions are treated as size 1. Otherwise, the operation raises an error.
 #
-# The following text comes directly from the NumPy [documentation](https://numpy.org/doc/stable/user/basics.broadcasting.html) where broadcasting is explained in more detail. It states that the general rules of broadcasting are:
+# For example, multiplying arrays of shapes `(2, 3)` and `(3,)` applies the three multipliers across each row.
 #
-# > When operating on two arrays, NumPy compares their shapes element-wise. It starts with the trailing (i.e. rightmost) dimension and works its way left. Two dimensions are compatible when
-# > - they are equal, or
-# > - one of them is 1.
-# >
-# > If these conditions are not met, a `ValueError: operands could not be broadcast together` exception is thrown, indicating that the arrays have incompatible shapes.
-# >
-# > Input arrays do not need to have the same number of dimensions. The resulting array will have the same number of dimensions as the input array with the greatest number of dimensions, where the size of each dimension is the largest size of the corresponding dimension among the input arrays. Note that missing dimensions are assumed to have size one.
+# Further reading: [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html).
 #
 # #### Examples
 #
@@ -729,7 +741,7 @@ print(a * b)
 # - `np.std`
 # - `np.median`
 #
-# It is possible to apply them along a single or muliple axes with `axis` argument.
+# It is possible to apply them along a single axis or multiple axes with the `axis` argument.
 #
 # <div style="
 #   background: #accffb;
@@ -741,7 +753,7 @@ print(a * b)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Find the maximum intensity of each channel in `data` (the SciKit-Image `cells3d` data). Print the results.
+#   Find the mean intensity of each channel in `data` (the SciKit-Image `cells3d` data). Print the results.
 #
 #   <details>
 #   <summary>
@@ -753,13 +765,15 @@ print(a * b)
 # </div>
 
 # %%
-# Find the mean of each channel independently
+# Find the maximum of each channel independently
 # --- Exercise
-channel_maximums = data.mean(axis=(1, 2, 3))
-print(f"Channel means: {channel_maximums}")
+channel_means = data.mean(axis=(1, 2, 3))
+print(f"Channel means: {channel_means}")
 # ---
 
 # %% [markdown]
+# #### Channel normalisation (Optional)
+#
 # A dataset can be normalized so that it has a mean of zero and a standard deviation of one, this can be achieved with the following formula:
 # $$
 # z = \frac{x - \mu}{\sigma}
@@ -773,20 +787,20 @@ print(f"Channel means: {channel_maximums}")
 # $$
 #
 # <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #21457f;
+#   color: #374151;
 # ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
+#   <strong>Optional Exercise</strong><br>
 #
 #   Apply this normalization to each channel of the image data.
-#   Verify that the mean and standard deviation of each channel is 0 and 1 respectively.
+#   Verify that the mean and standard deviation of each channel are 0 and 1 respectively.
 #   Print the new maximums of the channels.
 #
-#   <strong>Tip:</strong> Try using the `keepdims` argument to retain singlton dimensions.
+#   <strong>Tip:</strong> Try using the `keepdims` argument to retain singleton dimensions.
 # </div>
 
 # %%
@@ -816,9 +830,9 @@ print(f"Normalized Maximum: {normalized.max(axis=(1, 2, 3))}")
 # %% [markdown]
 # #### Projections
 #
-# We call functions that can project the image to a lower dimension "projections", it can help us visualize 3D data in 2D. Common ways to project a 3D volume to 2D is to either:
-# - take the maximum value along the Z-axis (a max projection), or
-# - take the mean along the Z-axis (a mean projection).
+# A projection reduces a 3D volume to a 2D image by combining values along an axis. Common Z-projections take:
+# - the maximum along Z at each XY position (a max projection), or
+# - the mean along Z at each XY position (a mean projection).
 #
 # <div style="
 #   background: #accffb;
@@ -884,24 +898,25 @@ print(result)
 
 # %% [markdown]
 # <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #21457f;
+#   color: #8a6a00;
 # ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
+#   <strong style="color: #8a6a00;">Note</strong><br>
 #
-#   Another useful operation is the element-wise "not" operator `~`, use this on boolean arrays.
-#
-#   Apply the `~` operator to your result from the previous exercise, print the result.
+#   The `~` operator swaps `True` and `False` in a boolean array.
 # </div>
 
 # %%
-# --- Exercise
-print(~result)
-# ---
+a = np.array([True, True, False, False, True])
+
+print("Original array:")
+print(a)
+print("~ applied:")
+print(~a)
 
 # %% [markdown]
 # <div style="
@@ -914,16 +929,16 @@ print(~result)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   In the 30th z-slice of the nuclei channel of `data`, can you use boolean indexing to select all the pixel values which are greater than the median of that slice? Display the array with `plt.imshow`
+#   For the 30th z-slice of the nuclei channel of `data` create and display a boolean mask showing pixels above the median intensity.
 # </div>
 
 # %%
-a = data[1, 30]
+nuclei_slice = data[1, 30]
 
-print("Elements greater than the median:")
+print("Pixels greater than the median:")
 # --- Exercise
-median = np.median(a)
-plt.imshow(a > median)
+median = np.median(nuclei_slice)
+plt.imshow(nuclei_slice > median)
 # ---
 
 # %% [markdown]
@@ -939,96 +954,67 @@ plt.imshow(a > median)
 #
 #   In the display of the boolean array, in what colors are the `True` and `False` values displayed?
 # </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What does this image tell us about the number of "background pixels" and "nuclei pixels"?
+# </div>
 
 # %% [markdown]
 # ## 6 - Data Types
 #
-# NumPy’s arrays have data types such as `bool`, `int64`, `float64`, this is a consequence of the underling implementation in the C language.
-# Data types determine how much physical memory each element of an array takes up, and what it can represent, e.g. integers or fractional numbers.
+# An array’s `dtype` determines the values it can represent and the memory used per element.
 #
 # Most relevant for working with bio-images are:
 # - `uint8`: unsigned integers (whole numbers) from 0 to 255. (1 byte of memory)
 # - `uint16`: unsigned integers from 0 to 65,535. (2 bytes of memory)
-# - `int64`: signed integers from −9,223,372,036,854,775,808 to 9,223,372,036,854,775,807. (8 bytes of memory)
-# - `float32`: approximately ±3.4 × 10³⁸, with about 7 decimal digits of precision. (4 bytes of memory)
-# - `float64`: approximately ±1.8 × 10³⁰⁸, with about 15–16 decimal digits of precision. (8 bytes of memory)
+# - `int64`: signed integers. (8 bytes of memory)
+# - `float32`, `float64`: floating-point numbers. (4 or 8 bytes of memory)
 # - `bool`: either `True` or `False`.
 #
-# Most NumPy creational functions will allow you to specify the datatype with a `dtype` argument. You can also call `.astype` method on arrays to get a copy cast as a different type. The `dtype` property of an array can be used to find the data type of the current array.
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
+# <details>
+# <summary>Reference: numerical ranges and precision</summary>
 #
-#   Use the `dtype` argument to make an array of zeros with the data type `int64`. Print the resulting data type.
-# </div>
+# | Data type | Range | Precision |
+# | --- | --- | --- |
+# | `int64` | −9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | Whole numbers |
+# | `float32` | Approximately ±3.4 × 10³⁸ | About 7 decimal digits |
+# | `float64` | Approximately ±1.8 × 10³⁰⁸ | About 15–16 decimal digits |
+#
+# </details>
+#
+# Set the type during array creation with `dtype=`, inspect it with `.dtype`, or convert the array with `.astype(...)`. For example, `a.astype(np.float64)` returns a floating-point copy.
 
 # %%
-# --- Exercise
+# We can use the dtype argument to make an array of zeros with the data type int64
+# The default type for np.zeros is float64
 a = np.zeros((2, 2), dtype=np.int64)
 print(f"Datatype: {a.dtype}")
-# ---
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#
-#   Use the `.astype` method to get a copy of the array `a` with the data type `float64`. Print the data type.
-# </div>
+print(a)
 
 # %%
+# The .astype method makes a copy of the array `a` with the data type float64
 # The default type for `np.arange` is int64
 a = np.arange(4)
 print(f"Original data type: {a.dtype}")
+print(a)
 
 # --- Exercise
 a = a.astype(np.float64)
-print(f"New data type: {a.dtype}")
-# ---
-
-# %% [markdown]
-# Sometimes NumPy will automatically make the result of a mathematical operation have the data type float64.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#
-#   Divide the array `a` below by 2 and print the data type of the resulting array.
-# </div>
-
-# %%
-a = np.arange(4, dtype=np.uint16)
-
-print("Original array:")
+print(f"\nNew data type: {a.dtype}")
 print(a)
-print(f"Data type: {a.dtype}")
-
-# --- Exercise
-result = a / 2
-print(f"Data type: {result.dtype}")
 # ---
 
 # %% [markdown]
+# NumPy will automatically make the result of certain mathematical operations a float type.
+#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -1039,7 +1025,7 @@ print(f"Data type: {result.dtype}")
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Now add 2 to the array `a` below, what do you think will be the data type of the result?
+#   First add `2` to the array `a` and check the `dtype`, then add `2.5` and check the `dtype` again. What do you expect to happen?
 # </div>
 
 # %%
@@ -1047,6 +1033,8 @@ a = np.arange(4, dtype=np.uint16)
 
 # --- Exercise
 result = a + 2
+print(f"Data type: {result.dtype}")
+result = a + 2.5
 print(f"Data type: {result.dtype}")
 # ---
 
@@ -1084,23 +1072,14 @@ plt.imshow(result)
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   Do the results look correct? What do you think has happened?
 # </div>
 
 # %% [markdown]
 # Something to be careful of is ***data overflow***. Often bio-images will be stored as `uint8` or `uint16`, if you perform mathematical operations on these arrays that cause the values to flow over the maximum range of the data type (255 for `uint8` and 65,535 for `uint16`). Values over the maximum range will wrap around to 0, giving unexpected results. Therefore it is often safest to convert data to floats before doing any analysis.
 #
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Multiply the array below by 3, print the resulting array and the data type. Are all the elements in the resulting array the expected result? If not, which ones and why?
-# </div>
+# For example:
 
 # %%
 # The maximum value uint8 can store is 255
@@ -1109,11 +1088,22 @@ print("Original array:")
 print(a)
 
 print("\nMultiply by 3:")
-# --- Exercise
 result = a * 3
 print(f"Data type: {result.dtype}")
 print(result)
-# ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Which elements in the result above do not have the expected result and why?
+# </div>
 
 # %% [markdown]
 # <div style="
@@ -1140,7 +1130,7 @@ plt.imshow(result)
 # %% [markdown]
 # ## 7 - Copies and Views
 #
-# We recommend reading the NumPy [documentation](https://numpy.org/doc/stable/user/basics.copies.html) on copies vs views to see some more examples.
+# Further reading: [copies and views](https://numpy.org/doc/stable/user/basics.copies.html).
 #
 # The main thing to watch out for is some NumPy operations will return a copy, and some operations will return a view. If you set the elements in a view, then they will also be changed in the original array that is showing the view.
 #
@@ -1213,7 +1203,7 @@ print(a)
 # ">
 #   <strong style="color: #8a6a00;">Note:</strong> How can we tell if an array is a copy or a view?<br>
 #
-# The `base` property can be used, if an array is a view it will return the original array, if it is a copy is will return `None`. Check out NumPy's [documentation](https://numpy.org/doc/stable/user/basics.copies.html#how-to-tell-if-the-array-is-a-view-or-a-copy).
+# The `base` property can be used: if an array is a view it will return the original array; if it is a copy it will return `None`. Further reading: [identifying views and copies](https://numpy.org/doc/stable/user/basics.copies.html#how-to-tell-if-the-array-is-a-view-or-a-copy).
 # </div>
 
 # %% [markdown]
