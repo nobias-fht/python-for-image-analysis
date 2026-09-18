@@ -222,6 +222,49 @@ print(f"Data type: {data.dtype}")
 # Negative numbers can be used to count back from the end of an array.
 #
 # ⚠️ **Remember**: Indexing starts at 0.
+#
+# #### Multi-dimensional data
+#
+# For multi-dimensional arrays, indices and slices can be combined, the index or slice for each dimension is separated by a comma.
+#
+# #### Displaying data
+#
+# We will also be using `matplotlib` to display the images. In the next module we will learn more about `matplotlib`, but for now we will mostly be using the `matplotlib.pyplot.imshow` function.
+#
+# We can display the images with the `matplotlib.pyplot.imshow` function, simply pass the 2D array that you want to display.
+
+# %% [markdown]
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note:</strong> Ellipsis<br>
+#
+#   We can use the ***ellipsis*** `...` to expand dimensions selected with the empty slice `:`, for example if array `a` has 3 dimensions then the following indexing is equivalent:
+#
+#   - `a[..., 2]`
+#   - `a[:, :, a]`
+# </div>
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note:</strong> Integer array indexing<br>
+#
+#   We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coordinates are passed as 1D arrays separated by a comma. Broadcasting rules also apply to array indices. Check out the [documentation](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing) if you want to learn more!
+# </div>
+
+# %%
+# plt is a commonly used alias for matplotlib.pyplot for convenience
+import matplotlib.pyplot as plt
 
 # %% [markdown]
 # <div style="
@@ -262,50 +305,6 @@ print(a[::2])
 
 # %% [markdown]
 # <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note:</strong> Ellipsis<br>
-#
-#   We can use the ***ellipsis*** `...` to expand dimensions selected with the empty slice `:`, for example if array `a` has 3 dimensions then the following indexing is equivalent:
-#
-#   - `a[..., 2]`
-#   - `a[:, :, a]`
-# </div>
-# <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note:</strong> Integer array indexing<br>
-#
-#   We can use arrays of indexes as coordinates, e.g. in a 2D array the row coordinates and column coordinates are passed as 1D arrays separated by a comma. Broadcasting rules also apply to array indices. Check out the [documentation](https://numpy.org/doc/stable/user/basics.indexing.html#integer-array-indexing) if you want to learn more!
-# </div>
-
-# %% [markdown]
-# #### Displaying data
-#
-# We will also be using `matplotlib` to display the images. In the next module we will learn more about `matplotlib`, but for now we will mostly be using the `matplotlib.pyplot.imshow` function.
-#
-# We can display the images with the `matplotlib.pyplot.imshow` function, simply pass the 2D array that you want to display.
-
-# %%
-# plt is a commonly used alias for matplotlib.pyplot for convenience
-import matplotlib.pyplot as plt
-
-# %% [markdown]
-# #### Mulit-dimensional data
-#
-# For ***multi-dimensional arrays***, indices and slices can be combined, the index or slice for each dimension is separated by a comma.
-#
-# <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
 #   padding: 12px 16px;
@@ -317,7 +316,7 @@ import matplotlib.pyplot as plt
 #
 #   We want to view the `cells3d` data we downloaded from SciKit-Image but the function `plt.imshow` can only display 2D data.
 #
-#   Use indexing to select the 30th z-slice of the nuclei or membrane channel and display the data.
+#   Use indexing to select the 30th z-slice of the nuclei or membrane channel and display the result.
 #
 #   <details>
 #   <summary>
@@ -335,10 +334,6 @@ plt.imshow(data[30, 1])
 # ---
 
 # %% [markdown]
-# ### Cropping
-#
-# NumPy slicing can be used to crop the data.
-#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -347,7 +342,10 @@ plt.imshow(data[30, 1])
 #   margin: 12px 0;
 #   color: #21457f;
 # ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
+#   <strong style="color: #21457f;">Exercise:</strong> Cropping<br>
+#
+#   NumPy slicing can be used to crop the data.
+#
 #   Can you find slices in the X and Y axes that crop one of the nuclei visible in the 30th z-slice? Display the cropped nuclei.
 # </div>
 
@@ -366,6 +364,7 @@ plt.imshow(data[30, 1, 130:185, 85:140])
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Instead of an XY-plane, can you display a ZY-plane?
 # </div>
 
@@ -646,31 +645,17 @@ print(f"Shape after squeeze: {a.shape}")
 #
 # Operations can also be applied along a dimension or multiple dimensions, for example, multiplying each row of an array by a value, this can be achieved with *broadcasting*.
 # This also includes scalar operations where a single value operates on all the elements in an array.
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Try multiplying the two arrays, `a` and `b`, together. Print the result.
-# </div>
+# For example multiplying two arrays together:
 
 # %%
 a = np.array([[1, 2], [3, 4]])
 b = np.array([[1, 10], [100, 1000]])
 
-print("Result:")
 # Multiply the arrays `a` and `b` together and print the results
-# --- Exercise
+print("Result:")
 result = a * b
 print(result)
-# ---
 
 # %% [markdown]
 # #### Broadcasting
@@ -756,7 +741,7 @@ print(a * b)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Find the maximum intensity of each channel in `data`. Print the results.
+#   Find the maximum intensity of each channel in `data` (the SciKit-Image `cells3d` data). Print the results.
 #
 #   <details>
 #   <summary>
