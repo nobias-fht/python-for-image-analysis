@@ -21,7 +21,7 @@
 # - Use NumPy to select data, manipulate axes, and use basic operations.
 
 # %% [markdown]
-# # Intro to NumPy
+# # 1 - Intro to NumPy
 #
 # NumPy is an open source library which is very commonly used in python for handling arrays.
 # It provides many useful functions and mathematical operations, most of the underlying code is written in C, making it usually much faster than native python loops.
@@ -37,7 +37,7 @@
 import numpy as np
 
 # %% [markdown]
-# ## 1 - Creating Arrays
+# ### Creating Arrays
 #
 # There are many ways to create arrays in NumPy, for example:
 # #### 1) From a python list, or list of lists for 2D:
