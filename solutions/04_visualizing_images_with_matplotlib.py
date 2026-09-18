@@ -547,6 +547,46 @@ plt.title("Image histogram")
 plt.show()
 
 # %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   What can you infer from an histogram? We've prepared some examples. Plot the images and their histogram side by side.
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   Can you guess what happened to the images based on the histogram?
+# </div>
+
+# %%
+from python_for_ia import images_with_problematic_hist
+
+img_lst = images_with_problematic_hist()
+titles = ["Original", "Example 1", "Example 2"]
+
+for i, (img, title) in enumerate(zip(img_lst, titles, strict=True)):
+    # --- Exercise
+    plt.hist(img.ravel(), bins=100)
+    # ---
+
+    plt.xlabel("Pixel intensity")
+    plt.ylabel("Pixel count")
+    plt.title(title)
+    plt.show()
+
+# %% [markdown]
 # ## 5 - Assembling figures with subplots
 
 # %% [markdown]
@@ -767,3 +807,9 @@ plt.savefig("channels_histogram.png")
 # In this module, we learned to navigate `matplotlib` docs and perform everyday plotting:
 # single images, overlays, and subplots. A large portion of your need are covered with these
 # examples, but there is an infinite world of possibilities with `matplotlib`.
+
+# %% [markdown]
+# - histograms to investigate images
+# - colormaps, not be fooled by the color ranges
+# - read the docs
+# - automate your figures

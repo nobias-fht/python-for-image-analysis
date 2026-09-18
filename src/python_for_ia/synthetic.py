@@ -4,7 +4,7 @@ import numpy as np
 from skimage import data, draw, filters, measure, segmentation
 
 
-def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
+def images_with_problematic_hist() -> list[np.ndarray]:
     """Process images so that their histograms have issues.
 
     Used in module 05.
@@ -20,7 +20,7 @@ def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
     # clip bright values so many pixels pile up at the maximum
     img_sat = np.clip(img01 * 2.5, 0, 1)
 
-    return [("Original", img), ("Example 1", img_holes), ("Example 2", img_sat)]
+    return [img, img_holes, img_sat]
 
 
 def image_with_background(noise_level: int = 1_000, bg_level=1) -> np.ndarray:
