@@ -355,7 +355,7 @@ print("NumPy version:", np.__version__)
 # </div>
 
 # %% [markdown]
-# ## 4 - Project dependencies or a script header?
+# ## 4 - Script dependencies
 #
 # For this course, several notebooks share the same packages, so we keep dependencies together in `pyproject.toml` and use one project environment.
 #
