@@ -3,20 +3,29 @@
 #
 # Time: 1 hour (45 minutes + 15 minutes troubleshooting).
 #
-# Image analysis relies on Python libraries for tasks such as reading images, working with arrays, and measuring objects. These libraries are our **dependencies**. Their versions matter: an update can change how code runs or how results are calculated.
+# When working on scientific applications of python we will often rely on 3rd party open-source libraries which can be used through python's import system. Because of this python has a thriving open-source scientific ecosystem, however it comes with the added complication of managing dependencies and their versions. New versions of libraries are not always compatible with old code, or other libraries your project depends on.
 #
-# In this module, we will:
+# In this module we will learn about the tool `uv` that will allow us to manage our dependencies effectively and keep our code reproducible in the future.
 #
-# - Create a project environment and add packages with `uv`.
-# - Run a notebook in VS Code and fix a missing dependency.
-# - Use a lockfile to help reproduce an analysis environment.
-# - Compare project dependencies with script and notebook dependencies.
+# <div style="display: flex; align-items: center; gap: 12px;">
+#     <img src="https://docs.astral.sh/uv/assets/logo-letter.svg" alt="Logo" style="height: 40px; width: auto;">
+#     uv
+# </div>
+#
+# ### Question
+#
+# What is the best way to manage dependencies and ensure that code remains reproducible?
+#
+# ### Objective
+#
+# - Learn how to manage dependecies with `uv`.
+# - Learn what is a lock file and why is it important.
 #
 # ## 1 - Initialize the project
 #
-# Open the course folder in VS Code, then choose **Terminal → New Terminal**. Run the shell commands in this module in that terminal, from the `python-for-image-analysis` directory. Use `pwd` to check your location.
+# You can use a terminal with VS Code by selecting from the toolbar **Terminal -> New Terminal**.
 #
-# You can read this notebook before selecting a kernel. We will set up the kernel before running any Python cells.
+# In your terminal, make sure you are in the `python-for-image-analysis` directory, try printing the working directory with the `pwd` command.
 
 # %% [markdown]
 # <div style="
@@ -257,7 +266,7 @@ print("NumPy version:", np.__version__)
 # </div>
 
 # %% [markdown]
-# ## 3 - Lockfiles and reproducibility
+# ## 3 - Lock files and reproducibility
 #
 # The three parts of our setup serve different purposes:
 #
@@ -281,7 +290,7 @@ print("NumPy version:", np.__version__)
 # </div>
 #
 #
-# A requirement such as `numpy>=2.0` in the `pyproject.toml` allows several versions, if someone is using your project as a library this allows some flexibility. However, it does not guarantee that future versions of NumPy will actually be compatible with your code. Libraries require constant active maintainence to ensure they are compatible with the dependencies they declare.
+# A requirement such as `numpy>=2.0` in the `pyproject.toml` allows several versions, if someone is using your project as a library this allows some flexibility. However, it does not guarantee that future versions of NumPy will actually be compatible with your code. Libraries require constant active maintenance to ensure they are compatible with the dependencies they declare.
 #
 # A lockfile records the exact versions present in the environment when the lockfile was created.
 # This is great for analysis workflows, it is a record of the dependencies that worked last time the analysis was run.
