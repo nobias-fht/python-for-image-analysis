@@ -12,7 +12,7 @@
 # - Use a lockfile to help reproduce an analysis environment.
 # - Compare project dependencies with script and notebook dependencies.
 #
-# ## 1. Initialize the project
+# ## 1 - Initialize the project
 #
 # Open the course folder in VS Code, then choose **Terminal → New Terminal**. Run the shell commands in this module in that terminal, from the `python-for-image-analysis` directory. Use `pwd` to check your location.
 #
@@ -113,7 +113,7 @@
 # You can now delete the generated `main.py` in the VS Code file explorer; we will work in notebooks.
 
 # %% [markdown]
-# ## 2. Environments and packages
+# ## 2 - Environments and packages
 #
 # A **virtual environment** holds a project's Python interpreter and installed packages. Keeping a separate environment for each project lets different analyses use different library versions.
 #
@@ -193,7 +193,7 @@
 
 # %%
 # --- Exercise
-print("Hello python for image analysis course!")
+print("Hello from Python for image analysis!")
 # ---
 
 # %% [markdown]
