@@ -1,7 +1,12 @@
 """Synthetic image helpers used by multiple draft modules."""
 
+from pathlib import Path
 import numpy as np
 from skimage import data, draw, filters, measure, segmentation
+
+
+def project_data() -> list[Path]:
+    return list(Path("../data/practical_project/noisy").glob("*.tif"))
 
 
 def images_with_problematic_hist() -> list[np.ndarray]:
