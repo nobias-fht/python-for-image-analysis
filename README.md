@@ -43,7 +43,7 @@ or for Windows:
 cd "My Documents\CourseMaterials"
 ```
 
-Now clone the repository here using the command
+Now clone the repository using the command
 
 ```shell
 git clone https://github.com/nobias-fht/python-for-image-analysis.git
@@ -53,7 +53,7 @@ There will be a new directory added called `python-for-image-analysis` that cont
 
 ### Start the course
 
-Start VSCode and choose "Open Folder", open the new `python-for-image-analysis` folder.
+Start VS Code and choose "Open Folder", open the new `python-for-image-analysis` folder.
 
 You will see there is an `exercises` directory and a `solutions` directory, both contain jupyter notebooks. The notebooks in `exercises` have sections of code removed that will need to be completed, you can spot sections that look like this:
 ```python
@@ -64,7 +64,7 @@ You will see there is an `exercises` directory and a `solutions` directory, both
 # ---
 ```
 
-Try not to look at the solutions notebooks, try asking a TA for hints first!
+Try to not look at the solutions notebooks, try asking a TA for hints first!
 
 Start with the notebook for module 1: `01_project_setup.ipynb`.
 
