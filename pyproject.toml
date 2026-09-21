@@ -19,12 +19,16 @@ dependencies = [
     "numpy>=2.4.6",
     "pandas>=3.0.3",
     "pre-commit>=4.6.0",
+    "rich>=14.1.0",
     "scikit-image>=0.26.0",
     "scipy>=1.17.1",
     "tifffile>=2026.3.3",
     "pooch>=1.9.0",
     "cmap>=0.7.2",
 ]
+
+[project.scripts]
+course-feud = "python_for_ia.course_feud:main"
 
 
 [tool.uv.sources]
