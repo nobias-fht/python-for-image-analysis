@@ -3,9 +3,8 @@
 #
 # Time: 1 hour 45 minutes.
 #
-# `pandas` is the standard library for tabular data in Python. Its `DataFrame` is
-# a table with named columns, each column holding one type, and it is usually the best
-# choice for the output of a measurement step.
+# `pandas` is the standard library for tabular data in Python. Its `DataFrame` object is
+# a table with named columns, each column holding one type, and is often used when analyzing data.
 #
 # ### Question
 #
@@ -18,103 +17,37 @@
 # - Fit a curve to your data with `scipy`
 
 # %% [markdown]
-# ## 1 - From images to a table
-
-# %%
-from python_for_ia import make_two_channel_cells
-
-image, _, _ = make_two_channel_cells(seed=100)
-print(f"Field shape: {image.shape}")
-
-# %% [markdown]
-# The pipeline below is the one from this morning: threshold the combined
-# signal, separate touching cells with a watershed, then measure both channels
-# at once. Read it, but do not retype it.
-
-
-# %%
-import numpy as np
-import pandas as pd
-from scipy import ndimage as ndi
-from skimage import feature, filters, measure, morphology, segmentation
-
-
-def measure_frame(channel_a, channel_b):
-    """Segment the cells of one field and measure both channels."""
-    # segment on the combined signal, as in this morning's practical
-    combined = channel_a + channel_b
-    mask = combined > filters.threshold_otsu(combined)
-    mask = morphology.remove_small_objects(mask, max_size=39)
-    mask = ndi.binary_fill_holes(mask)
-
-    # separate touching cells with a watershed
-    distance = ndi.distance_transform_edt(mask)
-    peaks = feature.peak_local_max(distance, min_distance=10, labels=mask)
-    markers = np.zeros(mask.shape, dtype=int)
-    markers[tuple(peaks.T)] = np.arange(1, len(peaks) + 1)
-    labels = segmentation.watershed(-distance, markers, mask=mask)
-    labels = morphology.remove_small_objects(labels, max_size=39)
-
-    # measure both channels at once, by stacking them along the last axis
-    table = pd.DataFrame(
-        measure.regionprops_table(
-            labels,
-            intensity_image=np.stack([channel_a, channel_b], axis=-1),
-            properties=(
-                "label",
-                "area",
-                "perimeter",
-                "eccentricity",
-                "axis_major_length",
-                "axis_minor_length",
-                "intensity_mean",
-            ),
-        )
-    )
-    table = table.rename(
-        columns={
-            "intensity_mean-0": "mean_intensity_channel_a",
-            "intensity_mean-1": "mean_intensity_channel_b",
-        }
-    )
-
-    # objects touching the image border are truncated, flag them
-    interior = np.unique(segmentation.clear_border(labels))
-    table["on_border"] = ~table["label"].isin(interior)
-
-    return table
-
-
-# %% [markdown]
-# A pipeline saves its results to disk, one file per field. Let's do the
-# same.
+# ## 1 - Intro
 #
-# Each field is a fresh synthetic acquisition, scaled down to mimic
-# photobleaching, then cropped tighter than it was generated so that a few
-# cells sit right at the edge, like on a real slide.
+# Oftentimes, a pipeline will result in measurements, as we've seen during the practical. Here, we will assume that some measurements were created and saved to .csv files.
 
 # %%
-from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from python_for_ia import get_measurements
 
-folder = Path("scratch_outputs/module_07")
-folder.mkdir(parents=True, exist_ok=True)
+measurement_path = get_measurements()
 
-n_frames = 6
-minutes_elapsed = [5 * index for index in range(n_frames)]
-bleaching = 0.92  # fraction of signal remaining at every next frame
-crop = 12  # trimmed from every side, tighter than the field was built for
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Let's list the files in the `measurement_path` and sort them.
+# </div>
 
-for index, minutes in enumerate(minutes_elapsed):
-    frame, _, _ = make_two_channel_cells(seed=100 + index)
-    frame = frame * bleaching**index
-    frame = frame[crop:-crop, crop:-crop]
 
-    table = measure_frame(frame[..., 0], frame[..., 1])
-    table.insert(0, "frame_id", f"frame_{index:02d}")
-    table.to_csv(folder / f"frame_{index:02d}.csv", index=False)
-
-files = sorted(folder.glob("*.csv"))
-print(f"{len(files)} files written")
+# %%
+# --- Exercise
+files = sorted(list(measurement_path.glob("*.csv")))
+# ---
 
 # %% [markdown]
 # ## 2 - Loading a table
@@ -154,6 +87,18 @@ table.head()
 # </div>
 #
 # <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   How were these measurements obtained?
+# </div>
+#
+# <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
 #   padding: 12px 16px;
@@ -171,7 +116,6 @@ table.head()
 
 # %%
 # --- Exercise
-# Inspect the table
 print(f"Rows and columns: {table.shape}")
 print(f"Columns: {list(table.columns)}")
 
@@ -180,46 +124,47 @@ table.describe()
 # ---
 
 # %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Look at the minimum and the maximum of each column. Does any of them look
-#   impossible for an object you would want to keep?
-# </div>
-
-# %% [markdown]
 # ## 3 - Selecting rows and columns
 #
-# Three ways of selecting:
 #
-# - `table["area"]` returns one column, as a `Series`,
-# - `table[["label", "area"]]` returns several columns, as a dataframe,
-# - `table.loc[<rows>, <columns>]` returns both, where `<rows>` is a condition.
+# As you can imagine, Dataframes can be very large and in order to explore them, we also need
+# to select only certain elements. For instance, to select one or more columns you
+# can pass their names as a list of string in `table[...]`.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Select two columns from the dataframe.
+# </div>
+#
 
 # %%
-print(type(table["area"]))
-print(type(table[["label", "area"]]))
-
-print(f"Mean area: {table['area'].mean():.1f} pixels")
-
-# %% [markdown]
-# A condition on a column gives one `True` or `False` per row. Passing it to
-# `.loc` keeps the rows that are `True`.
-
-# %%
-is_large = table["area"] > 300
-print(is_large.head())
-
-large_objects = table.loc[is_large]
-print(f"{len(large_objects)} objects out of {len(table)} are larger than 300 px")
+# --- Exercise
+table[["label", "area"]]
+# ---
 
 # %% [markdown]
+# A more interesting operation is selecting conditionally certain rows. A condition on a column gives one `True` or `False` per row. Passing it to
+# the `.loc` method keeps the rows that are `True`.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   Use the condition to select a subset of the table.
+# </div>
+#
 # <div style="
 #   background: #e8f7ec;
 #   border-left: 6px solid #2f9e44;
@@ -229,9 +174,18 @@ print(f"{len(large_objects)} objects out of {len(table)} are larger than 300 px"
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   What did the comparison return, and how many entries does it have? Compare
-#   that with the length of "large_objects".
+#   What percentage of objects are satisfying the condition?
 # </div>
+
+# %%
+# condition
+thresh = 150
+is_large = table["area"] > thresh
+
+# --- Exercise
+large_objects = table.loc[is_large]
+print(f"{len(large_objects)} objects out of {len(table)} are larger than {thresh} px")
+# ---
 
 # %% [markdown]
 # <div style="
@@ -246,15 +200,14 @@ print(f"{len(large_objects)} objects out of {len(table)} are larger than 300 px"
 #   Select the label and area of the objects larger than 300 pixels that do not
 #   touch the border, sorted by decreasing area.
 #
-#   <b>Hint</b>: combine conditions with "&" and "~", each in its own
-#   parentheses. Sort with "sort_values(by=..., ascending=False)".
+#   <b>Hint</b>: combine conditions with "&" (and) and "~" (not), each condition surrounded by parenthesis. Sort with "sort_values(by=..., ascending=False)".
 # </div>
 
 # %%
 # --- Exercise
 # Select and sort
 selected = table.loc[
-    (table["area"] > 300) & (~table["on_border"]),
+    (table["area"] > 150) & (~table["on_border"]),
     ["label", "area"],
 ]
 selected = selected.sort_values(by="area", ascending=False)
@@ -263,23 +216,24 @@ selected.head()
 
 # %% [markdown]
 # <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #8a6a00;
+#   color: #374151;
 # ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#   The parentheses are not optional, "&" binds more tightly than ">". And on
-#   columns you need "&", "|", "~", not "and", "or", "not".
+#   <strong>Optional Exercise</strong><br>
+#   We've used the logical AND (&) and NOT (~), what is OR?
 # </div>
 
 # %% [markdown]
-# ## 4 - Putting tables together
+# ## 4 - Concatenation and merging
 #
-# One field is never enough. Our files share the same columns, so `pd.concat`
-# stacks them into a single, longer table.
+# In the case of our example, we have loaded a single file pertaining to a single image.
+# But we actually have many frames and all these results should be gathered within the same
+# dataframe. Among the operations we can perform on a dataframe, we can use `pd.concat`
+# to stacks them into a single, larger table.
 #
 # <div style="
 #   background: #accffb;
@@ -290,7 +244,7 @@ selected.head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Read all the files and concatenate them into one dataframe called "measurements".
+#   Read all the files and concatenate them into one dataframe called "df_measure".
 #
 #   <b>Hint</b>: build a list of dataframes, then call
 #   "pd.concat(tables, ignore_index=True)".
@@ -300,11 +254,11 @@ selected.head()
 # --- Exercise
 # Read every file and concatenate
 tables = [pd.read_csv(file) for file in files]
-measurements = pd.concat(tables, ignore_index=True)
+df_measure = pd.concat(tables, ignore_index=True)
 # ---
 
-print(f"{len(measurements)} objects in {len(files)} fields")
-print(measurements["frame_id"].value_counts())
+print(f"{len(df_measure)} objects in {len(files)} images")
+print(df_measure["frame_id"].value_counts())
 
 # %% [markdown]
 # <div style="
@@ -317,23 +271,8 @@ print(measurements["frame_id"].value_counts())
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #   Labels start again at 1 in every field. After concatenating, what
-#   identifies an object uniquely?
+#   identifies an object in our dataframe uniquely?
 # </div>
-
-# %% [markdown]
-# Everything the acquisition knew and the pipeline did not lives in a separate
-# table. `pd.merge` joins the two on a shared column: each object gets the
-# metadata of the field it came from.
-
-# %%
-metadata = pd.DataFrame(
-    {
-        "frame_id": [f"frame_{index:02d}" for index in range(n_frames)],
-        "minutes_elapsed": minutes_elapsed,
-        "pixel_size_um": 0.11,  # camera pixel size of this synthetic assay, in micrometers
-    }
-)
-metadata
 
 # %% [markdown]
 # <div style="
@@ -345,22 +284,31 @@ metadata
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Merge the metadata into the measurements on "frame_id", then convert areas
-#   and perimeters into physical units.
+#   Let's say we now want to add metadata from the images that were not in the original
+#   result tables.
+#
+#   Merge the metadata into the measurements on "frame_id".
 #
 #   <b>Hint</b>: "pd.merge(left, right, on=...)". An area is a length squared.
 # </div>
 
 # %%
-# --- Exercise
-# Merge, then convert to micrometers
-measurements = pd.merge(measurements, metadata, on="frame_id")
+n_frames = 6
+minutes_elapsed = [5 * index for index in range(n_frames)]
 
-measurements["area_um2"] = measurements["area"] * measurements["pixel_size_um"] ** 2
-measurements["perimeter_um"] = measurements["perimeter"] * measurements["pixel_size_um"]
+metadata = pd.DataFrame(
+    {
+        "frame_id": [f"frame_{index:02d}" for index in range(n_frames)],
+        "minutes_elapsed": minutes_elapsed,
+        "pixel_size_um": 0.11,  # camera pixel size of this synthetic assay, in micrometers
+    }
+)
+
+# --- Exercise
+df_merged = pd.merge(df_measure, metadata, on="frame_id")
 # ---
 
-measurements[["frame_id", "label", "area", "area_um2"]].head()
+df_merged.head()
 
 # %% [markdown]
 # <div style="
@@ -372,9 +320,30 @@ measurements[["frame_id", "label", "area", "area_um2"]].head()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   How many rows does "measurements" have now? Should merging metadata ever
-#   change that number?
+#   What has changed with the new dataframe?
 # </div>
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#   We can also create new columns similarly to new dictionary entries. Let's use the newly added metadata to convert areas
+#   and perimeters into physical units.
+# </div>
+
+# %%
+# --- Exercise
+df_merged["area_um2"] = df_merged["area"] * df_merged["pixel_size_um"] ** 2
+df_merged["perimeter_um"] = df_merged["perimeter"] * df_merged["pixel_size_um"]
+# ---
+
+df_merged[["frame_id", "label", "area", "area_um2"]].head()
 
 # %% [markdown]
 # <div style="
@@ -392,9 +361,6 @@ measurements[["frame_id", "label", "area", "area_um2"]].head()
 # </div>
 
 # %% [markdown]
-# The table is complete, so we can derive from it. Creating a column works like
-# assigning to a dictionary key, on the whole column at once and without a
-# `for` loop.
 #
 # <div style="
 #   background: #accffb;
@@ -406,41 +372,41 @@ measurements[["frame_id", "label", "area", "area_um2"]].head()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Add two columns to "measurements": the "ellipticity" of each object, and the
-#   ratio of its mean channel A intensity over its mean channel B intensity.
-#
-#   <b>Hint</b>: ellipticity is "1 - minor axis / major axis", so a circle gives
-#   0. You need "axis_major_length", "axis_minor_length",
-#   "mean_intensity_channel_a" and "mean_intensity_channel_b".
+#   ratio of its mean marker intensity over its mean nuclear intensity.
 # </div>
+#
+# $$\epsilon = 1 - \frac{A_{minor}}{A_{major}}$$
+#
+# where $A_{minor}$ corresponds to `"axis_minor_lenth"`, and $A_{major}$ to its major counterpart.
 
 # %%
 # --- Exercise
 # Add the two columns
-measurements["ellipticity"] = (
-    1 - measurements["axis_minor_length"] / measurements["axis_major_length"]
+df_merged["ellipticity"] = (
+    1 - df_merged["axis_minor_length"] / df_merged["axis_major_length"]
 )
-measurements["intensity_ratio"] = (
-    measurements["mean_intensity_channel_a"] / measurements["mean_intensity_channel_b"]
+df_merged["intensity_ratio"] = (
+    df_merged["marker_intensity"] / df_merged["nuclear_intensity"]
 )
 # ---
 
-measurements[["frame_id", "label", "ellipticity", "intensity_ratio"]].head()
+df_merged[["frame_id", "label", "ellipticity", "intensity_ratio"]].head()
 
 # %% [markdown]
-# ## 5 - Summarizing per field
+# ## 5 - Performing operations over values
 #
-# `groupby` splits the table into groups, computes something on each, and puts
-# the results back together. It answers "one number per field", or per condition.
+# `groupby` splits the table into groups according to row's values in specific columns, allowing us to compute something on them (e.g. `.agg`) or filtering (`.filter`).
 
 # %%
 per_frame = (
-    measurements.groupby(["frame_id", "minutes_elapsed"])
+    df_merged.groupby(["frame_id", "minutes_elapsed"])
     .agg(
         n_objects=("label", "count"),
         mean_area_um2=("area_um2", "mean"),
         median_ellipticity=("ellipticity", "median"),
-        mean_channel_a=("mean_intensity_channel_a", "mean"),
-        mean_channel_b=("mean_intensity_channel_b", "mean"),
+        mean_nuclear_intensity=("nuclear_intensity", "mean"),
+        mean_marker_intensity=("marker_intensity", "mean"),
+        mean_intensity_r=("intensity_ratio", "mean"),
     )
     .reset_index()
 )
@@ -459,30 +425,11 @@ per_frame
 #   "agg" is not limited to "mean" and "median". Can you find in the pandas
 #   documentation which functions it accepts?
 # </div>
-#
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   This summary has one row per field, all from a single time-course run. What
-#   would you need before putting any of these numbers in a paper?
-# </div>
 
 # %% [markdown]
-# ## 6 - Ordered measurements: the line plot
+# ## 6 - Line plot
 #
-# A line plot is for measurements that have an order: a dose, a depth, or here
-# elapsed time. Each call to `plot` adds one line to the axes.
-#
-# Both channels sit in a similar intensity range here, so the question isn't
-# which one is brighter, but how much each one fades. Dividing each by its
-# value in the first frame puts them on a common scale and asks exactly that:
-# how much has each channel changed, not how large it currently is.
+# A line plot is one of the most common way of representing data.
 #
 # <div style="
 #   background: #accffb;
@@ -493,47 +440,22 @@ per_frame
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Add a column per channel holding its mean intensity divided by the value in
-#   the first frame, then plot both against "minutes_elapsed", with a marker on
-#   every point.
-#
-#   <b>Hint</b>: ".iloc[0]" gives the first value of a column. Call "ax.plot"
-#   twice, passing "label=" so that "ax.legend()" can name the lines, and
-#   "marker="o"" to draw the points.
+#   Plot the mean intensity ratio (channel B/ A) versus time ("minutes_elapsed").
 # </div>
 
 # %%
-import matplotlib.pyplot as plt
-
 fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
 
 # --- Exercise
-# Normalize each channel, then draw one line per channel
-per_frame["channel_a_relative"] = (
-    per_frame["mean_channel_a"] / per_frame["mean_channel_a"].iloc[0]
-)
-per_frame["channel_b_relative"] = (
-    per_frame["mean_channel_b"] / per_frame["mean_channel_b"].iloc[0]
-)
-
 ax.plot(
     per_frame["minutes_elapsed"],
-    per_frame["channel_a_relative"],
+    per_frame["mean_intensity_r"],
     marker="o",
-    label="channel A",
 )
-ax.plot(
-    per_frame["minutes_elapsed"],
-    per_frame["channel_b_relative"],
-    marker="o",
-    label="channel B",
-)
-ax.legend()
 # ---
 
 ax.set_xlabel("Minutes elapsed")
-ax.set_ylabel("Mean intensity, relative to the first frame")
-ax.set_title("Photobleaching over the time-course")
+ax.set_ylabel("Mean intensity ratio")
 plt.show()
 
 # %% [markdown]
@@ -546,17 +468,29 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Each frame is a different field of cells, not the same ones imaged twice,
-#   so some of the up-and-down is which cells happened to be sampled, not the
-#   bleaching itself. Does the overall direction still look like decay?
+#   What is missing from the plot? How to compute and add it?
+# </div>
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Based on your answer to the previous question, improve the plot with the additional information/data.
 # </div>
 
 # %% [markdown]
 # ## 7 - Distributions: the box plot
 #
-# The box spans the first to the third quartile, the line is the median, the
-# whiskers reach the points within 1.5 interquartile ranges, and the rest is
-# drawn as individual points.
+# Box plots and violin plots are great way of comparing not only the mean of a distribution
+# but the distribution itself.
+#
+# In the previous plot, we have seen that intensity ratio is in average increasing then saturating
+# throughout time. Let's see what drives this increase.
 #
 # <div style="
 #   background: #accffb;
@@ -567,28 +501,39 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Plot the distribution of cell area, one box per field.
 #
-#   <b>Hint</b>: "ax.boxplot" takes a list of arrays, one per box. Looping over
-#   "measurements.groupby("frame_id")" gives pairs of (name, sub-dataframe).
+#   The previous analysis (which produced the csv files) has identified some cell populations, bright, dim and artifact.
+#   Let's compare their distribution of intensity using `boxplot`.
+#
+#   <b>Hint</b>: `plt.boxplot` can take a list of dataframes to plot various boxes next to each other, alongside a list of labels (`tick_labels`).
+# </div>
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#   On which dataframe should you work?
 # </div>
 
 # %%
 fig, ax = plt.subplots(figsize=(7, 4), constrained_layout=True)
 
 # --- Exercise
-# Build one group of values per field, then plot the boxes
-names = []
-groups = []
-for name, group in measurements.groupby("frame_id"):
-    names.append(name)
-    groups.append(group["area_um2"])
+groups = [
+    df_merged.loc[df_merged["population"] == "artifact", "intensity_ratio"],
+    df_merged.loc[df_merged["population"] == "dim", "intensity_ratio"],
+    df_merged.loc[df_merged["population"] == "bright", "intensity_ratio"],
+]
 
-ax.boxplot(groups, tick_labels=names)
+ax.boxplot(groups, tick_labels=["artifact", "dim", "bright"])
 # ---
 
-ax.set_ylabel("Cell area (um2)")
-ax.set_title("Area distribution per field")
+ax.set_ylabel("Intensity ratio")
 plt.show()
 
 # %% [markdown]
@@ -601,13 +546,10 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Can you tell, from the boxes alone, how many objects each one summarizes?
+#   What statistical measures of the distribution are shown in a box plot?
 # </div>
 
 # %% [markdown]
-# The same plot, grouped by a property of the objects instead. Objects touching
-# the border are cut off by the field of view, and the pipeline flagged them.
-#
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -617,73 +559,77 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Compare the area of the border objects with the others, and overlay the
-#   individual points.
 #
-#   <b>Hint</b>: the boxes sit at x = 1 and x = 2. Add jitter so the points do
-#   not pile up: "rng.normal(1, 0.04, size=len(values))".
+#   There is a difference between the populations, but we know that the intensity also
+#   changes over time (line plot). Let's pick three time frame and look at how the various
+#   population intensity ratio evolves with time.
+#
+#   Plot the same box plots but with the additional condition on `minutes_elapsed`.
+#
 # </div>
 
 # %%
-rng = np.random.default_rng(42)
-
-border = measurements.loc[measurements["on_border"], "area_um2"]
-interior = measurements.loc[~measurements["on_border"], "area_um2"]
-
-fig, ax = plt.subplots(figsize=(5, 4), constrained_layout=True)
+time = [0, 10, 20]
+fig, ax = plt.subplots(3, 1, figsize=(7, 8), constrained_layout=True)
 
 # --- Exercise
-# Box plot with the individual points on top
-ax.boxplot([border, interior], tick_labels=["on border", "interior"])
+for i, t in enumerate(time):
+    groups = [
+        df_merged.loc[
+            (df_merged["population"] == "artifact")
+            & (df_merged["minutes_elapsed"] == t),
+            "intensity_ratio",
+        ],
+        df_merged.loc[
+            (df_merged["population"] == "dim") & (df_merged["minutes_elapsed"] == t),
+            "intensity_ratio",
+        ],
+        df_merged.loc[
+            (df_merged["population"] == "bright") & (df_merged["minutes_elapsed"] == t),
+            "intensity_ratio",
+        ],
+    ]
 
-for position, values in enumerate([border, interior], start=1):
-    jitter = rng.normal(position, 0.04, size=len(values))
-    ax.scatter(jitter, values, s=10, alpha=0.5, color="black", zorder=3)
+    ax[i].boxplot(groups, tick_labels=["artifact", "dim", "bright"])
+    ax[i].set_ylabel("Intensity ratio")
+    ax[i].set_title(f"{t} min")
 # ---
 
-ax.set_ylabel("Cell area (um2)")
-ax.set_title("Border and interior objects")
 plt.show()
 
 # %% [markdown]
 # <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #1f5f2c;
+#   color: #374151;
 # ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Border objects sit a little higher here, not lower - the opposite of what
-#   truncation alone would suggest. What could cause that?
+#   <strong>Optional Exercise</strong><br>
+#   Draw the same data using a violin plot.
 # </div>
 #
-# <details>
-#   <summary>Where the shift comes from</summary>
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   Investigate the ellipticity distribution rather than the intensity ratio using box plots.
 #
-#   Cutting an object off should shrink its measured area, not grow it. But
-#   "remove_small_objects" ran before this table ever existed: any fragment
-#   that a crop reduced to almost nothing was already discarded as noise,
-#   alongside genuinely small interior objects. What survives labeled "on
-#   border" made it through only because enough of it was still standing after
-#   the crop - a size-selection bias introduced by the filter, not a
-#   truncation effect. It is a reminder to ask *why* a filter changed a
-#   distribution, not only whether it did.
-# </details>
-
-# %%
-# --- We keep the interior objects for the rest of the module
-# ".copy()" because we will add columns to this selection later.
-objects = measurements.loc[~measurements["on_border"]].copy()
-
-print(f"{len(objects)} objects kept out of {len(measurements)}")
+#   <b>Hint</b>: Negative ellipticity is an artefact of a potentially failed measurement. Use `set_ylim` to change the y-axis limits.
+# </div>
 
 # %% [markdown]
 # ## 8 - Relationships: the scatter plot
 #
-# A box plot shows one variable, a scatter plot two, and a color code adds a
-# third.
+# If you've done the optional exercises, you should have noticed that intensity ratio between
+# channels is not the only measured parameter that increases with time. To investigate
+# correlations between parameters, we may want to look at a scatter plot.
 #
 # <div style="
 #   background: #accffb;
@@ -694,65 +640,59 @@ print(f"{len(objects)} objects kept out of {len(measurements)}")
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Plot the perimeter of each cell against its area, colored by ellipticity,
-#   with a colorbar.
 #
-#   <b>Hint</b>: "ax.scatter(x, y, c=..., cmap="viridis")" returns the points,
-#   which "fig.colorbar(...)" needs.
+#   Let's look at the bright cell population and check the relationship between `ellipticity`
+#   and `intensity_ratio` using `plt.scatter`.
 # </div>
 
 # %%
 fig, ax = plt.subplots(figsize=(6, 4.5), constrained_layout=True)
 
 # --- Exercise
-# Scatter plot, color coded by a third column
-points = ax.scatter(
-    objects["area_um2"],
-    objects["perimeter_um"],
-    c=objects["ellipticity"],
-    cmap="viridis",
-    s=20,
-    alpha=0.8,
-)
+df_plot = df_merged.loc[df_merged["population"] == "bright"]
 
-colorbar = fig.colorbar(points, ax=ax)
-colorbar.set_label("Ellipticity")
+ax.scatter(
+    df_plot["ellipticity"],
+    df_plot["intensity_ratio"],
+)
 # ---
 
-ax.set_xlabel("Area (um2)")
-ax.set_ylabel("Perimeter (um)")
+ax.set_xlabel("Ellipticity")
+ax.set_ylabel("Intensity ratio")
+ax.set_xlim([0, None])
 plt.show()
 
 # %% [markdown]
 # <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #1f5f2c;
+#   color: #374151;
 # ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   The points follow a curve, not a line. What relationship do you expect between
-#   the area and the perimeter of a compact shape?
+#   <strong>Optional Exercise</strong><br>
+#
+#   By using `levels, categories = pd.factorize(...)` on a column, one can use `levels` in
+#   `plt.scatter(..., c=levels)` to color code the categories of the column. This is useful
+#   when the column only has a few values.
+#
+#   You'd need to then use `scatter = ax.scatter(..., c=levels)` and `plt.legend(scatter.legend_elements()[0], categories, title='Time')`.
+#
+#   Color code the previous scatter plot with `minutes_elapsed`.
+#
 # </div>
 
 # %% [markdown]
 # ## 9 - Fitting a curve
 #
-# Fitting estimates the parameters of a model we have a reason to believe in. For
-# shapes that are all roughly similar, doubling every length multiplies the
-# perimeter by 2 and the area by 4, so we expect
-#
-# $$ P = a \cdot A^{b} \quad \text{with} \quad b = 0.5 $$
-#
-# `curve_fit` takes a function whose first argument is the x data, and whose
-# other arguments are the parameters to estimate.
+# Fitting estimates the parameters of a model we think might represent the data well. `curve_fit` takes a function whose first argument is the x data, and whose
+# other arguments are the parameters to estimate. Let's examine power laws for our ellipticity-intensity ratio correlation.
 
 
 # %%
-def power_law(area, a, b):
-    return a * area**b
+def power_law(ellipticity, a, b):
+    return a * ellipticity**b
 
 
 # %% [markdown]
@@ -767,20 +707,24 @@ def power_law(area, a, b):
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Fit the model, and print the parameters with their uncertainty.
 #
-#   <b>Hint</b>: "curve_fit(model, x, y, p0=[...])" returns the parameters and
+#   <b>Hint</b>: `curve_fit(model, x, y, p0=[...])` returns the parameters and
 #   their covariance matrix. The standard errors are
-#   "np.sqrt(np.diag(covariance))".
+#   `np.sqrt(np.diag(covariance))`.
 # </div>
 
 # %%
 from scipy.optimize import curve_fit
 
-area = objects["area_um2"].to_numpy()
-perimeter = objects["perimeter_um"].to_numpy()
+df_analyse = df_merged.loc[
+    (df_merged["population"] == "bright") & (df_merged["ellipticity"] > 0)
+].copy()
+
+intensity_r = df_analyse["intensity_ratio"].to_numpy()
+ellipt = df_analyse["ellipticity"].to_numpy()
 
 # --- Exercise
 # Fit the model and report the parameters
-parameters, covariance = curve_fit(power_law, area, perimeter, p0=[3.5, 0.5])
+parameters, covariance = curve_fit(power_law, ellipt, intensity_r, p0=[0.5, 2])
 errors = np.sqrt(np.diag(covariance))
 
 print(f"a = {parameters[0]:.2f} +/- {errors[0]:.2f}")
@@ -799,87 +743,31 @@ print(f"b = {parameters[1]:.3f} +/- {errors[1]:.3f}")
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   Draw the fitted curve over the data, and the residuals next to it.
 #
-#   <b>Hint</b>: evaluate the model on
-#   "np.linspace(area.min(), area.max(), 200)". A residual is a measurement minus
-#   the model at the same point.
+#   <b>Hint</b>: to evaluate the fit on a the data range we are interested on, we can create a new set of x-axis values using `np.linspace(min, max, n_points)` and apply our power law function to it using the fitted parameters.
 # </div>
 
 # %%
-fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 # --- Exercise
 # Left: data and fitted curve. Right: residuals.
-smooth_area = np.linspace(area.min(), area.max(), 200)
+smooth_area = np.linspace(ellipt.min(), ellipt.max(), 100)
 
-axes[0].scatter(area, perimeter, s=20, alpha=0.6, label="objects")
-axes[0].plot(
+ax.scatter(ellipt, intensity_r, s=20, alpha=0.6, label="Cells")
+ax.plot(
     smooth_area,
     power_law(smooth_area, *parameters),
     color="crimson",
     label=f"fit: b = {parameters[1]:.2f}",
 )
-axes[0].legend()
+ax.legend()
 
-residuals = perimeter - power_law(area, *parameters)
-
-axes[1].axhline(0, color="black", linewidth=1)
-axes[1].scatter(area, residuals, s=20, alpha=0.6)
 # ---
 
-axes[0].set_xlabel("Area (um2)")
-axes[0].set_ylabel("Perimeter (um)")
-axes[1].set_xlabel("Area (um2)")
-axes[1].set_ylabel("Residual (um)")
+ax.set_xlabel("Ellipticity")
+ax.set_ylabel("Intensity ratio")
 
 plt.show()
-
-# %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Is the exponent compatible with 0.5? Do the residuals drift with the area,
-#   or do they line up with how elongated an object is instead?
-# </div>
-#
-# ### Conclusion
-#
-# <details>
-#   <summary>What does the fit tell us?</summary>
-#
-#   <ul>
-#     <li>An exponent near 0.5 means the cells are one family of shapes seen at
-#     different sizes, not shapes that grow more convoluted as they grow.</li>
-#     <li>Ours lands above 0.5, by many times its uncertainty. The residuals
-#     barely drift with area, but they correlate with ellipticity: the objects
-#     with the most extra perimeter for their size are the more elongated
-#     ones.</li>
-#     <li>That fits how this assay was built. Each cell's two axis lengths are
-#     drawn independently of one another, so elongation does not stay fixed as
-#     objects get bigger or smaller - unlike a family of shapes that really are
-#     "the same shape, just larger". The gap comes from shape variability the
-#     power law was never told about, not from a measurement artefact.</li>
-#   </ul>
-# </details>
-#
-# <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#   "curve_fit" walks downhill from the initial guess "p0", and a bad guess can
-#   settle on a meaningless minimum. Always plot the fit: a convincing curve can
-#   still be the wrong model.
-# </div>
 
 # %% [markdown]
 # ## Optional exercises
