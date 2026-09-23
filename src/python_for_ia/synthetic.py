@@ -97,3 +97,11 @@ def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
     img_all = np.floor(img_bg * illumination) + offset
 
     return img_slice, img_offset, img_bg, img_uneven, img_all
+
+
+def images_with_noise() -> np.ndarray:
+    factor = 3000
+    rng = np.random.default_rng(24)
+    img = data.cells3d()[:, 0, ...]
+
+    return rng.poisson(img / factor) * factor + rng.normal(0, factor)

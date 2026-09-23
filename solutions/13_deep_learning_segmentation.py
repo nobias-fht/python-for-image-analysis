@@ -1,12 +1,12 @@
 # %% [markdown]
-# # Module 12: image segmentation with Cellpose
+# # Module 13: image segmentation with Cellpose
 #
-# Cellpose is THE deep-learning segmentation algorithm in our fields. There is multiple
-# reasons for that:
+# Cellpose is one of the most useful deep-learning segmentation algorithm in our microscopy
+# image segmentation. There is multiple reasons for that:
 #
-# - Originally trained on a diverse dataset, it is very robust to different microscopy images
+# - Originally trained on a diverse biological datasets, it is very robust to different samples
 # - It deals well with touching objects
-# - The authors keep improving the models (and adding new highly performant models, e.g. SAM-Cellpose)
+# - The authors keep adding new highly performant models, e.g. SAM-Cellpose
 # - There is a GUI that allows you to correct the predictions, and fine-tune the model
 #
 # Here is the [docs](https://cellpose.readthedocs.io/en/latest/), and the various [settings](https://cellpose.readthedocs.io/en/latest/settings.html#settings)
