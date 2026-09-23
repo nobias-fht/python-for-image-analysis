@@ -1,10 +1,15 @@
 """Synthetic image helpers used by multiple draft modules."""
 
+from pathlib import Path
 import numpy as np
-from skimage import data, draw, filters, measure, segmentation
+from skimage import data
 
 
-def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
+def project_data() -> list[Path]:
+    return list(Path("../data/practical_project/noisy").glob("*.tif"))
+
+
+def images_with_problematic_hist() -> list[np.ndarray]:
     """Process images so that their histograms have issues.
 
     Used in module 05.
@@ -20,7 +25,7 @@ def images_with_problematic_hist() -> list[tuple[str, np.ndarray]]:
     # clip bright values so many pixels pile up at the maximum
     img_sat = np.clip(img01 * 2.5, 0, 1)
 
-    return [("Original", img), ("Example 1", img_holes), ("Example 2", img_sat)]
+    return [img, img_holes, img_sat]
 
 
 def image_with_background(noise_level: int = 1_000, bg_level=1) -> np.ndarray:
@@ -81,44 +86,3 @@ def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
     img_all = np.floor(img_bg * illumination) + offset
 
     return img_slice, img_offset, img_bg, img_uneven, img_all
-
-
-def make_two_channel_cells(
-    shape: tuple[int, int] = (192, 192),
-    n_cells: int = 32,
-    seed: int = 2,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return (image_yxc, instance_labels, population_id) for a toy assay."""
-    rng = np.random.default_rng(seed)
-    labels = np.zeros(shape, dtype=np.uint16)
-    population_by_label = np.zeros(n_cells + 1, dtype=np.uint8)
-
-    for label in range(1, n_cells + 1):
-        row = int(rng.integers(18, shape[0] - 18))
-        col = int(rng.integers(18, shape[1] - 18))
-        radius_r = int(rng.integers(7, 15))
-        radius_c = int(rng.integers(5, 13))
-        rr, cc = draw.ellipse(row, col, radius_r, radius_c, shape=shape)
-        labels[rr, cc] = label
-        population_by_label[label] = int(rng.integers(0, 2))
-
-    channel_a = rng.normal(0.04, 0.015, size=shape)
-    channel_b = rng.normal(0.04, 0.015, size=shape)
-
-    for props in measure.regionprops(labels):
-        label = props.label
-        mask = labels == label
-        if population_by_label[label] == 0:
-            channel_a[mask] += rng.uniform(0.55, 0.85)
-            channel_b[mask] += rng.uniform(0.15, 0.35)
-        else:
-            channel_a[mask] += rng.uniform(0.15, 0.35)
-            channel_b[mask] += rng.uniform(0.55, 0.85)
-
-    channel_a = filters.gaussian(channel_a, sigma=1.1)
-    channel_b = filters.gaussian(channel_b, sigma=1.1)
-    image = np.stack([channel_a, channel_b], axis=-1)
-    image = np.clip(image, 0, 1).astype(np.float32)
-
-    cleaned = segmentation.clear_border(labels)
-    return image, cleaned, population_by_label

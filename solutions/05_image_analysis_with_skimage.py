@@ -179,53 +179,6 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   What can you infer from an histogram? We've prepared some examples. Plot the images and their histogram side by side.
-# </div>
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Can you guess what happened to the images based on the histogram?
-# </div>
-
-# %%
-from python_for_ia import images_with_problematic_hist
-
-img_lst = images_with_problematic_hist()
-
-fig, axes = plt.subplots(len(img_lst), 2, figsize=(6, 8), constrained_layout=True)
-
-for row, (title, img_r) in enumerate(img_lst):
-    # --- Exercise
-    # Plot image `img_r` and its histogram side by side
-    axes[row, 0].imshow(img_r)
-
-    axes[row, 1].hist(img_r.ravel(), bins=64)
-    # ---
-
-    axes[row, 0].set_title(title)
-    axes[row, 0].axis("off")
-
-    axes[row, 1].set_title(f"{title} histogram")
-    axes[row, 1].set_xlabel("Intensity")
-    axes[row, 1].set_ylabel("Pixel count")
-
-
-# %% [markdown]
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
 #   We will re-use this code, so let's make it a function.
 #
 #   <b>Hint</b>: it is important to make sure you are using the function's parameters and

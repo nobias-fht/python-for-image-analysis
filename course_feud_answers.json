@@ -1,0 +1,262 @@
+{
+  "1": {
+    "title": "Working with uv",
+    "answers": [
+      {
+        "answer": "Ensure environment reproducibility",
+        "aliases": ["reproducibility", "lock file"],
+        "points": 50
+      },
+      {
+        "answer": "Maintain clear depdencies",
+        "aliases": ["dependencies", "pyproject"],
+        "points": 30
+      },
+      {
+        "answer": "Declare project metadata",
+        "aliases": ["metadata", "author", "license"],
+        "points": 10
+      }
+    ]
+  },
+  "2": {
+    "title": "Working with bioimages",
+    "answers": [
+      {
+        "answer": "Know your array indexing",
+        "aliases": ["indexing", "slicing", "dimensions"],
+        "points": 50
+      },
+      {
+        "answer": "Ensure correct transformations",
+        "aliases": ["transposing", "reshaping", "pixel position"],
+        "points": 30
+      },
+      {
+        "answer": "Read the docs",
+        "aliases": ["docs", "manual", "documentation"],
+        "points": 30
+      },
+      {
+        "answer": "Be mindful of data overflow",
+        "aliases": ["overflow", "bit depth", "dtype"],
+        "points": 10
+      },
+      {
+        "answer": "Are you working on a copy?",
+        "aliases": ["copy", "object", "array"],
+        "points": 10
+      }
+    ]
+  },
+  "3": {
+    "title": "Opening bio-image formats",
+    "answers": [
+      {
+        "answer": "Always keep the raw images and metadata",
+        "aliases": ["raw", "metadata", "format"],
+        "points": 50
+      },
+      {
+        "answer": "Are your images pre-processed?",
+        "aliases": ["pre-processing", "manipulation"],
+        "points": 30
+      },
+      {
+        "answer": "Know axes and physical dimensions",
+        "aliases": ["axes", "dimensions", "pixel size"],
+        "points": 10
+      },
+      {
+        "answer": "Use community standards",
+        "aliases": ["ome", "zarr", "tiff"],
+        "points": 10
+      }
+    ]
+  },
+  "4": {
+    "title": "Visualizing images",
+    "answers": [
+      {
+        "answer": "Read the docs",
+        "aliases": ["documentation", "manual", "doc"],
+        "points": 50
+      },
+      {
+        "answer": "Always check out the histogram",
+        "aliases": ["histogram", "manipulation"],
+        "points": 30
+      },
+      {
+        "answer": "How colormaps influence perception",
+        "aliases": ["bias", "colormap", "vision"],
+        "points": 30
+      },
+      {
+        "answer": "Automate your figures",
+        "aliases": ["figures", "script", "automation"],
+        "points": 10
+      }
+    ]
+  },
+  "5": {
+    "title": "Image analysis operations",
+    "answers": [
+      {
+        "answer": "Refer to the doc",
+        "aliases": ["documentation", "doc", "website", "manual"],
+        "points": 50
+      },
+      {
+        "answer": "Tailor the analysis pipeline to your question",
+        "aliases": ["question", "specific"],
+        "points": 30
+      },
+      {
+        "answer": "Always inspect histograms",
+        "aliases": ["histogram", "manipulation", "pixel intensities"],
+        "points": 30
+      },
+      {
+        "answer": "Validate every processing step visually",
+        "aliases": ["validate", "inspect", "visual check"],
+        "points": 30
+      },
+      {
+        "answer": "Filtering can help before thresholding",
+        "aliases": ["filtering", "smooth"],
+        "points": 30
+      },
+      {
+        "answer": "Watershed helps splitting touching labels",
+        "aliases": ["watershed", "instances"],
+        "points": 10
+      }
+    ]
+  },
+  "6": {
+    "title": "Practical project",
+    "answers": [
+      {
+        "answer": "Break a large analysis into smaller steps",
+        "aliases": ["small steps", "break down", "pipeline stages"],
+        "points": 50
+      },
+      {
+        "answer": "Inspect intermediate results",
+        "aliases": ["intermediate results", "debug", "check output"],
+        "points": 30
+      },
+      {
+        "answer": "Record the parameters used",
+        "aliases": ["parameters", "settings", "reproducible"],
+        "points": 20
+      }
+    ]
+  },
+  "7": {
+    "title": "Data analysis and visualization",
+    "answers": [
+      {
+        "answer": "Print",
+        "aliases": [""],
+        "points": 50
+      }
+    ]
+  },
+  "8": {
+    "title": "Modular Python",
+    "answers": [
+      {
+        "answer": "Make code re-usable using functions",
+        "aliases": ["function", "refactoring", "re-usability"],
+        "points": 50
+      },
+      {
+        "answer": "Use configurations for reproducibility",
+        "aliases": ["configuration", "reproducibility"],
+        "points": 50
+      },
+      {
+        "answer": "Document your functions and parameters",
+        "aliases": ["documentation", "docstring", "description"],
+        "points": 30
+      },
+      {
+        "answer": "Use typing to clarify parameters",
+        "aliases": ["typing"],
+        "points": 10
+      },
+      {
+        "answer": "Group functions into topical modules",
+        "aliases": ["modules"],
+        "points": 10
+      }
+    ]
+  },
+  "9": {
+    "title": "Agentic coding in science",
+    "answers": [
+      {
+        "answer": "Print",
+        "aliases": [""],
+        "points": 50
+      }
+    ]
+  },
+  "10": {
+    "title": "Organizing code for publication",
+    "answers": [
+      {
+        "answer": "Published analysis code should be reproducible",
+        "aliases": ["reproducible", "reproducibility", "rerun code"],
+        "points": 50
+      },
+      {
+        "answer": "Include instructions and example data",
+        "aliases": ["readme", "instructions", "example data", "documentation"],
+        "points": 30
+      },
+      {
+        "answer": "Add a license",
+        "aliases": ["license", "open-source"],
+        "points": 20
+      },
+      {
+        "answer": "Declare dependencies",
+        "aliases": ["dependencies", "lock", "environment"],
+        "points": 20
+      }
+    ]
+  },
+  "11": {
+    "title": "Deep-learning denoising with N2V",
+    "answers": [
+      {
+        "answer": "Print",
+        "aliases": [""],
+        "points": 50
+      }
+    ]
+  },
+  "12": {
+    "title": "Deep-learning segmentation",
+    "answers": [
+      {
+        "answer": "Print",
+        "aliases": [""],
+        "points": 50
+      }
+    ]
+  },
+  "13": {
+    "title": "Deep-learning spot detection",
+    "answers": [
+      {
+        "answer": "Print",
+        "aliases": [""],
+        "points": 50
+      }
+    ]
+  }
+}
