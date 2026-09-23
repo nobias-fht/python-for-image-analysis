@@ -38,11 +38,8 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Initialize the project by running in the terminal:
-#
-# ```bash
-# uv init
-# ```
+# - Make sure you are in the `python-for-image-analysis` directory
+# - Initialize the project by running in the terminal: `uv init`
 #
 # </div>
 #
@@ -65,26 +62,6 @@
 # What project name and Python version requirement appear in your `pyproject.toml`? What is in its dependency list so far?
 #
 # </div>
-#
-# <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#
-# If you do not already have a project directory, you can run:
-#
-# ```bash
-# uv init <project name>
-# ```
-#
-# and `uv` will create the project directory for you.
-#
-# </div>
 
 # %% [markdown]
 # <div style="
@@ -99,7 +76,7 @@
 #
 # Run the starter script:
 #
-# ```bash
+# ```
 # uv run main.py
 # ```
 #
@@ -151,17 +128,11 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Run the command:
-#
-# ```bash
-# uv add jupyter
-# ```
+# Run the command: `uv add jupyter`
 #
 # </div>
 #
 # In the top right of the notebook you should see a "Select Kernel" button; use this to select the `python-for-image-analysis` Python environment.
-#
-# ![Select Kernel](../assets/select_kernel.png)
 
 # %% [markdown]
 # <div style="
@@ -189,7 +160,7 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Print a message in the cell below. Click its play button or press **Shift+Enter** to run it.
+# Print a message in the cell below using Python. Click its play button or press **Shift+Enter** to run it.
 #
 # <details>
 # <summary>
@@ -304,13 +275,7 @@ print("NumPy version:", np.__version__)
 # uv sync
 # ```
 #
-# This creates or updates `.venv` from the lockfile. If the project requirements have changed, `uv sync` may update the lockfile too. To require an up-to-date lockfile without allowing changes to it, use:
-#
-# ```bash
-# uv sync --locked
-# ```
-#
-# This reports an error if the lockfile is missing or no longer matches the project requirements. `uv run` also checks the lockfile and environment automatically before running a command.
+# This creates or updates `.venv` from the lockfile. If the project requirements have changed, `uv sync` may update the lockfile too.
 #
 # See the [uv locking and syncing guide](https://docs.astral.sh/uv/concepts/projects/sync/) for details.
 

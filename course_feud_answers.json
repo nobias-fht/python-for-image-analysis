@@ -9,12 +9,12 @@
       },
       {
         "answer": "Maintain clear depdencies",
-        "aliases": ["dependencies", "pyproject"],
+        "aliases": ["dependencies", "pyproject", "declaration"],
         "points": 30
       },
       {
-        "answer": "Declare project metadata",
-        "aliases": ["metadata", "author", "license"],
+        "answer": "Use virtual environments",
+        "aliases": ["virtual", "environment"],
         "points": 10
       }
     ]
