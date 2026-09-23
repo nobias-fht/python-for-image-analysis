@@ -53,15 +53,19 @@ class PopulationProfile:
     channel_a_sd: float | None = None
     channel_a_min: float | None = None
     channel_a_max: float | None = None
+    marker_noise_sd: float = 0.0
     ratio_baseline: float | None = None
     ratio_growth: float = 0.0
+    ratio_time_exponent: float = 1.0
     ratio_sd: float | None = None
     ratio_min: float | None = None
     ratio_max: float | None = None
+    ratio_floor_jitter: float = 0.0
     ellipticity_baseline: float | None = None
     ellipticity_sd: float | None = None
     ellipticity_amplitude: float = 0.0
     ellipticity_exponent: float = 1.0
+    ellipticity_ceiling_jitter: float = 0.0
     artifact: bool = False
 
 
@@ -72,16 +76,20 @@ BRIGHT_PROFILE = PopulationProfile(
     area_sd=28,
     area_min=30,
     channel_a_mean=1.0,
-    channel_a_sd=0.12,
+    channel_a_sd=0.20,
     channel_a_min=0.05,
+    marker_noise_sd=0.0,
     ratio_baseline=0.35,
     ratio_growth=1.15,
-    ratio_sd=0.16,
+    ratio_time_exponent=0.40,
+    ratio_sd=0.28,
     ratio_min=0.05,
+    ratio_floor_jitter=0.06,
     ellipticity_baseline=0.18,
     ellipticity_sd=0.035,
     ellipticity_amplitude=0.28,
     ellipticity_exponent=2.0,
+    ellipticity_ceiling_jitter=0.05,
 )
 
 DIM_PROFILE = PopulationProfile(
@@ -92,8 +100,9 @@ DIM_PROFILE = PopulationProfile(
     channel_a_mean=1.0,
     channel_a_sd=0.12,
     channel_a_min=0.05,
+    marker_noise_sd=0.01,
     ratio_baseline=0.48,
-    ratio_sd=0.08,
+    ratio_sd=0.04,
     ratio_min=0.05,
     ellipticity_baseline=0.18,
     ellipticity_sd=0.07,
@@ -114,12 +123,13 @@ ARTIFACT_PROFILE = PopulationProfile(
 def _fake_tabular(
     n_cells: int = 32,
     n_frames: int = 6,
-    seed: int = 2,
+    seed: int = 24,
 ) -> list[pd.DataFrame]:
     """Return mock measurements with two cell populations and artifacts.
 
-    The bright population has an increasing, saturating channel-B/channel-A
-    ratio. Its standard ellipticity, ``1 - axis_minor_length / axis_major_length``,
+    The bright population has an increasing channel-B/channel-A ratio with a
+    gradually decreasing slope. Its standard ellipticity,
+    ``1 - axis_minor_length / axis_major_length``,
     follows a noisy power law of that ratio. The dim population has a constant
     noisy ratio and an independent ellipticity distribution.
     """
@@ -134,7 +144,7 @@ def _fake_tabular(
 
     for frame_index in range(n_frames):
         progress = frame_index / max(n_frames - 1, 1)
-        growth = 1 - np.exp(-4 * progress)
+        growth = progress**BRIGHT_PROFILE.ratio_time_exponent
         frame_size = max(1, int(round(rng.normal(n_cells, np.sqrt(n_cells)))))
         n_artifacts = max(1, int(round(0.08 * frame_size)))
         n_real_cells = max(1, frame_size - n_artifacts)
@@ -149,12 +159,15 @@ def _fake_tabular(
                 profile.channel_a_min,
                 rng.normal(profile.channel_a_mean, profile.channel_a_sd),
             )
-            ratio = max(
-                profile.ratio_min,
+            raw_ratio = (
                 profile.ratio_baseline
                 + profile.ratio_growth * growth
-                + rng.normal(0, profile.ratio_sd),
+                + rng.normal(0, profile.ratio_sd)
             )
+            if raw_ratio < profile.ratio_min:
+                ratio = profile.ratio_min + rng.uniform(0, profile.ratio_floor_jitter)
+            else:
+                ratio = raw_ratio
             target_area = max(
                 profile.area_min,
                 rng.normal(profile.area_mean, profile.area_sd),
@@ -172,7 +185,17 @@ def _fake_tabular(
                     profile.ellipticity_sd,
                 )
 
-            ellipticity = np.clip(ellipticity, 0.02, 0.85)
+            marker_intensity = channel_a * ratio + rng.normal(
+                0, profile.marker_noise_sd
+            )
+            marker_intensity = max(0.01, marker_intensity)
+
+            ellipticity = max(0.02, ellipticity)
+            ellipticity_ceiling = np.nextafter(1.0, 0.0)
+            if ellipticity > ellipticity_ceiling:
+                ellipticity = ellipticity_ceiling - rng.uniform(
+                    0, profile.ellipticity_ceiling_jitter
+                )
             axis_major, axis_minor = axes_from_area_ellipticity(
                 target_area, ellipticity
             )
@@ -192,7 +215,7 @@ def _fake_tabular(
                     "axis_major_length": axis_major,
                     "axis_minor_length": axis_minor,
                     "nuclear_intensity": channel_a,
-                    "marker_intensity": channel_a * ratio,
+                    "marker_intensity": marker_intensity,
                     "on_border": on_border,
                     "population": profile.name,
                 }
