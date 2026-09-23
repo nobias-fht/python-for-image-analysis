@@ -18,6 +18,7 @@
 # %% [markdown]
 # ## 1 - Navigate `matplotlib`
 #
+# Time: 5 minutes
 #
 # Matplotlib has a fantastic [gallery of examples](https://matplotlib.org/stable/gallery/index.html).
 #
@@ -49,8 +50,9 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #   A colleague of yours told you that your experimental images would be easier to interpret
-#   if channels were plotted next to each other. They told you to use subplots. Can you find
-#   how to plot two plots next to each other?
+#   if channels were plotted next to each other. They told you to use subplots.
+#
+#   Can you find a simple gallery example demonstrating subplots? Paste the example in the cell below.
 # </div>
 
 # %%
@@ -88,11 +90,125 @@ plt.show()
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   Can you find the `subplot` API in matplotlib docs? What parameters does it accept?
+#   Can you find the `subplot` API in matplotlib docs? What parameters does it accept? What does it return?
 # </div>
 
 # %% [markdown]
-# ## 2 - Color maps
+# ## 2 - Plot properties
+#
+# Time: 5 minutes
+#
+# Let's briefly go over how to add some important aspects to a plot such as a title or axes labels.
+
+# %%
+# --- Import what we need
+import matplotlib.pyplot as plt
+import numpy as np
+from skimage import data
+
+# %% [markdown]
+# First let's get the data. We will use the same [example data](https://scikit-image.org/docs/stable/api/skimage.data.html) from SciKit-Image that we used in the last module, that is the `cells3d` data.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Print the shape of the image?
+# </div>
+
+# %%
+image_cells = data.cells3d()
+
+# Print the image shape
+# --- Exercise
+print(f"Image shape: {image_cells.shape}")
+# ---
+
+# %% [markdown]
+# Can you remember how to display an image for a quick visualization? Let's try making the figure more presentable.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Display the slice. Try out `plt.title("my_title")` and `plt.axis("off")`
+# </div>
+#
+
+# %%
+membrane_slice = image_cells[30, 0]
+
+# --- Exercise
+plt.imshow(membrane_slice, cmap="gray")
+plt.title("My image")
+plt.axis("off")
+plt.show()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Give a title to each pane in the subplot below, add x and y labels to the line profile plot on the right.
+#
+#   <b>Tip:</b> To set the title on an axes object use the `.set_title` method, similarly for x and y labels use `.set_xlabel` and `.set_ylabel` respectively.
+# </div>
+#
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#
+#   A line profile is a plot of the intensity values of an image under a 1D line. You may have seen an example in the optional exercises in module 02. This example shows a line profile of a row in the slice.
+# </div>
+
+# %%
+row_idx = 128
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+axes[0].imshow(membrane_slice)
+axes[0].plot([0, 255], [row_idx, row_idx], c="r")
+axes[0].axis("off")
+
+axes[1].plot(membrane_slice[row_idx], c="r")
+
+# Add titles to each pane
+# Add x and y labels to the line profile
+# --- Exercise
+axes[0].set_title("Image")
+axes[1].set_title("Line profile")
+axes[1].set_xlabel("X-Axis")
+axes[1].set_ylabel("Pixel intensity")
+# ---
+
+# %% [markdown]
+# ## 3 - Color maps
+#
+# Time: 15 minutes
 #
 # Color maps help us to visually interpret image data by showing us what value a pixel has.
 # Different types of color maps have different use-cases.
@@ -107,38 +223,10 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   Matplotlib's color map reference splits the color maps into different categories, how do you think the use cases for <em>Sequential</em>, <em>Diverging</em> and <em>Cyclic</em> color maps differ?
 # </div>
 
-# %%
-# --- Import what we need
-import matplotlib.pyplot as plt
-import numpy as np
-from skimage import data
-
-# %% [markdown]
-# Scikit-image (which we will explore in the next module) comes with [example data](https://scikit-image.org/docs/stable/api/skimage.data.html), let's download `cells3d` and inspect the image.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#   Print the shape of the image?
-# </div>
-
-# %%
-image_cells = data.cells3d()
-
-# Print the image shape
-# --- Exercise
-print(f"Image shape: {image_cells.shape}")
-# ---
-
 # %% [markdown]
 # <div style="
 #   background: #accffb;
@@ -150,7 +238,7 @@ print(f"Image shape: {image_cells.shape}")
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Use `plt.imshow` to show the the membrane slice, use `plt.colorbar` to show which intensity values the color map corresponds to.
+#   Use `plt.imshow` to show the membrane slice, call `plt.colorbar()` after showing the image to see the intensity values the color map corresponds to.
 # </div>
 
 # %%
@@ -192,7 +280,7 @@ plt.colorbar()
 #
 #   Let's change the contrast using `vmin` and `vmax` values.
 #
-#   <b>Hint</b>: what are the maximum values in the slice you are interested in? Try using the function `np.percentile` to clip the range.
+#   <b>Tip</b>: what are the maximum values in the slice you are interested in? Try using the function `np.percentile` to clip the range.
 # </div>
 #
 #
@@ -247,7 +335,7 @@ plt.colorbar()
 #
 #   Let's change the color map using the `cmap` argument. Plot two images side by side: the default color map next to your chosen color map.
 #
-#   <b>Hint</b>: To use `plt.colorbar` in subplots you have to pass it the "mappable" returned from `plt.imshow` and the correct "axes" to the `ax` argument.
+#   <b>Tip</b>: To use `plt.colorbar` in subplots you have to pass it the "mappable" returned from `plt.imshow` and the correct "axes" to the `ax` argument.
 # </div>
 
 # %%
@@ -294,7 +382,8 @@ axes[1].set_title("jet")
 # %% [markdown]
 # ### Diverging color maps
 #
-# Diverging color maps can be useful when you have positive and negative values.
+# Diverging color maps can be useful to visualize positive and negative values, one color should be positive and anothre should be negative.
+#
 # Let's use a diverging color map to show how far from the median each pixel is.
 
 # %% [markdown]
@@ -307,11 +396,13 @@ axes[1].set_title("jet")
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What is wrong with the image displayed below?
 #
 #   <details>
-#   <summary><strong>Hint❓</strong></summary>
-#     Think about what we want the central white value in the color map to be.
+#   <summary><strong>Hint</strong></summary>
+#
+#   Think about what we want the central white value in the color map to be.
 #   </details>
 # </div>
 
@@ -332,11 +423,15 @@ plt.colorbar()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Fix the example above so that we can interpret the data correctly.
 #
 #   <details>
-#   <summary><strong>Hint ❓</strong></summary>
-#     Choose appropriate values for <code>vmin</code> and <code>vmax</code>.
+#   <summary><strong>Hint</strong></summary>
+#
+#   Choose appropriate values for <code>vmin</code> and <code>vmax</code> so that 0 is in the middle of the range.
+#
+#   You can use `np.abs` to find the absolute value (magnitude) of each element in the array.
 #   </details>
 # </div>
 
@@ -344,6 +439,43 @@ plt.colorbar()
 # --- Exercise
 v = np.abs(median_diff).max()
 plt.imshow(median_diff, cmap="bwr", vmin=-v, vmax=v)
+plt.colorbar()
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   Look back at the boolean mask we made in module 02 where we displayed pixel values greater than the median. Does this agree with our new figure above?
+# </div>
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   There is another way to normalize a color map so that it is centered at 0. We can use `matplotlib.colors.CenteredNorm`.
+#
+#   Try passing a `CenteredNorm` object to the `norm` argument of `plt.imshow`.
+# </div>
+
+# %%
+from matplotlib.colors import CenteredNorm
+
+# ---
+plt.imshow(median_diff, cmap="bwr", norm=CenteredNorm(clip=True))
 plt.colorbar()
 # ---
 
@@ -363,6 +495,13 @@ plt.colorbar()
 #   <b>Hint</b>: e.g. `Colormap("viridis").to_mpl()`
 # </div>
 
+# %%
+# --- Exerceise
+
+# Use cmap lib
+
+# ---
+
 # %% [markdown]
 # <div style="
 #   background: #fff8db;
@@ -380,38 +519,9 @@ plt.colorbar()
 #
 
 # %% [markdown]
-# ## 2 - Plot properties
+# ## 4 - Overlaying images
 #
-# `plt.imshow` is nice for a quick visualization. However, it does alone not allow us to
-# change other aspects of the plot, such as title or axes labels.
-#
-# <div style="
-#   background: #accffb;
-#   border-left: 6px solid #2f80ed;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #21457f;
-# ">
-#   <strong style="color: #21457f;">Exercise</strong><br>
-#
-#   Try out `plt.title("my_title")` and `plt.axis("off")`
-# </div>
-#
-#
-
-# %%
-membrane_slice = image_cells[30, 0]
-
-# --- Exercise
-plt.imshow(membrane_slice, cmap="gray")
-plt.title("My image")
-plt.axis("off")
-plt.show()
-# ---
-
-# %% [markdown]
-# ## 3 - Overlaying images
+# Time: 10 minutes
 #
 # When visualizing images, it is often useful to visualize them as overlays: two images
 # superimposed.
@@ -439,9 +549,9 @@ plt.show()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Create an overlay with the image by using `ax.imshow`.
+#   Create an overlay with the image by using the `alpha` argument of `ax.imshow`, it allows you to set the opacity of an image, meaning you can plot images on top of each other.
 #
-#   <b>Hint</b>: Use the `gray` and `inferno` color maps, and play on the contrast.
+#   <b>Tip</b>: Use the `gray` and `inferno` color maps, and play on the contrast.
 # </div>
 
 # %%
@@ -470,7 +580,13 @@ plt.show()
 #
 #   What is wrong with the two-channels image below?
 #
-#   <b>Hint</b>: think about people who might not be able to see the image "correctly".
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Think about people who might not be able to see the image "correctly".
+#   </details>
 # </div>
 
 # %%
@@ -514,7 +630,9 @@ plt.show()
 
 
 # %% [markdown]
-# ## 4 - Image histogram
+# ## 5 - Image histogram
+#
+# Time: 10 minutes
 #
 # It is always a good idea to start by inspecting the intensity distribution of an image. Histograms are a quick way to see background, foreground, saturation, and
 # whether a global threshold might be plausible.
@@ -528,10 +646,11 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Plot the histogram of a slice of the image.
 #
-#   <b>Hint</b>: rather than plotting the histogram of a 2D image, we can linearize the image
-#   using "img_slice.ravel()".
+#   <b>Tip</b>: Don't try to plot the histogram of a 2D image, it will try to make a histogram for each row in the image!
+#   We can linearize the image using `img_slice.ravel()`.
 # </div>
 
 # %%
@@ -556,7 +675,10 @@ plt.show()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   What can you infer from an histogram? We've prepared some examples. Plot the images and their histogram side by side.
+#
+#   What can you infer from a histogram? We've prepared some examples.
+#
+#   Plot the histogram of each image.
 # </div>
 # <div style="
 #   background: #e8f7ec;
@@ -567,6 +689,7 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   Can you guess what happened to the images based on the histogram?
 # </div>
 
@@ -577,6 +700,7 @@ img_lst = images_with_problematic_hist()
 titles = ["Original", "Example 1", "Example 2"]
 
 for i, (img, title) in enumerate(zip(img_lst, titles, strict=True)):
+    # Plot the histogram of the image
     # --- Exercise
     plt.hist(img.ravel(), bins=100)
     # ---
@@ -587,7 +711,9 @@ for i, (img, title) in enumerate(zip(img_lst, titles, strict=True)):
     plt.show()
 
 # %% [markdown]
-# ## 5 - Assembling figures with subplots
+# ## 6 - Assembling figures with subplots
+#
+# Time: 10 minutes
 
 # %% [markdown]
 # We have already briefly used `subplots`. It is quite powerful as it allows you to generate
@@ -602,7 +728,8 @@ for i, (img, title) in enumerate(zip(img_lst, titles, strict=True)):
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Let's plot the histogram next to an image using `plt.subplots`, using "hist" on the right pane.
+#
+#   Let's plot the histogram next to an image using `plt.subplots`, using the method `.hist` on the right pane.
 #
 # </div>
 
@@ -617,7 +744,7 @@ axes[0].imshow(img_slice)
 axes[0].set_title("Image")
 axes[0].axis("off")
 
-# Plot the histogram in the second panel
+# Plot the histogram in the second panel, use the method `axes[1].hist`
 # --- Exercise
 axes[1].hist(img_slice.ravel(), bins=50)
 axes[1].set_xlabel("Intensity")
@@ -642,7 +769,7 @@ plt.show()
 #   to the `subplots` function:
 #   - `figsize`: tuple
 #   - `constrained_layout`: bool
-#   - `gridspec_kw{"width_ratios": [1.4, 1]}`
+#   - `gridspec_kw={"width_ratios": [1.4, 1]}`
 # </div>
 
 # %%
@@ -687,7 +814,7 @@ plt.show()
 #   What if we have more images and we want more than one row? Plot the same pairs of
 #   image and histogram, but this time for each channel, in the same plot.
 #
-#   <b>Hint</b>: think of how to loop over the figure.
+#   <b>Tip</b>: think of how to loop over the figure.
 # </div>
 
 # %%
@@ -735,7 +862,9 @@ plt.show()
 # </div>
 
 # %% [markdown]
-# ## 6 - Saving figures
+# ## 7 - Saving figures
+#
+# Time: 5 minutes
 #
 # <div style="
 #   background: #accffb;
@@ -790,6 +919,7 @@ plt.savefig("channels_histogram.png")
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What is the best export format for editing your figures for a paper or presentation?
 # </div>
 
@@ -805,7 +935,7 @@ plt.savefig("channels_histogram.png")
 # ## Summary
 #
 # In this module, we learned to navigate `matplotlib` docs and perform everyday plotting:
-# single images, overlays, and subplots. A large portion of your need are covered with these
+# single images, overlays, and subplots. A large portion of your needs are covered with these
 # examples, but there is an infinite world of possibilities with `matplotlib`.
 
 # %% [markdown]
