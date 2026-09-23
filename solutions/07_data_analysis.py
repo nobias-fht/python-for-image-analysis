@@ -751,7 +751,7 @@ print(f"b = {parameters[1]:.3f} +/- {errors[1]:.3f}")
 # </div>
 
 # %%
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
 
 # --- Exercise
 smooth_area = np.linspace(ellipt.min(), ellipt.max(), 100)
