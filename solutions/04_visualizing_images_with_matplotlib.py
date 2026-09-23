@@ -3,8 +3,13 @@
 #
 # Time: 1 hour.
 #
-# When working with images, the most important step is to visualize them efficiently and
-# accurately. Working blind on images will always lead to errors.
+# When working with images, the most important step is to visualize them efficiently and accurately. Working blind on images will always lead to errors.
+#
+# We will be working with matplotlib, a ubiquitous python library for creating scientific figures.
+#
+# <div style="display: flex; align-items: center; gap: 12px;">
+#     <img src="https://matplotlib.org/stable/_static/logo_light.svg" alt="Logo" style="height: 40px; width: auto;">
+# </div>
 #
 # ### Question
 #
@@ -183,7 +188,7 @@ plt.show()
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #
-#   A line profile is a plot of the intensity values of an image under a 1D line. You may have seen an example in the optional exercises in module 02. This example shows a line profile of a row in the slice.
+#   A line profile is a plot of the intensity values of an image under a 1D line. You may have seen an example in the optional exercises at the end of module 02. This example shows a line profile of a row in the slice.
 # </div>
 
 # %%
