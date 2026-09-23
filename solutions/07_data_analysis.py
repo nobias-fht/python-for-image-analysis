@@ -22,6 +22,7 @@
 # Oftentimes, a pipeline will result in measurements, as we've seen during the practical. Here, we will assume that some measurements were created and saved to .csv files.
 
 # %%
+from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -197,10 +198,10 @@ print(f"{len(large_objects)} objects out of {len(table)} are larger than {thresh
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Select the label and area of the objects larger than 300 pixels that do not
+#   Select the label and area of the objects larger than 150 pixels that do not
 #   touch the border, sorted by decreasing area.
 #
-#   <b>Hint</b>: combine conditions with "&" (and) and "~" (not), each condition surrounded by parenthesis. Sort with "sort_values(by=..., ascending=False)".
+#   <b>Hint</b>: combine conditions with `&` (AND) and `~` (NOT), each condition surrounded by parenthesis. Sort with `sort_values(by=..., ascending=False)`.
 # </div>
 
 # %%
@@ -216,15 +217,16 @@ selected.head()
 
 # %% [markdown]
 # <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
 #   padding: 12px 16px;
 #   border-radius: 8px;
 #   margin: 12px 0;
-#   color: #374151;
+#   color: #1f5f2c;
 # ">
-#   <strong>Optional Exercise</strong><br>
-#   We've used the logical AND (&) and NOT (~), what is OR?
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   We've used the logical AND (`&`) and NOT (`~`) operators, what is OR?
 # </div>
 
 # %% [markdown]
@@ -244,10 +246,11 @@ selected.head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Read all the files and concatenate them into one dataframe called "df_measure".
+#
+#   Read all the files and concatenate them into one dataframe called `df_measure`.
 #
 #   <b>Hint</b>: build a list of dataframes, then call
-#   "pd.concat(tables, ignore_index=True)".
+#   `pd.concat(tables, ignore_index=True)`.
 # </div>
 
 # %%
@@ -287,9 +290,9 @@ print(df_measure["frame_id"].value_counts())
 #   Let's say we now want to add metadata from the images that were not in the original
 #   result tables.
 #
-#   Merge the metadata into the measurements on "frame_id".
+#   Merge the metadata into the measurements on `"frame_id"`.
 #
-#   <b>Hint</b>: "pd.merge(left, right, on=...)". An area is a length squared.
+#   <b>Hint</b>: `pd.merge(left, right, on=...)`. An area is a length squared.
 # </div>
 
 # %%
@@ -322,8 +325,6 @@ df_merged.head()
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #   What has changed with the new dataframe?
 # </div>
-
-# %% [markdown]
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -355,8 +356,9 @@ df_merged[["frame_id", "label", "area", "area_um2"]].head()
 #   color: #8a6a00;
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
+#
 #   A dataframe can mix pixels, micrometers and arbitrary units while looking
-#   perfectly valid. Putting the unit in the column name, as in "area_um2", costs
+#   perfectly valid. Putting the unit in the column name, as in `"area_um2"`, costs
 #   nothing.
 # </div>
 
@@ -481,6 +483,8 @@ plt.show()
 # ">
 #   <strong>Optional Exercise</strong><br>
 #   Based on your answer to the previous question, improve the plot with the additional information/data.
+#
+#   <b>Hint</b>: you need to use a different function from `plt.plot`.
 # </div>
 
 # %% [markdown]
@@ -505,7 +509,7 @@ plt.show()
 #   The previous analysis (which produced the csv files) has identified some cell populations, bright, dim and artifact.
 #   Let's compare their distribution of intensity using `boxplot`.
 #
-#   <b>Hint</b>: `plt.boxplot` can take a list of dataframes to plot various boxes next to each other, alongside a list of labels (`tick_labels`).
+#   <b>Hint</b>: `plt.boxplot` can take a list of dataframe columns (`Serie`) to plot various boxes next to each other, alongside a list of labels (`tick_labels`).
 # </div>
 #
 # <div style="
@@ -546,7 +550,7 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   What statistical measures of the distribution are shown in a box plot?
+#   What statistical measures of the distributions are shown in a box plot?
 # </div>
 
 # %% [markdown]
@@ -724,7 +728,7 @@ ellipt = df_analyse["ellipticity"].to_numpy()
 
 # --- Exercise
 # Fit the model and report the parameters
-parameters, covariance = curve_fit(power_law, ellipt, intensity_r, p0=[0.5, 2])
+parameters, covariance = curve_fit(power_law, ellipt, intensity_r, p0=[0.2, 2])
 errors = np.sqrt(np.diag(covariance))
 
 print(f"a = {parameters[0]:.2f} +/- {errors[0]:.2f}")
@@ -750,7 +754,6 @@ print(f"b = {parameters[1]:.3f} +/- {errors[1]:.3f}")
 fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 # --- Exercise
-# Left: data and fitted curve. Right: residuals.
 smooth_area = np.linspace(ellipt.min(), ellipt.max(), 100)
 
 ax.scatter(ellipt, intensity_r, s=20, alpha=0.6, label="Cells")
@@ -770,279 +773,6 @@ ax.set_ylabel("Intensity ratio")
 plt.show()
 
 # %% [markdown]
-# ## Optional exercises
-
-# %% [markdown]
-# ### Correlations
-#
-# <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #374151;
-# ">
-#   <strong>Optional Exercise</strong><br>
-#   How correlated are the area and the channel A / channel B intensity ratio?
-#   Compute the Pearson and the Spearman coefficients with "scipy.stats". What
-#   do they tell us?
-# </div>
-
-# %%
-from scipy import stats
-
-# --- Exercise
-# Pearson and Spearman correlations
-pearson = stats.pearsonr(objects["area_um2"], objects["intensity_ratio"])
-spearman = stats.spearmanr(objects["area_um2"], objects["intensity_ratio"])
-
-print(f"Pearson:  r = {pearson.statistic:.3f}, p = {pearson.pvalue:.3g}")
-print(f"Spearman: r = {spearman.statistic:.3f}, p = {spearman.pvalue:.3g}")
-# ---
-
-# %% [markdown]
-# <details>
-#   <summary>Pearson or Spearman?</summary>
-#
-#   <ul>
-#     <li><strong>Pearson</strong> measures how well a straight line fits, and is
-#     sensitive to outliers.</li>
-#     <li><strong>Spearman</strong> works on the ranks, so it only asks whether
-#     one variable increases with the other.</li>
-#     <li>Here neither is significant: this assay was built with cell size and
-#     the channel A / channel B ratio drawn independently of one another, and
-#     both tests correctly find nothing.</li>
-#   </ul>
-# </details>
-
-# %% [markdown]
-# ### Principal component analysis
-#
-# <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #374151;
-# ">
-#   <strong>Optional Exercise</strong><br>
-#   A principal component analysis projects the objects onto the directions
-#   carrying the most variance, which is a quick way to look at every column at
-#   once. Standardize the columns below, run a PCA, and plot the first two
-#   components.
-#
-#   <b>Hint</b>: a PCA is a singular value decomposition of the standardized
-#   table, "u, s, vt = np.linalg.svd(standardized, full_matrices=False)". The
-#   coordinates are "u * s", and the variance of each component is proportional
-#   to "s ** 2".
-# </div>
-
-# %%
-features = [
-    "area_um2",
-    "perimeter_um",
-    "ellipticity",
-    "eccentricity",
-    "mean_intensity_channel_b",
-    "intensity_ratio",
-]
-values = objects[features].to_numpy()
-
-# --- Exercise
-# Standardize, decompose, and plot the first two components
-standardized = (values - values.mean(axis=0)) / values.std(axis=0)
-
-u, s, vt = np.linalg.svd(standardized, full_matrices=False)
-components = u * s
-explained = s**2 / np.sum(s**2)
-
-pca_fig, ax = plt.subplots(figsize=(6, 4.5), constrained_layout=True)
-
-points = ax.scatter(
-    components[:, 0],
-    components[:, 1],
-    c=objects["area_um2"],
-    cmap="viridis",
-    s=20,
-    alpha=0.8,
-)
-
-colorbar = pca_fig.colorbar(points, ax=ax)
-colorbar.set_label("Area (um2)")
-
-ax.set_xlabel(f"PC1 ({100 * explained[0]:.0f}% of variance)")
-ax.set_ylabel(f"PC2 ({100 * explained[1]:.0f}% of variance)")
-plt.show()
-# ---
-
-# %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Do the three leading components carry most of the variance between them, or
-#   is it spread out fairly evenly? What would that mean for finding a single
-#   "most important" direction in this table?
-# </div>
-
-# %% [markdown]
-# ### Finding groups without labels
-#
-# PCA spread the objects along the directions in which they differ most, but it
-# did not say which objects belong together. Clustering does.
-#
-# This assay was built with two marker populations: for every cell, either
-# channel A or channel B dominates. "intensity_ratio" already tells us which -
-# so for once we have a known answer to check a clustering against.
-#
-# A ratio hides that symmetry: values below 1 are squeezed into "(0, 1)" while
-# values above 1 spread out to infinity, so "channel B is twice as strong"
-# and "channel A is twice as strong" do not look like mirror images of each
-# other. "log2" fixes that - the same standard trick as a log-fold-change -
-# turning both into equal-sized steps in opposite directions.
-
-# %%
-fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
-ax.hist(np.log2(objects["intensity_ratio"]), bins=20)
-ax.axvline(0, color="black", linewidth=1, linestyle="--")
-ax.set_xlabel("log2(intensity_ratio)")
-ax.set_ylabel("Number of cells")
-ax.set_title("Two marker populations")
-plt.show()
-
-# %% [markdown]
-# Two modes, one on each side of zero, with a real dip between them: the
-# population split is visibly there, not something we have to take on faith.
-# The question for clustering is whether it can find it too.
-#
-# "scipy.cluster.hierarchy" builds a tree by repeatedly merging the two closest
-# groups, then cuts that tree into as many groups as we ask for.
-#
-# <div style="
-#   background: #f3f4f6;
-#   border-left: 6px solid #6b7280;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #374151;
-# ">
-#   <strong>Optional Exercise</strong><br>
-#   Build the tree on the standardized features with "linkage", then cut it
-#   into two groups with "fcluster" - one for each population.<br>
-#
-#   <b>Hint</b>: "linkage(standardized, method="ward")" and
-#   "fcluster(link, 2, criterion="maxclust")".
-# </div>
-
-# %%
-from scipy.cluster import hierarchy
-
-# --- Exercise
-# Build the tree and cut it into two groups
-link = hierarchy.linkage(standardized, method="ward")
-objects["cluster"] = hierarchy.fcluster(link, 2, criterion="maxclust")
-# ---
-
-print(objects["cluster"].value_counts().to_string())
-
-# %% [markdown]
-# <div style="
-#   background: #e8f7ec;
-#   border-left: 6px solid #2f9e44;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #1f5f2c;
-# ">
-#   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Does cluster membership line up with the population you already know?
-#   Cross-tabulate "cluster" against whether "intensity_ratio" is at least 1.
-# </div>
-
-# %%
-objects["population"] = np.where(
-    objects["intensity_ratio"] >= 1, "channel A-high", "channel B-high"
-)
-pd.crosstab(objects["cluster"], objects["population"])
-
-# %% [markdown]
-# The match is poor. Ward groups objects that are close together by adding up
-# the difference in every column, and all six columns count equally once
-# standardized. "intensity_ratio" is only one of those six, and the PCA above
-# already showed that no single direction dominates the variance - the five
-# shape columns move just as much. With that much competing shape
-# variability, the one column carrying the population signal gets outvoted.
-#
-# If we already know which variable defines the groups we care about, we can
-# cluster on it directly instead of everything at once.
-
-# %%
-intensity_features = [
-    "mean_intensity_channel_a",
-    "mean_intensity_channel_b",
-    "intensity_ratio",
-]
-intensity_values = objects[intensity_features].to_numpy()
-intensity_standardized = (
-    intensity_values - intensity_values.mean(axis=0)
-) / intensity_values.std(axis=0)
-
-intensity_link = hierarchy.linkage(intensity_standardized, method="ward")
-objects["cluster_intensity"] = hierarchy.fcluster(
-    intensity_link, 2, criterion="maxclust"
-)
-
-pd.crosstab(objects["cluster_intensity"], objects["population"])
-
-# %% [markdown]
-# Restricted to the three intensity columns, the same algorithm recovers the
-# two populations almost perfectly. The population was in the data the whole
-# time; mixing in five unrelated shape measurements was enough to bury it.
-#
-# <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#   "fcluster" does not know what a "population" is - it returns whichever
-#   partition minimizes within-group variance for however many groups you ask
-#   for, on whatever columns you hand it. Here that partition matched biology
-#   only once the feature space made the population the dominant source of
-#   variance. Always ask what a clustering is actually optimizing before
-#   trusting what it finds.
-# </div>
-
-# %% [markdown]
-# We can see the improvement on the same PCA projection as before, by
-# reusing the components and coloring by the intensity-based cluster instead
-# of by area.
-
-# %%
-fig, ax = plt.subplots(figsize=(6, 5), constrained_layout=True)
-for label, group in objects.groupby("cluster_intensity"):
-    ax.scatter(
-        components[objects["cluster_intensity"] == label, 0],
-        components[objects["cluster_intensity"] == label, 1],
-        label=f"cluster {label}",
-        alpha=0.8,
-    )
-ax.set_xlabel("PC1")
-ax.set_ylabel("PC2")
-ax.set_title("Intensity-based clusters on the shape + intensity PCA")
-ax.legend()
-
-# %% [markdown]
 # ### Saving your results
 #
 # <div style="
@@ -1054,44 +784,114 @@ ax.legend()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   Save the per-field summary as a CSV and the PCA figure as a PNG, both into a
-#   "results" folder.
+#   Since we are often working on the dataframe (producing additional columns, measurements,
+#   quantifications, etc.), we need to be able to save them.
 #
-#   <b>Hint</b>: "to_csv(path, index=False)" and
-#   "savefig(path, dpi=200, bbox_inches="tight")".
+#   Check out the pandas documentation for the `dataframe.to_csv` method and save a
+#   dataframe containing only the bright cell population to disk.
 # </div>
 
 # %%
-results = Path("scratch_outputs/results")
-
-# --- Exercise
-# Save the summary table and the PCA figure
+results = Path("results")
 results.mkdir(parents=True, exist_ok=True)
 
-per_frame.to_csv(results / "per_frame_summary.csv", index=False)
-pca_fig.savefig(results / "pca.png", dpi=200, bbox_inches="tight")
+# --- Exercise
+df_analyse = df_merged.loc[(df_merged["population"] == "bright")].copy()
+df_analyse.to_csv(results / "bright_cells.csv", index=False)
 # ---
 
-print(f"Saved to {results.resolve()}")
 
 # %% [markdown]
-# ## Summary
+# ## Optional exercises
 #
-# In this module we turned a folder of per-field measurements into a single
-# table, and the table into figures. We loaded and inspected it, selected rows
-# and columns, concatenated the fields and merged in the metadata the pipeline
-# did not know, derived new columns, and summarized per field with "groupby".
+# ### Correlations
 #
-# We then created 4 useful plots which help us to answer different
-# questions: a line plot for measurements that have an order, a box
-# plot for a distribution, a scatter plot for two variables at once with a third
-# in the color, and a fitted curve when a model is worth testing against the
-# data.
+# After comparing dependencies between variables, there are many statistical measurements
+# that can be performed, for instance statistical tests or correlations measurements. Keep in
+# mind that each have their underlying assumptions. They might give you the answer you were
+# hoping for, but if the hypothesis are not validated (e.g. normalized data, normal distribution, etc.)
+# then the result is worthless.
 #
-# The optional exercises help us to describe the objects and look for
-# structure among them with correlations, as well as PCA and a clustering -
-# and to see that an unsupervised method can miss a signal that was there all
-# along, depending on what else you ask it to weigh against it.
+# In these optional exercises, we run correlation measurements.
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   How correlated are nuclear and marker intensities for the bright cell population?
+#   Compute the Pearson and the Spearman coefficients with "scipy.stats".
 #
-# More interesting ways to analyse and visualize data:
+#   Also plot the scatter of nuclear vs marker intensity.
+# </div>
+
+# %%
+from scipy import stats
+
+df_analyse = df_merged.loc[(df_merged["population"] == "bright")].copy()
+
+# --- Exercise
+# Pearson and Spearman correlations
+pearson = stats.pearsonr(
+    df_analyse["nuclear_intensity"], df_analyse["marker_intensity"]
+)
+spearman = stats.spearmanr(
+    df_analyse["nuclear_intensity"], df_analyse["marker_intensity"]
+)
+
+print(f"Pearson:  r = {pearson.statistic:.3f}, p = {pearson.pvalue:.3g}")
+print(f"Spearman: r = {spearman.statistic:.3f}, p = {spearman.pvalue:.3g}")
+
+plt.scatter(df_analyse["marker_intensity"], df_analyse["nuclear_intensity"])
+# ---
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#   What about the dim cells? Plot the two channels against each other.
+# </div>
+
+# %%
+from scipy import stats
+
+df_analyse = df_merged.loc[(df_merged["population"] == "dim")].copy()
+
+# --- Exercise
+# Pearson and Spearman correlations
+pearson = stats.pearsonr(
+    df_analyse["nuclear_intensity"], df_analyse["marker_intensity"]
+)
+spearman = stats.spearmanr(
+    df_analyse["nuclear_intensity"], df_analyse["marker_intensity"]
+)
+
+print(f"Pearson:  r = {pearson.statistic:.3f}, p = {pearson.pvalue:.3g}")
+print(f"Spearman: r = {spearman.statistic:.3f}, p = {spearman.pvalue:.3g}")
+
+plt.scatter(df_analyse["marker_intensity"], df_analyse["nuclear_intensity"])
+# ---
+
+# %% [markdown]
+# <details>
+#   <summary>Pearson or Spearman?</summary>
 #
+#   <ul>
+#     <li><strong>Pearson</strong> measures how well a straight line fits, and is
+#     sensitive to outliers.</li>
+#     <li><strong>Spearman</strong> works on the ranks, so it only asks whether
+#     one variable increases with the other, and it is resistant to outliers.</li>
+#     <li>Here that difference is not significant.</li>
+#   </ul>
+# </details>
