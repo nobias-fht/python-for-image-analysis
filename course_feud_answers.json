@@ -158,9 +158,24 @@
     "title": "Data analysis and visualization",
     "answers": [
       {
-        "answer": "Print",
-        "aliases": [""],
+        "answer": "Beware of statistics done wrong",
+        "aliases": ["statistics", "underlying hypothesis", "bias"],
         "points": 50
+      },
+      {
+        "answer": "Save intermediate states",
+        "aliases": ["intermediate", "dataframe", "state"],
+        "points": 30
+      },
+      {
+        "answer": "Read the docs",
+        "aliases": ["documentation", "docs", "manual"],
+        "points": 30
+      },
+      {
+        "answer": "Automate your figures",
+        "aliases": ["figures", "script", "automation"],
+        "points": 10
       }
     ]
   },
@@ -198,9 +213,19 @@
     "title": "Agentic coding in science",
     "answers": [
       {
-        "answer": "Print",
-        "aliases": [""],
+        "answer": "Not understanding what the code does",
+        "aliases": ["understanding", "mysterious", "transparent"],
         "points": 50
+      },
+      {
+        "answer": "Snowballing into an over-engineered solution",
+        "aliases": ["over-engineered", "large", "many lines"],
+        "points": 30
+      },
+      {
+        "answer": "Solution may not be grounded in data",
+        "aliases": ["data"],
+        "points": 30
       }
     ]
   },
@@ -241,16 +266,6 @@
   },
   "12": {
     "title": "Deep-learning segmentation",
-    "answers": [
-      {
-        "answer": "Print",
-        "aliases": [""],
-        "points": 50
-      }
-    ]
-  },
-  "13": {
-    "title": "Deep-learning spot detection",
     "answers": [
       {
         "answer": "Print",
