@@ -7,6 +7,17 @@
 # acquired by a collaborator who wants to know the distribution of intensity in the nucleus
 # of their nucleosome target.
 
+# %%
+from python_for_ia import project_data
+from pathlib import Path
+
+# path where to save the data
+parent_folder = Path("data")
+
+# we download the data
+image_folder = project_data(parent_folder)
+print(f"Image path: {image_folder.absolute()}")
+
 # %% [markdown]
 # <div style="
 #   background: #accffb;
@@ -20,22 +31,23 @@
 #   Every image analysis project starts  by having a look at the images:
 #
 #   - Load the images in a list
+#   - Print their shape
 #   - For every image, plot both channels next to each other
+#
+#   <b>Hint</b>: if `type(my_path)` is a `Path`, then you can call `.glob("*.tif")` on it
+#   to obtain a list of files. e.g.: `list(my_path.glob("*.tif"))`.
 # </div>
 
 # %%
-from python_for_ia import project_data
-
-from pathlib import Path
 from tifffile import imread
 import matplotlib.pyplot as plt
 
-files = list(Path("../data/practical_project/noisy").glob("*.tif"))
+# --- Exercise
+files = list(image_folder.glob("*.tif"))
 images = [imread(f) for f in files]
 for img in images:
     print(f"Image size: {img.shape}")
 
-# %%
 fig, axes = plt.subplots(
     len(images),
     3,
@@ -56,6 +68,7 @@ for i in range(len(images)):
     axes[i, 2].hist(images[i][0].ravel(), bins=64, alpha=0.5)
     axes[i, 2].hist(images[i][1].ravel(), bins=64, alpha=0.5)
     axes[i, 2].set_title("Histogram")
+# ---
 
 # %% [markdown]
 # <div style="

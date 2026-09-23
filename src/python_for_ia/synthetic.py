@@ -3,10 +3,21 @@
 from pathlib import Path
 import numpy as np
 from skimage import data
+import pooch
+from pooch.processors import ZipFile
 
 
-def project_data() -> list[Path]:
-    return list(Path("../data/practical_project/noisy").glob("*.tif"))
+def project_data(path: Path) -> list[Path]:
+    data_path = pooch.retrieve(
+        url="https://download.fht.org/jug/teaching_pia/practical_project_data.zip",
+        known_hash="021f949c31fa443bfa2fab629a93058e8912d205760fd2e9656f6219308472c9",
+        path=path,
+        processor=pooch.Unzip(),
+    )
+
+    root = Path(sorted(data_path)[0]).parent
+
+    return root / "noisy"
 
 
 def images_with_problematic_hist() -> list[np.ndarray]:
