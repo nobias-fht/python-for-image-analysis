@@ -17,50 +17,12 @@
 #
 
 # %%
-
-
-def image_with_background(noise_level: int = 1_000) -> np.ndarray:
-    """Add noise and background to a cells3d slice.
-
-    Used in module 05.
-    """
-    rng = np.random.default_rng()
-
-    img = data.cells3d()
-    img_slice = img[30, 1]
-
-    # generate background as a single gaussian
-    yy, xx = np.indices(img_slice.shape)
-    bg = np.zeros_like(img_slice)
-    cy = 0.4 * img_slice.shape[0]
-    cx = 0.7 * img_slice.shape[1]
-    sigma = 80
-
-    bg = np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * sigma**2))
-    bg = img_slice.mean() * bg  # controls background strength
-
-    # # generate background by averaging, smoothing and scaling
-    # bg = np.sum(img[:15, 1], axis=0)
-    # bg = filters.gaussian(bg, sigma=10)
-    # bg = 10 * bg * img_slice.mean() / bg.mean()
-
-    # use Poisson distributed noise
-    noisy = img_slice + rng.normal(0, noise_level, img_slice.shape)
-
-    # generate final image with same mean as the original
-    tot_float = noisy + bg
-    tot_float_norm = img_slice.mean() * tot_float / tot_float.mean()
-
-    return np.floor(tot_float_norm)
-
-
-# %%
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import CenteredNorm
 import numpy as np
-from skimage import io, util
-from skimage import data, filters
+import skimage
 
 # %% [markdown]
 # ## Format landscape
@@ -103,49 +65,68 @@ from skimage import data, filters
 # - What is the physical pixel size in x, y, and z?
 # - Are there multiple scenes, positions, time points, or pyramid levels?
 # - Was compression used? If yes, was it lossless?
+# - Has any pre-processing already been applied to the image? This is sometimes an option at acquisition time.
 # - Did the export preserve metadata or only pixel values?
 
 # %% [markdown]
-# ## Simulate saving and opening an image
+# ## Saving and Loading images with SciKit-Image
 #
-# This example writes a toy TIFF so every student can run the cell. Real
-# microscopy data should usually be read with format-aware tools that preserve
-# metadata, but the basic principle is the same: read, inspect, and only then
-# analyze.
+# Sci-Kit image has an `io` module that can be used to conveniently open and save a variety of common image format with the `skimage.io.imread` and `skimage.io.imsave` functions.
+#
+# Real microscopy data should usually be read with format-aware tools that preserve metadata, but the basic principle is the same: read, inspect, and only then analyze.
+#
+# Nevertheless, let's save the previously introduced example data and then save it again.
 
 # %%
+image = skimage.data.cells3d()
 
-image = data.cells3d()
-
-output_dir = Path("scratch_outputs")
+output_dir = Path("../data/outputs")
 output_dir.mkdir(exist_ok=True)
 
-# image = image_with_background()
-uint16_image = util.img_as_uint(image)
+uint16_image = skimage.util.img_as_uint(image)  # make sure the image is uint16
 tif_path = output_dir / "synthetic_cells.tif"
-io.imsave(tif_path, uint16_image)
+skimage.io.imsave(tif_path, uint16_image)  # save the data
 
-loaded = io.imread(tif_path)
+loaded = skimage.io.imread(tif_path)  # load the data we just saved
 print("loaded:", loaded.shape, loaded.dtype, loaded.min(), loaded.max())
 
 # %% [markdown]
-# ## JPEG compression is visually convenient, not measurement-safe
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What did `imread` return?
+#
+#   Is there other information related to the data which would be useful to have access to when performing analysis?
+# </div>
+
+# %% [markdown]
+# ## JPEG compression is convenient, not measurement-safe
 #
 # Lossy compression changes pixel values. That may be acceptable for a figure,
 # but it is usually not acceptable for intensity measurement, segmentation, or
 # reproducibility.
+#
+# If we save the example data again, this time as a JPEG, we see that the resulting image no longer has the same pixel values as the original.
 
 # %%
-jpg_path = output_dir / "synthetic_cells.jpg"
-
 image_original = loaded[30, 1, :, :]
 
-io.imsave(jpg_path, util.img_as_ubyte(image_original), quality=25)
-jpeg_loaded = io.imread(jpg_path)
+# save the data in JPEG format
+jpg_path = output_dir / "synthetic_cells.jpg"
+skimage.io.imsave(jpg_path, skimage.util.img_as_ubyte(image_original), quality=25)
+jpeg_loaded = skimage.io.imread(jpg_path)
 
+# we will display the difference to see where each image is greater than the other
 difference = (
     image_original.astype(float) / image_original.max()
-    - jpeg_loaded.astype(float) / 255
+    - jpeg_loaded.astype(float) / jpeg_loaded.max()
 )
 print("mean absolute JPEG difference:", np.abs(difference).mean())
 
@@ -154,7 +135,7 @@ axes[0].imshow(image_original, cmap="gray")
 axes[0].set_title("TIFF")
 axes[1].imshow(jpeg_loaded, cmap="gray")
 axes[1].set_title("JPEG")
-axes[2].imshow(difference, cmap="coolwarm")
+axes[2].imshow(difference, cmap="bwr", norm=CenteredNorm(), interpolation="none")
 axes[2].set_title("difference")
 for ax in axes:
     ax.axis("off")
@@ -162,7 +143,23 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# And if we look closer at the image, we can see the result of the JPEG compression. Do you want to quantify this image?
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#
+#   Where the difference display is red or blue shows where either the TIFF or JPEG image is greater, respectively.
+#
+#   We see that most of the pixels did not retain there original value.
+# </div>
+
+# %% [markdown]
+# And if we look closer at the image, we can see the result of the JPEG compression. Would you want to quantify this image?
 
 # %%
 fig, axes = plt.subplots(figsize=(3, 3))
@@ -175,7 +172,7 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 # Now we will example some vendor microscopy formats. The three you will commonly run into are `.lif` (Leica),
 # `.nd2` (Nikon), and `.czi` (Zeiss). Luckily, there is a python package that can read them all (and others!)
 #
-# In this course we will use the `BioIO` plugin. The documentation can be found [here](https://bioio-devs.github.io/bioio/index.html)
+# In this course we will use the `BioIO` package. The documentation can be found [here](https://bioio-devs.github.io/bioio/index.html).
 #
 # We can install BioIO into our environment using .
 #
@@ -221,7 +218,7 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 # </div>
 
 # %%
-test_czi_path = "/facility/imganfac/Damian/test_vendor_formats/test.czi"
+test_czi_path = "/Volumes/imganfac/Damian/test_vendor_formats/test.czi"
 
 # %%
 from bioio import BioImage
@@ -229,6 +226,22 @@ from bioio import BioImage
 czi = BioImage(test_czi_path)
 czi_data = czi.get_image_data("CZYX")
 print(czi_data.shape)
+
+# %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   Read the docs for the `BioImage.get_image_data` method.
+#
+#   What happens if you request an axes that was not originally present in the data?
+# </div>
 
 # %% [markdown]
 # ## Inspect the file types
@@ -359,41 +372,3 @@ print(czi.standard_metadata.imaged_by)
 # 3. Try reading a single scene or plane before loading the whole dataset.
 # 4. Convert a copy to OME-TIFF or OME-Zarr and record the conversion command.
 # 5. Never overwrite the raw acquisition file.
-
-# %% [markdown]
-# ## Optional exercises
-#
-# 1. Save the synthetic image as PNG and compare its dtype after loading.
-# 2. List five metadata fields you would want before measuring cell area.
-# 3. Write a pseudocode function `open_first_scene(path)` that returns a
-#    `CZYX` array from a BioIO-readable file.
-# 4. Explain why JPEG is risky for threshold-based segmentation.
-
-# %%
-# Answer sketch (optional, removable)
-png_path = output_dir / "synthetic_cells.png"
-io.imsave(png_path, util.img_as_ubyte(image))
-png_loaded = io.imread(png_path)
-print(png_loaded.shape, png_loaded.dtype)
-
-metadata_fields = [
-    "axis order",
-    "pixel size x/y/z",
-    "channel names",
-    "time interval",
-    "compression",
-]
-print(metadata_fields)
-
-
-def open_first_scene_pseudocode(path: str) -> str:
-    return (
-        "from bioio import BioImage\n"
-        f"img = BioImage({path!r})\n"
-        "img.set_scene(0)\n"
-        "data = img.get_image_data('CZYX', T=0)"
-    )
-
-
-print(open_first_scene_pseudocode("example.czi"))
-print("JPEG can shift intensities near the threshold and create false edges or holes.")
