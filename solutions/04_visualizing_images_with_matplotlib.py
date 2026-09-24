@@ -387,7 +387,7 @@ axes[1].set_title("jet")
 # %% [markdown]
 # ### Diverging color maps
 #
-# Diverging color maps can be useful to visualize positive and negative values, one color should be positive and anothre should be negative.
+# Diverging color maps can be useful to visualize positive and negative values, one color should be positive and another should be negative.
 #
 # Let's use a diverging color map to show how far from the median each pixel is.
 
@@ -501,7 +501,7 @@ plt.colorbar()
 # </div>
 
 # %%
-# --- Exerceise
+# --- Exercise
 
 # Use cmap lib
 

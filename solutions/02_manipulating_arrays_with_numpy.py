@@ -185,7 +185,7 @@ print(f"itemsize: {a.itemsize}")
 # - the data is stored as unsigned 16-bit integers.
 
 # %%
-# import scikit image to access the data
+# import Sci-Kit image to access the data
 import skimage
 
 # %%
@@ -272,7 +272,7 @@ print(f"Data type: {data.dtype}")
 #
 # #### Displaying data
 #
-# We will use Matplotlib's function `plt.imshow(image_2d)` to display a 2D image. We will explore Matplotlib futher in a later module.
+# We will use Matplotlib's function `plt.imshow(image_2d)` to display a 2D image. We will explore Matplotlib further in a later module.
 
 # %%
 # plt is a commonly used alias for matplotlib.pyplot for convenience
@@ -791,7 +791,7 @@ print(f"Channel means: {channel_means}")
 # ---
 
 # %% [markdown]
-# #### Channel normalisation (Optional)
+# #### Channel normalization (Optional)
 #
 # A dataset can be normalized so that it has a mean of zero and a standard deviation of one, this can be achieved with the following formula:
 # $$
@@ -799,7 +799,7 @@ print(f"Channel means: {channel_means}")
 # $$
 # where
 # $$
-# z: \text{Normalised data point}, \\
+# z: \text{Normalized data point}, \\
 # x: \text{Input data point}, \\
 # \mu: \text{Dataset mean}, \\
 # \sigma: \text{Dataset standard deviation}. \\
