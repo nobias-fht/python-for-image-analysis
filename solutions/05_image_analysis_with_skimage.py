@@ -238,7 +238,7 @@ def plot_histogram(array: np.ndarray, label: str = ""):
 # \end{bmatrix}
 # $$
 #
-# There are many reason to use an image filter: it can help smooth an image before segmentation, it can highlights particular features (e.g. edges), etc. Filtering changes pixel values, therefore they should be applied with reason dependeing on the analysis need, and filtered image should not be used for intensity quantification. But they can be used to help downstream analysis separate region for later intensity quantification on the original image.
+# There are many reason to use an image filter: it can help smooth an image before segmentation, it can highlights particular features (e.g. edges), etc. Filtering changes pixel values, therefore they should be applied with reason depending on the analysis need, and filtered image should not be used for intensity quantification. But they can be used to help downstream analysis separate region for later intensity quantification on the original image.
 #
 # Here are a few standard image filters: Gaussian, Median, Sobel. Let's play around with them!
 #
@@ -532,7 +532,7 @@ plot_histogram(img_5, "All")
 #
 # There are two main types of background:
 #
-# - **Additive background**: There is an unwanted background signal added to our signal of interest. Some example sources might be *camera signal* where there is an electronic offset and dark current, present even without illumination, or there might be unwanted fluorescence or out-of-focus fluorescence.
+# - **Additive background**: There is an unwanted background signal added to our signal of interest. Some example sources might be *camera signal* where there is an electronic offset and dark current present even without illumination, or there might be unwanted fluorescence or out-of-focus fluorescence.
 # - **Multiplicative background**: There is an uneven effect across the image which multiplies each pixel by a different value causing unwanted variation. An example of a source of multiplicative background is uneven illumination.
 #
 # Lots of methods for background correction first require an estimate of the background, then if we have additive background we can subtract it, or if we have multiplicative background we can divide our image by our background estimation. Sometimes for multiplicative background you may here this referred to as a *flat-field correction*.
@@ -598,7 +598,7 @@ plot_histogram(img)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Now let's apply our Gaussian filter to the image and see what we see, experiment with different `sigma` values. Now how can we subtract the background from the image? Plot the results.
+#   Now let's apply our Gaussian filter to the image and see what we see, experiment with different `sigma` values. How can we use the Gaussian filter result to correct the background? Plot the results.
 #
 #   <b>Tip:</b>
 #
@@ -622,7 +622,7 @@ plot_histogram(img)
 #   <strong>Hint</strong>
 #   </summary>
 #
-#   Look at the histogram and compare it to the original image without background, what do we want to see?
+#   Look at the histogram of the corrected image, what do we want to see?
 #   </details>
 # </div>
 
@@ -803,8 +803,8 @@ plt.tight_layout()
 #
 # Time: 20 minutes
 #
-# A threshold turns an intensity image into a binary mask (foreground/background) by selecting pixels above and below a particular intensity.
-# Often the areas of an image we are interested in are the bright regions, particularly for fluorescence microscopy.
+# A threshold turns an intensity image into a binary mask (foreground/background) by separating pixels above and below a particular intensity.
+# Often the areas of an image we are interested in are the bright regions, particularly in fluorescence microscopy.
 # Thresholding allows us to easily select these regions to then complete further analysis.
 #
 # <div style="
@@ -827,7 +827,7 @@ plt.tight_layout()
 #   <strong>Hint</strong>
 #   </summary>
 #
-#   Try looking at the histogram of the image.
+#   Try looking at the histogram of the image to find a good threshold.
 #   </details>
 # </div>
 
@@ -1075,7 +1075,7 @@ plt.tight_layout()
 #   <a href="https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_structuring_elements.html">this page</a>
 #   for some examples.
 #
-#   We already used the `morphology.disk` footprint for the white tophat function.
+#   We already used the `morphology.disk` footprint for the white top hat function.
 # </div>
 #
 # <div style="
@@ -1090,10 +1090,10 @@ plt.tight_layout()
 #
 #   Go to the docs page of `skimage.morphology` and browse the various operations.
 #
-#   Try applying two or three of them to the mask of your choice from the previous section.
-#   The aim is to improve the masks so we can better select the cells.
+#   Try applying two or three of them to the mask `raw_mask` below.
+#   The aim is to improve the mask so we can better select the cells.
 #
-#   Show the results side by side in a plot.
+#   Show the results of each operation side by side in a plot.
 #
 #   <b>Tip</b>: You can chain the operations by applying one after the other.
 # </div>
@@ -1208,7 +1208,8 @@ plt.tight_layout()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Use `measure.label` to get instances and plot the resulting labels and the labels overlayed over the orginal image.
+#   Use `measure.label` to get instances.
+#   Plot the resulting labels and the labels overlaid over the original image.
 #
 #   <b>Tip: </b>When creating the overlay, try setting the `alpha` parameter in `plt.imshow` to an array where the background pixels are `0`. This will make the background pixels transparent.
 # </div>
@@ -1230,7 +1231,7 @@ plt.tight_layout()
 # %%
 from cmap import Colormap  # A color map library with lots of useful color maps
 
-# Try using this colourmap when plotting labels (do plt.imshow(..., cmap=glasbey_cmap))
+# Try using this colormap when plotting labels (do plt.imshow(..., cmap=glasbey_cmap))
 glasbey_cmap = Colormap("glasbey").to_matplotlib()
 
 # Select the mask from the previous section
