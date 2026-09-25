@@ -214,7 +214,7 @@
     "answers": [
       {
         "answer": "Not understanding what the code does",
-        "aliases": ["understanding", "mysterious", "transparent"],
+        "aliases": ["understanding", "mysterious", "transparency"],
         "points": 50
       },
       {
@@ -223,8 +223,13 @@
         "points": 30
       },
       {
-        "answer": "Solution may not be grounded in data",
-        "aliases": ["data"],
+        "answer": "Serious methodological mistakes can creep in",
+        "aliases": ["mistake", "flaws", "method"],
+        "points": 30
+      },
+      {
+        "answer": "Loss of competence",
+        "aliases": ["loss", "competence", "skills"],
         "points": 30
       }
     ]

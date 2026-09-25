@@ -84,7 +84,7 @@
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
 #   napari includes an IPython console that gives you access to the running
-# viewer. Open it from **View → Panels → Console**. The current viewer is
+# viewer. Open it from **Window → Console**. The current viewer is
 # available through the variable `viewer`.
 #
 # </div>
