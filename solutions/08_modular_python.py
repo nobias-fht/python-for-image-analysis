@@ -1,6 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -92,7 +93,9 @@ plt.show()
 # ">
 #   <strong style="color: #21457f;">Exercise 2 - Extract a function
 # </strong><br>
-#   Write a function <code>remove_background(channel, radius)</code> (or use sigma for your method). Keep loading and plotting outside the function.
+#   Write a function, e.g. <code>remove_background(channel, radius)</code> (use sensible arguments for your background removal method).
+#
+#   Keep loading and plotting outside the function.
 # </div>
 #
 # ```python

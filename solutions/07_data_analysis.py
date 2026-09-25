@@ -12,12 +12,14 @@
 #
 # ### Objective
 #
-# - Load, select and combine measurement tables
-# - Draw the plots you will use most: line plot, box plot, scatter plot
-# - Fit a curve to your data with `scipy`
+# - Load, select and combine measurement tables.
+# - Draw the plots you will use most: line plot, box plot, scatter plot.
+# - Fit a curve to your data with `scipy`.
 
 # %% [markdown]
 # ## 1 - Intro
+#
+# Time: 5 minutes
 #
 # Oftentimes, a pipeline will result in measurements, as we've seen during the practical. Here, we will assume that some measurements were created and saved to .csv files.
 
@@ -29,6 +31,7 @@ import numpy as np
 from python_for_ia import get_measurements
 
 measurement_path = get_measurements()
+print(f"Is a directory: {measurement_path.is_dir()}")
 
 # %% [markdown]
 # <div style="
@@ -42,16 +45,27 @@ measurement_path = get_measurements()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
 #   Let's list the files in the `measurement_path` and sort them.
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Remember the `.glob` method.
+#   </details>
 # </div>
 
 
 # %%
 # --- Exercise
 files = sorted(list(measurement_path.glob("*.csv")))
+print(files)
 # ---
 
 # %% [markdown]
 # ## 2 - Loading a table
+#
+# Time: 10 minutes
 #
 # <div style="
 #   background: #accffb;
@@ -62,9 +76,10 @@ files = sorted(list(measurement_path.glob("*.csv")))
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Read the first file into a dataframe and show its first rows.
 #
-#   <b>Hint</b>: "pd.read_csv" takes a path, and every dataframe has a "head()".
+#   <b>Tip</b>: `pd.read_csv` takes a path, and every dataframe has a `.head()`.
 # </div>
 
 # %%
@@ -84,6 +99,7 @@ table.head()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What does one row describe? And one column?
 # </div>
 #
@@ -96,6 +112,7 @@ table.head()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   How were these measurements obtained?
 # </div>
 #
@@ -108,11 +125,12 @@ table.head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Before trusting a table, look at it. How many objects? Which columns, and of
 #   what type? What are the ranges of the measurements?
 #
-#   <b>Hint</b>: "shape", "columns" and "dtypes" are attributes, "info()" and
-#   "describe()" are methods.
+#   <b>Tip</b>: `shape`, `columns` and `dtypes` are attributes, `info()` and
+#   `describe()` are methods.
 # </div>
 
 # %%
@@ -127,6 +145,7 @@ table.describe()
 # %% [markdown]
 # ## 3 - Selecting rows and columns
 #
+# Time: 10 minutes
 #
 # As you can imagine, Dataframes can be very large and in order to explore them, we also need
 # to select only certain elements. For instance, to select one or more columns you
@@ -141,6 +160,7 @@ table.describe()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Select two columns from the dataframe.
 # </div>
 #
@@ -151,8 +171,7 @@ table[["label", "area"]]
 # ---
 
 # %% [markdown]
-# A more interesting operation is selecting conditionally certain rows. A condition on a column gives one `True` or `False` per row. Passing it to
-# the `.loc` method keeps the rows that are `True`.
+# A more interesting operation is selecting conditionally certain rows. A condition on a column gives one `True` or `False` per row. Indexing the `.loc` property with the condition keeps the rows that are `True`.
 #
 # <div style="
 #   background: #accffb;
@@ -163,7 +182,10 @@ table[["label", "area"]]
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Use the condition to select a subset of the table.
+#
+#   <b>Tip: </b>`.loc` uses square bracket indexing notation.
 # </div>
 #
 # <div style="
@@ -175,6 +197,7 @@ table[["label", "area"]]
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What percentage of objects are satisfying the condition?
 # </div>
 
@@ -183,9 +206,13 @@ table[["label", "area"]]
 thresh = 150
 is_large = table["area"] > thresh
 
+
 # --- Exercise
 large_objects = table.loc[is_large]
-print(f"{len(large_objects)} objects out of {len(table)} are larger than {thresh} px")
+print(
+    f"{len(large_objects)} objects out of {len(table)} are larger than {thresh} px "
+    f"({len(large_objects)*100/len(table):.2f}%)"
+)
 # ---
 
 # %% [markdown]
@@ -198,15 +225,19 @@ print(f"{len(large_objects)} objects out of {len(table)} are larger than {thresh
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Select the label and area of the objects larger than 150 pixels that do not
 #   touch the border, sorted by decreasing area.
 #
-#   <b>Hint</b>: combine conditions with `&` (AND) and `~` (NOT), each condition surrounded by parenthesis. Sort with `sort_values(by=..., ascending=False)`.
+#   <b>Tip</b>:
+#
+#   1. Combine conditions with `&` (AND) and `~` (NOT), each condition surrounded by parenthesis.
+#   2. Sort with `.sort_values(by=..., ascending=False)`.
 # </div>
 
 # %%
-# --- Exercise
 # Select and sort
+# --- Exercise
 selected = table.loc[
     (table["area"] > 150) & (~table["on_border"]),
     ["label", "area"],
@@ -232,6 +263,8 @@ selected.head()
 # %% [markdown]
 # ## 4 - Concatenation and merging
 #
+# Time: 20 minutes
+#
 # In the case of our example, we have loaded a single file pertaining to a single image.
 # But we actually have many frames and all these results should be gathered within the same
 # dataframe. Among the operations we can perform on a dataframe, we can use `pd.concat`
@@ -249,18 +282,21 @@ selected.head()
 #
 #   Read all the files and concatenate them into one dataframe called `df_measure`.
 #
-#   <b>Hint</b>: build a list of dataframes, then call
-#   `pd.concat(tables, ignore_index=True)`.
+#   Read the docs for `pd.concat`, what are its arguments?
+#
+#   <b>Tip: </b> Use the argument `ignore_index=True` to reset the indices from 0 to the length of the dataframe after concatenation.
 # </div>
 
 # %%
-# --- Exercise
 # Read every file and concatenate
+# --- Exercise
 tables = [pd.read_csv(file) for file in files]
 df_measure = pd.concat(tables, ignore_index=True)
 # ---
 
-print(f"{len(df_measure)} objects in {len(files)} images")
+print(f"{len(df_measure)} objects in {len(files)} images\n")
+# We can see how many rows are contributed from each frame.
+print("Row count for each frame:")
 print(df_measure["frame_id"].value_counts())
 
 # %% [markdown]
@@ -273,7 +309,8 @@ print(df_measure["frame_id"].value_counts())
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   Labels start again at 1 in every field. After concatenating, what
+#
+#   Labels start again at 1 in every frame. After concatenating, what
 #   identifies an object in our dataframe uniquely?
 # </div>
 
@@ -287,12 +324,11 @@ print(df_measure["frame_id"].value_counts())
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Let's say we now want to add metadata from the images that were not in the original
 #   result tables.
 #
-#   Merge the metadata into the measurements on `"frame_id"`.
-#
-#   <b>Hint</b>: `pd.merge(left, right, on=...)`. An area is a length squared.
+#   Merge the metadata into the measurements on `"frame_id"`. Use the function `pd.merge`, what are its arguments?
 # </div>
 
 # %%
@@ -307,6 +343,7 @@ metadata = pd.DataFrame(
     }
 )
 
+# Merge the new metadata into the df, call the resulting df `df_merged`
 # --- Exercise
 df_merged = pd.merge(df_measure, metadata, on="frame_id")
 # ---
@@ -323,7 +360,20 @@ df_merged.head()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What has changed with the new dataframe?
+# </div>
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What happens if there are columns with the same name in both dataframes (that we are not merging on)?
 # </div>
 # <div style="
 #   background: #accffb;
@@ -334,11 +384,13 @@ df_merged.head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   We can also create new columns similarly to new dictionary entries. Let's use the newly added metadata to convert areas
-#   and perimeters into physical units.
+#   and perimeters into physical units (μm<sup>2</sup> and μm respectively).
 # </div>
 
 # %%
+# Calculate and add to the dataframe the columns "area_um2" and "perimeter_um"
 # --- Exercise
 df_merged["area_um2"] = df_merged["area"] * df_merged["pixel_size_um"] ** 2
 df_merged["perimeter_um"] = df_merged["perimeter"] * df_merged["pixel_size_um"]
@@ -373,17 +425,19 @@ df_merged[["frame_id", "label", "area", "area_um2"]].head()
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Add two columns to "measurements": the "ellipticity" of each object, and the
-#   ratio of its mean marker intensity over its mean nuclear intensity.
+#
+#   Add two columns to the dataframe:
+#   - the "ellipticity" of each object (equation below), and
+#   - the ratio of the mean marker intensity over the mean nuclear intensity.
 # </div>
 #
-# $$\epsilon = 1 - \frac{A_{minor}}{A_{major}}$$
+# The equation for ellipticity is: $$\epsilon = 1 - \frac{A_{minor}}{A_{major}}$$
 #
 # where $A_{minor}$ corresponds to `"axis_minor_lenth"`, and $A_{major}$ to its major counterpart.
 
 # %%
+# Add the columns "ellipticity" and "intensity_ratio".
 # --- Exercise
-# Add the two columns
 df_merged["ellipticity"] = (
     1 - df_merged["axis_minor_length"] / df_merged["axis_major_length"]
 )
@@ -395,14 +449,21 @@ df_merged["intensity_ratio"] = (
 df_merged[["frame_id", "label", "ellipticity", "intensity_ratio"]].head()
 
 # %% [markdown]
-# ## 5 - Performing operations over values
+# ## 5 - Performing operations over groups
 #
-# `groupby` splits the table into groups according to row's values in specific columns, allowing us to compute something on them (e.g. `.agg`) or filtering (`.filter`).
+# Time: 5 minutes
+#
+# `groupby` splits the table into groups according to row's values in specific columns.
+# This creates a `DataFrameGroupBy` object which has a few helpful methods to help us complete our analysis, one such method is `.agg`.
+# The `.agg` method allows us to aggregate values in a group to create a new data frame, for example we could make a column of the mean area in each group. `.agg` is demonstrated below.
 
 # %%
+# Our new dataframe with values aggregated per group
 per_frame = (
     df_merged.groupby(["frame_id", "minutes_elapsed"])
     .agg(
+        # Each argument becomes a new column,
+        # it takes a tuple (columumn to operate on, operation to use)
         n_objects=("label", "count"),
         mean_area_um2=("area_um2", "mean"),
         median_ellipticity=("ellipticity", "median"),
@@ -424,12 +485,15 @@ per_frame
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   "agg" is not limited to "mean" and "median". Can you find in the pandas
-#   documentation which functions it accepts?
+#
+#   The `.agg` method is not limited to `mean` and `median`.
+#   Can you find in the pandas documentation which functions it accepts?
 # </div>
 
 # %% [markdown]
 # ## 6 - Line plot
+#
+# Time: 5 minutes
 #
 # A line plot is one of the most common way of representing data.
 #
@@ -442,12 +506,16 @@ per_frame
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Plot the mean intensity ratio (channel B/ A) versus time ("minutes_elapsed").
+#
+#   Plot the mean intensity ratio for each frame versus time.
+#
+#   Look at the aggregated table we just calculated, which column contains the time data and which column contains the mean intensity ratio?
 # </div>
 
 # %%
 fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
 
+# Make a simple line plot of mean intensity ratio vs time. Change the plot `marker`
 # --- Exercise
 ax.plot(
     per_frame["minutes_elapsed"],
@@ -470,7 +538,18 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   What is missing from the plot? How to compute and add it?
+#
+#   There is some important information missing from this line plot that should be displayed. Can you think of what it might be?
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Imagine this is a figure for a publication, what should a reviewer ask to see?
+#
+#   It can be derived from the data.
+#   </details>
 # </div>
 #
 # <div style="
@@ -482,13 +561,24 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   Based on your answer to the previous question, improve the plot with the additional information/data.
 #
-#   <b>Hint</b>: you need to use a different function from `plt.plot`.
+#   Based on your answer to the previous question, improve the plot with the additional information/data, you will need to calculate it first.
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   You should add a new column to the `per_frame` dataframe calculated from the `.agg` method.
+#
+#   Search the matplotlib docs for a function to display the information (we cannot use `plt.plot`).
+#   </details>
 # </div>
 
 # %% [markdown]
 # ## 7 - Distributions: the box plot
+#
+# Time: 15 minutes
 #
 # Box plots and violin plots are great way of comparing not only the mean of a distribution
 # but the distribution itself.
@@ -506,10 +596,11 @@ plt.show()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   The previous analysis (which produced the csv files) has identified some cell populations, bright, dim and artifact.
-#   Let's compare their distribution of intensity using `boxplot`.
+#   The previous analysis (which produced the csv files) has identified some cell populations, "bright", "dim" and "artifact".
 #
-#   <b>Hint</b>: `plt.boxplot` can take a list of dataframe columns (`Serie`) to plot various boxes next to each other, alongside a list of labels (`tick_labels`).
+#   Let's use the `boxplot` function to compare their intensity ratio distributions.
+#
+#   <b>Tip</b>: `plt.boxplot` can take a list of dataframe columns (`Series` objects) to plot various boxes next to each other, alongside a list of labels (`tick_labels`).
 # </div>
 #
 # <div style="
@@ -521,12 +612,14 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   On which dataframe should you work?
+#
+#   On which dataframe should you work? What information do you need to select?
 # </div>
 
 # %%
 fig, ax = plt.subplots(figsize=(7, 4), constrained_layout=True)
 
+# Compare the intensity ratio distributions across the 3 populations with `boxplot`
 # --- Exercise
 groups = [
     df_merged.loc[df_merged["population"] == "artifact", "intensity_ratio"],
@@ -550,6 +643,7 @@ plt.show()
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   What statistical measures of the distributions are shown in a box plot?
 # </div>
 
@@ -565,10 +659,9 @@ plt.show()
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
 #   There is a difference between the populations, but we know that the intensity also
-#   changes over time (line plot). Let's pick three time frame and look at how the various
-#   population intensity ratio evolves with time.
+#   changes over time (line plot). Let's look at how the different population distributions compare at three chosen time points. Do they evolve differently?
 #
-#   Plot the same box plots but with the additional condition on `minutes_elapsed`.
+#   Make a boxplot comparing the populations' intensity ratio distribution for each time point.
 #
 # </div>
 
@@ -611,6 +704,7 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#
 #   Draw the same data using a violin plot.
 # </div>
 #
@@ -623,6 +717,7 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#
 #   Investigate the ellipticity distribution rather than the intensity ratio using box plots.
 #
 #   <b>Hint</b>: Negative ellipticity is an artefact of a potentially failed measurement. Use `set_ylim` to change the y-axis limits.
@@ -630,6 +725,8 @@ plt.show()
 
 # %% [markdown]
 # ## 8 - Relationships: the scatter plot
+#
+# Time: 5 minutes
 #
 # If you've done the optional exercises, you should have noticed that intensity ratio between
 # channels is not the only measured parameter that increases with time. To investigate
@@ -645,20 +742,25 @@ plt.show()
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Let's look at the bright cell population and check the relationship between `ellipticity`
+#   Let's look at the **bright cell population** and check the relationship between `ellipticity`
 #   and `intensity_ratio` using `plt.scatter`.
 # </div>
 
 # %%
 fig, ax = plt.subplots(figsize=(6, 4.5), constrained_layout=True)
 
+# For only the bright cell population,
+# investigate the relationship between ellipticity and intensity_ratio
 # --- Exercise
 df_plot = df_merged.loc[df_merged["population"] == "bright"]
 
-ax.scatter(
+# levels, categories = pd.factorize(df_plot["minutes_elapsed"])
+scatter = ax.scatter(
     df_plot["ellipticity"],
     df_plot["intensity_ratio"],
+    # c=levels
 )
+# plt.legend(scatter.legend_elements()[0], categories, title="Time")
 # ---
 
 ax.set_xlabel("Ellipticity")
@@ -690,8 +792,12 @@ plt.show()
 # %% [markdown]
 # ## 9 - Fitting a curve
 #
-# Fitting estimates the parameters of a model we think might represent the data well. `curve_fit` takes a function whose first argument is the x data, and whose
-# other arguments are the parameters to estimate. Let's examine power laws for our ellipticity-intensity ratio correlation.
+# Time: 20 minutes
+#
+# Fitting estimates the parameters of a model we think might represent the data well.
+#
+# We can use `scipy.optimize.curve_fit`which takes a function whose first argument is the x data, and whose other arguments are the parameters to estimate.
+# Let's examine power laws for our ellipticity-intensity ratio correlation.
 
 
 # %%
@@ -709,9 +815,10 @@ def power_law(ellipticity, a, b):
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Fit the model, and print the parameters with their uncertainty.
 #
-#   <b>Hint</b>: `curve_fit(model, x, y, p0=[...])` returns the parameters and
+#   <b>Tip</b>: `curve_fit(model, x, y, p0=[...])` returns the parameters and
 #   their covariance matrix. The standard errors are
 #   `np.sqrt(np.diag(covariance))`.
 # </div>
@@ -728,7 +835,7 @@ ellipt = df_analyse["ellipticity"].to_numpy()
 
 # --- Exercise
 # Fit the model and report the parameters
-parameters, covariance = curve_fit(power_law, ellipt, intensity_r, p0=[0.2, 2])
+parameters, covariance = curve_fit(power_law, ellipt, intensity_r, p0=[1, 1])
 errors = np.sqrt(np.diag(covariance))
 
 print(f"a = {parameters[0]:.2f} +/- {errors[0]:.2f}")
@@ -745,32 +852,95 @@ print(f"b = {parameters[1]:.3f} +/- {errors[1]:.3f}")
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#   Draw the fitted curve over the data, and the residuals next to it.
 #
-#   <b>Hint</b>: to evaluate the fit on a the data range we are interested on, we can create a new set of x-axis values using `np.linspace(min, max, n_points)` and apply our power law function to it using the fitted parameters.
+#   Draw the fitted curve over the data.
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Use `np.linspace` to generate a set of evenly spaced x coordinates over the range of the data. Then we can apply our power law function to these points using the fitted parameters.
+#   </details>
 # </div>
 
 # %%
-fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 # --- Exercise
-smooth_area = np.linspace(ellipt.min(), ellipt.max(), 100)
+smooth_x = np.linspace(ellipt.min(), ellipt.max(), 100)
 
 ax.scatter(ellipt, intensity_r, s=20, alpha=0.6, label="Cells")
 ax.plot(
-    smooth_area,
-    power_law(smooth_area, *parameters),
+    smooth_x,
+    power_law(smooth_x, *parameters),
     color="crimson",
     label=f"fit: b = {parameters[1]:.2f}",
 )
 ax.legend()
-
 # ---
 
 ax.set_xlabel("Ellipticity")
 ax.set_ylabel("Intensity ratio")
 
 plt.show()
+
+# %% [markdown]
+# The residual for each data point is how far it is from the curve, i.e.:
+# $$
+# r_i = y_i - \hat{y}_i
+# $$
+# where $y_i$ in this case is the intensity ratio, and $\hat{y}_i$ is the curve prediction.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Calculate the residuals and plot them against $x_i$ (ellipticity). What do you expect to see? What is the sign of a good fit?
+# </div>
+
+# %%
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+
+# --- Exercise
+curve_predictions = power_law(ellipt, *parameters)
+residuals = intensity_r - curve_predictions
+ax.scatter(ellipt, residuals, c="r", s=20, alpha=0.6, label="Cells")
+# ---
+
+ax.set_title("Residuals")
+ax.set_xlabel("Ellipticity")
+ax.set_ylabel("Intensity ratio")
+
+plt.show()
+
+# %% [markdown]
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   Maybe a power law doesn't quite capture the shape of the data, can you fit a better curve?
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Does it look like the relationship exactly crosses the origin? Maybe we are missing a term in the equation.
+#   </details>
+# </div>
 
 # %% [markdown]
 # ### Saving your results
@@ -784,6 +954,7 @@ plt.show()
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#
 #   Since we are often working on the dataframe (producing additional columns, measurements,
 #   quantifications, etc.), we need to be able to save them.
 #
@@ -824,10 +995,11 @@ df_analyse.to_csv(results / "bright_cells.csv", index=False)
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   How correlated are nuclear and marker intensities for the bright cell population?
-#   Compute the Pearson and the Spearman coefficients with "scipy.stats".
 #
-#   Also plot the scatter of nuclear vs marker intensity.
+#   How correlated are nuclear and marker intensities for the bright cell population?
+#   Compute the Pearson and the Spearman coefficients with `scipy.stats`.
+#
+#   Plot the scatter of nuclear vs marker intensity to visually inspect the correlation result.
 # </div>
 
 # %%
@@ -848,6 +1020,8 @@ print(f"Pearson:  r = {pearson.statistic:.3f}, p = {pearson.pvalue:.3g}")
 print(f"Spearman: r = {spearman.statistic:.3f}, p = {spearman.pvalue:.3g}")
 
 plt.scatter(df_analyse["marker_intensity"], df_analyse["nuclear_intensity"])
+plt.xlabel("Marker intensity")
+plt.xlabel("Nuclear intensity")
 # ---
 
 # %% [markdown]
@@ -860,6 +1034,7 @@ plt.scatter(df_analyse["marker_intensity"], df_analyse["nuclear_intensity"])
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#
 #   What about the dim cells? Plot the two channels against each other.
 # </div>
 
