@@ -24,7 +24,9 @@
 # - Use NumPy to select data, manipulate axes, and use basic operations.
 
 # %% [markdown]
-# # 1 - Intro to NumPy
+# ## 1 - Intro to NumPy
+#
+# Time: 10 minutes
 #
 # NumPy is an open source library which is very commonly used in python for handling arrays.
 # It provides many useful functions and mathematical operations, most of the underlying code is written in C, making it usually much faster than native python loops.
@@ -148,6 +150,8 @@ print(f"itemsize: {a.itemsize}")
 # %% [markdown]
 # ## 2 - Intro to Bio-images and Example Data
 #
+# Time: 5 minutes
+#
 # #### Pixels
 #
 # Each element of an image array stores an intensity measurement. A pixel represents a physical area of the specimen; its dimensions are usually recorded in the image metadata.
@@ -181,7 +185,7 @@ print(f"itemsize: {a.itemsize}")
 # - the data is stored as unsigned 16-bit integers.
 
 # %%
-# import scikit image to access the data
+# import Sci-Kit image to access the data
 import skimage
 
 # %%
@@ -210,6 +214,8 @@ print(f"Data type: {data.dtype}")
 
 # %% [markdown]
 # ## 3 - Indexing and slicing
+#
+# Time: 25 minutes
 #
 # We will need to select subsets of data. We can do this using slices and indexes. Indexing selects an element or sub-array at a specified position along one or more dimensions of an array. Slicing can select a range of elements along a dimension.
 #
@@ -266,7 +272,7 @@ print(f"Data type: {data.dtype}")
 #
 # #### Displaying data
 #
-# We will use Matplotlib's function `plt.imshow(image_2d)` to display a 2D image. We will explore Matplotlib futher in a later module.
+# We will use Matplotlib's function `plt.imshow(image_2d)` to display a 2D image. We will explore Matplotlib further in a later module.
 
 # %%
 # plt is a commonly used alias for matplotlib.pyplot for convenience
@@ -453,6 +459,8 @@ print(a[b])
 # %% [markdown]
 # ## 4 - Manipulating dimensions
 #
+# Time: 20 minutes
+#
 # ### Reshaping
 #
 # Reshaping changes an array’s shape without changing its number of elements.
@@ -502,7 +510,8 @@ print(a)
 print(f"Shape: {a.shape}\n")
 
 print("Reshaped array")
-# Reshape the array
+
+# Reshape the array, reassign the reshaped array to the variable `a`
 # --- Exercise
 a = a.reshape(2, 12)
 # ---
@@ -665,6 +674,8 @@ print(a)
 # %% [markdown]
 # ## 5 - Mathematical operations & Broadcasting
 #
+# Time: 20 minutes
+#
 # NumPy performs element-wise operations; meaning, for example, if we multiply together two arrays `a` and `b` of the same shape, then an element of the resulting array will be the product of the elements at the corresponding position in `a` and `b`.
 #
 # Element-wise operations apply to all the mathematical functions which can be applied with the standard Python mathematical operations, e.g. `+`, `-`, `*`, `/`, `**`, `//`, `%`, `>`, `>=`, `<`, `<=`.
@@ -780,7 +791,7 @@ print(f"Channel means: {channel_means}")
 # ---
 
 # %% [markdown]
-# #### Channel normalisation (Optional)
+# #### Channel normalization (Optional)
 #
 # A dataset can be normalized so that it has a mean of zero and a standard deviation of one, this can be achieved with the following formula:
 # $$
@@ -788,7 +799,7 @@ print(f"Channel means: {channel_means}")
 # $$
 # where
 # $$
-# z: \text{Normalised data point}, \\
+# z: \text{Normalized data point}, \\
 # x: \text{Input data point}, \\
 # \mu: \text{Dataset mean}, \\
 # \sigma: \text{Dataset standard deviation}. \\
@@ -808,7 +819,7 @@ print(f"Channel means: {channel_means}")
 #   Verify that the mean and standard deviation of each channel are 0 and 1 respectively.
 #   Print the new maximums of the channels.
 #
-#   <strong>Tip:</strong> Try using the `keepdims` argument to retain singleton dimensions.
+#   <strong>Tip:</strong> Try using the `keepdims` argument when calculating the mean and standard deviation.
 # </div>
 
 # %%
@@ -851,6 +862,7 @@ print(f"Normalized Maximum: {normalized.max(axis=(1, 2, 3))}")
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
+#
 #   Can you display a mean projection of the membranes channel?
 # </div>
 
@@ -871,6 +883,7 @@ plt.imshow(mean_proj)
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
+#
 #   How would a mean projection be different from a sum projection (taking the sum along the Z-axis)?
 # </div>
 
@@ -889,7 +902,9 @@ plt.imshow(mean_proj)
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Find where the elements of the array `a` are less than or equal to 4, this is a "scalar operation". Print the results.
+#   Find where the elements of the array `a` are less than or equal to 4. Print the results.
+#
+#   <strong>Note:</strong> This is a "scalar operation" because we operate on an array with a single python scalar.
 # </div>
 
 # %%
@@ -927,6 +942,18 @@ print("~ applied:")
 print(~a)
 
 # %% [markdown]
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   Think back to the boolean indexing described in section 3. What might these boolean operations be useful for?
+# </div>
 # <div style="
 #   background: #accffb;
 #   border-left: 6px solid #2f80ed;
@@ -975,10 +1002,20 @@ plt.imshow(nuclei_slice > median)
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
 #   What does this image tell us about the number of "background pixels" and "nuclei pixels"?
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Think about what the median represents, how many pixels have values above the median?
+#   </details>
 # </div>
 
 # %% [markdown]
 # ## 6 - Data Types
+#
+# Time: 10 minutes
 #
 # An array’s `dtype` determines the values it can represent and the memory used per element.
 #
@@ -1138,6 +1175,8 @@ plt.imshow(result)
 # %% [markdown]
 # ## 7 - Copies and Views
 #
+# Time: 5 minutes
+#
 # Further reading: [copies and views](https://numpy.org/doc/stable/user/basics.copies.html).
 #
 # The main thing to watch out for is some NumPy operations will return a copy, and some operations will return a view. If you set the elements in a view, then they will also be changed in the original array that is showing the view.
@@ -1221,20 +1260,42 @@ print(a)
 # ### Line profile
 #
 # If we select data along a row of an image, we can plot it as a line profile, which can sometimes help us to interpret the data.
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   Plot a line profile!
+#   1. Select the data in a row using `row_idx`, `channel_idx` and `z_idx` defined below.
+#   2. Plot the selected data (it should be a 1D array), using the `plt.plot` function.
+# </div>
 
 # %%
 row_idx = 128  # Try changing the row index!
-row_data = data[1, 30, row_idx, :]
+channel_idx = 1
+z_idx = 30
 
-plt.imshow(data[1, 30])
+plt.imshow(data[channel_idx, z_idx])
 # plotting the location of the line profile with plt.plot(x, y)
 plt.plot([0, 255], [row_idx, row_idx], c="r")
 
 # New figure
 plt.figure()
-plt.plot(row_data, c="r")
-plt.ylim(0, None)  # make sure y-axis starts at zero
 plt.title(f"Line profile of row: {row_idx}")
+
+# Use the channel_idx, z_idx and row_idx to select data in a row of the image.
+# Plot the data using plt.plot(y_data)
+# --- Exercise
+row_data = data[channel_idx, z_idx, row_idx, :]
+plt.plot(row_data, c="r")
+# ---
+plt.ylim(0, None)  # make sure y-axis starts at zero
 
 # %% [markdown]
 # <div style="
@@ -1246,7 +1307,8 @@ plt.title(f"Line profile of row: {row_idx}")
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
-#   Extract a column from the 30th z-slice and plot the line profile.
+#
+#   Plot a line profile for a column of the data, use the example above as a guide.
 # </div>
 
 # %%
@@ -1275,7 +1337,8 @@ plt.title(f"Line profile of column: {column_idx}")
 #   color: #1f5f2c;
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
-#   From the line profiles above, can you estimate the intensity value of the background?
+#
+#   From the line profiles above, is it possible to estimate the intensity value of the background?
 # </div>
 #
 
@@ -1321,14 +1384,14 @@ plt.imshow(circle_mask)
 #   <strong>Optional Exercise</strong><br>
 #   Create a circular mask centered on one of the nuclei in the 30th z-slice, and set all of the pixels outside the circle to zero.
 #   <details>
-#   <summary>❓ <strong>Hint</strong></summary>
-#     You can use the coordinates (row=156, column=112), and a diameter of 52. What is the equation of a circle with the center at the coordinates (a, b)?
+#   <summary><strong>Hint</strong></summary>
+#     You can use the center coordinates (row=156, column=112), and a diameter of 52. What is the equation of a circle with the center at the coordinates (a, b)?
 #   </details>
 #   </div>
 # </div>
 
 # %%
-ii, jj = np.mgrid[:256, :256]
+ii, jj = np.mgrid[:256, :256]  # notice the coordinates are between 0 and 255 now
 z30 = data[1, 30].copy()
 
 # In the array `z30`, set all the values outside the selected nucleus to zero
@@ -1349,7 +1412,16 @@ plt.imshow(z30)
 #   color: #374151;
 # ">
 #   <strong>Optional Exercise</strong><br>
+#
 #   Use the mask from the previous exercise to find the mean intensity of the masked region.
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   Remember the not operator `~`.
+#   </details>
 # </div>
 
 # %%

@@ -110,6 +110,15 @@ Code cells as:
   Notes in yellow.
 </div>
 
+### Toggleable hints
+  <details>
+  <summary>
+  <strong>Hint</strong>
+  </summary>
+
+  Extra info
+  </details>
+
 ```
 
 
