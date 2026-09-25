@@ -19,6 +19,8 @@
 # %% [markdown]
 # ## 1 - Intro
 #
+# Time: 5 minutes
+#
 # Oftentimes, a pipeline will result in measurements, as we've seen during the practical. Here, we will assume that some measurements were created and saved to .csv files.
 
 # %%
@@ -62,6 +64,8 @@ print(files)
 
 # %% [markdown]
 # ## 2 - Loading a table
+#
+# Time: 10 minutes
 #
 # <div style="
 #   background: #accffb;
@@ -141,6 +145,7 @@ table.describe()
 # %% [markdown]
 # ## 3 - Selecting rows and columns
 #
+# Time: 10 minutes
 #
 # As you can imagine, Dataframes can be very large and in order to explore them, we also need
 # to select only certain elements. For instance, to select one or more columns you
@@ -257,6 +262,8 @@ selected.head()
 
 # %% [markdown]
 # ## 4 - Concatenation and merging
+#
+# Time: 20 minutes
 #
 # In the case of our example, we have loaded a single file pertaining to a single image.
 # But we actually have many frames and all these results should be gathered within the same
@@ -442,7 +449,9 @@ df_merged["intensity_ratio"] = (
 df_merged[["frame_id", "label", "ellipticity", "intensity_ratio"]].head()
 
 # %% [markdown]
-# ## 5 - Performing operations over values
+# ## 5 - Performing operations over groups
+#
+# Time: 5 minutes
 #
 # `groupby` splits the table into groups according to row's values in specific columns.
 # This creates a `DataFrameGroupBy` object which has a few helpful methods to help us complete our analysis, one such method is `.agg`.
@@ -484,6 +493,8 @@ per_frame
 # %% [markdown]
 # ## 6 - Line plot
 #
+# Time: 5 minutes
+#
 # A line plot is one of the most common way of representing data.
 #
 # <div style="
@@ -496,7 +507,7 @@ per_frame
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Plot the mean intensity ratio versus time.
+#   Plot the mean intensity ratio for each frame versus time.
 #
 #   Look at the aggregated table we just calculated, which column contains the time data and which column contains the mean intensity ratio?
 # </div>
@@ -566,6 +577,8 @@ plt.show()
 
 # %% [markdown]
 # ## 7 - Distributions: the box plot
+#
+# Time: 15 minutes
 #
 # Box plots and violin plots are great way of comparing not only the mean of a distribution
 # but the distribution itself.
@@ -713,6 +726,8 @@ plt.show()
 # %% [markdown]
 # ## 8 - Relationships: the scatter plot
 #
+# Time: 5 minutes
+#
 # If you've done the optional exercises, you should have noticed that intensity ratio between
 # channels is not the only measured parameter that increases with time. To investigate
 # correlations between parameters, we may want to look at a scatter plot.
@@ -776,6 +791,8 @@ plt.show()
 
 # %% [markdown]
 # ## 9 - Fitting a curve
+#
+# Time: 20 minutes
 #
 # Fitting estimates the parameters of a model we think might represent the data well.
 #
