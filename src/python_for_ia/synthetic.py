@@ -69,7 +69,9 @@ def image_with_background(noise_level: int = 1_000, bg_level=1) -> np.ndarray:
     return np.floor(tot_float_norm)
 
 
-def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
+def images_with_various_degradations() -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
     rng = np.random.default_rng()
 
     img = data.cells3d()

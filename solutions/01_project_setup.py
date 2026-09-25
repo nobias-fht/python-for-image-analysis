@@ -18,10 +18,12 @@
 #
 # ### Objective
 #
-# - Learn how to manage dependecies with `uv`.
-# - Learn what is a lock file and why is it important.
+# - Learn how to manage dependencies with `uv`.
+# - Learn what a lock file is and why it is important.
 #
 # ## 1 - Initialize the project
+#
+# Time: 10 minutes
 #
 # You can use a terminal with VS Code by selecting from the toolbar **Terminal -> New Terminal**.
 #
@@ -100,6 +102,8 @@
 
 # %% [markdown]
 # ## 2 - Environments and packages
+#
+# Time: 10 minutes
 #
 # A **virtual environment** holds a project's Python interpreter and installed packages. Keeping a separate environment for each project lets different analyses use different library versions.
 #
@@ -239,6 +243,8 @@ print("NumPy version:", np.__version__)
 # %% [markdown]
 # ## 3 - Lock files and reproducibility
 #
+# Time: 10 minutes
+#
 # The three parts of our setup serve different purposes:
 #
 # | Item | Purpose |
@@ -324,12 +330,13 @@ print("NumPy version:", np.__version__)
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-# A colleague receives your notebook and `pyproject.toml`, but no lockfile. Why might they install different package versions? Could a lockfile alone reproduce your cell counts without the original images and analysis settings?
-#
+# A colleague receives your notebook and `pyproject.toml`, but no lockfile. Why might they install different package versions?
 # </div>
 
 # %% [markdown]
 # ## 4 - Script dependencies
+#
+# Time: 5 minutes
 #
 # For this course, several notebooks share the same packages, so we keep dependencies together in `pyproject.toml` and use one project environment.
 #
@@ -367,9 +374,24 @@ print("NumPy version:", np.__version__)
 # The header is a dependency declaration, not a lockfile. To record resolved versions for the script, run `uv lock --script array_demo.py`; this creates `array_demo.py.lock` alongside it.
 #
 # See the [uv script guide](https://docs.astral.sh/uv/guides/scripts/).
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+# Can you think of any-use cases for declaring script level dependencies?
+# </div>
 
 # %% [markdown]
 # ## 5 - `juv` for standalone notebooks
+#
+# Time: 10 minutes
 #
 # [`juv`](https://github.com/manzt/juv) brings a similar approach to Jupyter notebooks: dependencies travel with the notebook, and `juv` uses `uv` to prepare an environment when launching it. It can also store a dependency lockfile in the notebook's metadata.
 #
