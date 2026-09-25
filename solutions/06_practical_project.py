@@ -32,6 +32,13 @@
 #
 #   - Load the images in a list and print their shape,
 #   - For each image display the data.
+#
+#   <details>
+#   <summary>
+#   <strong>Hint</strong>
+#   </summary>
+#
+#   A `Path` object has a `.glob` method that can be used match file name patterns inside a directory, e.g. `.glob(*.txt)` will generate all the files ending in `.txt`.
 # </div>
 
 # %%
