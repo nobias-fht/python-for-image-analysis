@@ -35,8 +35,6 @@
 # </div>
 
 # %%
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 
 from careamics.careamist import CAREamist
@@ -105,7 +103,7 @@ for i in range(len(z)):
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-#   What `data_type` and `axis` should use?
+#   What `data_type` and `axis` should we use? What should be the patch size dimension?
 # </div>
 
 # %%
@@ -118,7 +116,7 @@ config = create_n2v_config(
     axes="ZYX",
     batch_size=16,
     patch_size=(8, 64, 64),
-    num_epochs=30,
+    num_epochs=20,
 )
 # ---
 
@@ -141,7 +139,7 @@ careamist.train(train_data=noisy_imgs)
 #   The loss in Noise2Void is a bit meaningless. Indeed, it compares a noisy pixel (input)
 #   to a predicted value (hopefully denoised). Since the input is noisy, the best denoised
 #   pixel value will be different from the input value and the loss will never reach 0. Even
-#   worse, fluctuations do not indicate improvement or not.
+#   worse, fluctuations do not indicate that it no longer improves.
 # </div>
 
 # %%
@@ -224,4 +222,18 @@ for i in range(len(z)):
 # ">
 #   <strong>Optional Exercise</strong><br>
 #   Save the predictions to disk.
+# </div>
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   If you are interested in understanding Noise2Void better, [here](https://github.com/CAREamics/careamics-workshops/blob/main/n2v/n2v_in_depth.ipynb) is a deep-dive into
+#   how the algorithm works and how to properly use it.
 # </div>

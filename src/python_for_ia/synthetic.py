@@ -100,8 +100,7 @@ def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
 
 
 def images_with_noise() -> np.ndarray:
-    factor = 3000
     rng = np.random.default_rng(24)
     img = data.cells3d()[:, 0, ...]
 
-    return rng.poisson(img / factor) * factor + rng.normal(0, factor)
+    return np.clip(img + rng.normal(0, int(img.mean()), img.shape), 0, None)
