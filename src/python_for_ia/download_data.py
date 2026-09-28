@@ -33,7 +33,7 @@ def example_czi(data_root: Path):
     return data_path
 
 
-def example_czi_2(data_root: Path):
+def example_czi_1(data_root: Path):
     """
     Download example CZI data.
 
@@ -62,7 +62,7 @@ def example_czi_2(data_root: Path):
     return data_path
 
 
-def example_czi_3(data_root: Path):
+def example_czi_2(data_root: Path):
     """
     Download example CZI data.
 
@@ -109,7 +109,7 @@ def example_nd2_1(data_root: Path):
     fname = "ND2_aryeh_but3_cont200-1.nd2"
     data_path = pooch.retrieve(
         url=public_url + f"/{fname}",
-        known_hash="9f6a1a154385de9c5655f14df997d2d2460a7655714cc7248d11160331429c27",
+        known_hash="7e8dcd14c990aae7fe3d3a59be6b7db3f0e45e648948e47d5765ffe9f69003ce",
         fname=fname,
         path=data_root / SUBDIR,
     )
@@ -136,7 +136,7 @@ def example_nd2_2(data_root: Path):
     fname = "CRISPR_MET1.nd2"
     data_path = pooch.retrieve(
         url=url,
-        known_hash=" 8fee68d000d53bb8e13dccd4c1edb86cf910710a872cbd17f4d2ea5af885d43a",
+        known_hash="8fee68d000d53bb8e13dccd4c1edb86cf910710a872cbd17f4d2ea5af885d43a",
         fname=fname,
         path=data_root / SUBDIR,
     )
@@ -163,7 +163,7 @@ def example_lif_1(data_root: Path):
     fname = "s_1_t_4_c_2_z_1.lif"
     data_path = pooch.retrieve(
         url=public_url + f"/{fname}",
-        known_hash="97cea3e600476492e3224101d4929781f4ab4a26218c57e10b0fc1aaf5190ddba",
+        known_hash="7cea3e600476492e3224101d4929781f4ab4a26218c57e10b0fc1aaf5190ddba",
         fname=fname,
         path=data_root / SUBDIR,
     )
