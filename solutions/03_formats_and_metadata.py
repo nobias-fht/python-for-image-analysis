@@ -96,7 +96,7 @@ DATA_DIR = Path("../data")
 image = skimage.data.cells3d()
 
 output_dir = Path("../data/outputs")
-output_dir.mkdir(exist_ok=True)
+output_dir.mkdir(exist_ok=True, parents=True)
 
 uint16_image = skimage.util.img_as_uint(image)  # make sure the image is uint16
 tif_path = output_dir / "synthetic_cells.tif"
