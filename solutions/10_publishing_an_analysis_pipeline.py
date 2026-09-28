@@ -3,11 +3,11 @@
 #
 # Time: 1 hour 30 minutes.
 #
-# If you ever tried using code from GitHub, then you probably ran into any of
+# If you've ever tried using code from GitHub, then you probably ran into any of
 # the following issues:
 # - No instruction for installing the package
 # - No example script to reproduce the published results
-# - No example data to explore how the package work
+# - No example data to explore how the package works
 # - No user documentation on how to use the various features
 # - No code documentation helping to understand the package design
 # - Package depends on unmaintained packages or non-compatible packages
@@ -32,7 +32,7 @@
 #
 # It does not matter if the code is not perfect, as (publicly-funded) researchers, it is
 # our duty to the public and fellow scientists to produce reproducible results. It is much
-# easier to set up code to be reproduced than bench experiments. In this module, we will
+# easier to set up code to be reproduced than to describe how to reproduce bench experiments. In this module, we will
 # go through a list of checkmarks to help you be a leading practitioner of FAIRness in
 # scientific code.
 #
@@ -45,10 +45,10 @@
 #   color: #374151;
 # ">
 #   <strong>What's FAIRness?</strong><br>
-#
 #   Findability, Accessibility, Interoperability, and Reusability (FAIR) principles have
 #   been adapted for [data](https://www.nature.com/articles/sdata201618) and is directly
 #   applicable to code:
+#
 #   - Findability: it is released on the internet
 #   - Accessibility: it can be viewed and downloaded by anyone
 #   - Interoperability: it is compatible with the relevant existing software/analysis
@@ -58,8 +58,6 @@
 
 # %% [markdown]
 # ## 1 - When to turn analysis code into a package
-#
-# Time: 10 minutes
 #
 # A package is useful when:
 #
@@ -127,10 +125,8 @@
 # %% [markdown]
 # ## 2 - Minimal package layout
 #
-# Time: 10 minutes
-#
-# Not every code needs to be a package, but we being packageable means that people can
-# easily use your code along side their own. We've have used `uv`, which makes this a lot
+# Not every code needs to be a package, but being packageable means that people can
+# easily use your code along side their own. We have used `uv`, which makes this a lot
 # easier. Here we just have a peek at what a modern python package looks like.
 #
 # <div style="
@@ -185,8 +181,6 @@
 # %% [markdown]
 # ## 3 - Choosing a license
 #
-# Time: 10 minutes
-#
 # Choose a license before sharing code publicly.
 #
 # - MIT or BSD-3-Clause: permissive reuse.
@@ -219,14 +213,12 @@
 # ">
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #   Data should have licenses as well! Open licenses are usually CC-0 and CC-BY for fully
-#   open and modifyiable data.
+#   open and modifiable data.
 # </div>
 #
 
 # %% [markdown]
 # ## 4 - README contents
-#
-# Time: 10 minutes
 #
 # A useful README answers:
 #
@@ -255,8 +247,6 @@
 # %% [markdown]
 # ## 5 - Documentation
 #
-# Time: 10 minutes
-#
 # Documentation can refer to two things:
 # - API or usage of the code
 # - Docstring: documentation of the code itself
@@ -278,21 +268,16 @@
 
 # %%
 def remove_background(img, func, params):
-    bg = func(img, **params)
+    bg = func(**params)
     res = img - bg
     return res, bg
 
 
 # %%
-# Tip: try using these types for type hints
-from collections.abc import Callable
-from typing import Any
-
+from typing import Any, Callable
 from numpy.typing import NDArray
 
 
-# Copy the function above, but make a documented version.
-# --- Exercise
 def remove_background(
     img: NDArray, func: Callable, params: dict[str, Any]
 ) -> tuple[NDArray, NDArray]:
@@ -303,8 +288,7 @@ def remove_background(
     img : numpy.ndarray
         Image from which to remove background.
     func : Callable
-        Background estimation function, takes the image `img` as its first argument and
-        `params` as key-word arguments.
+        Background estimation function.
     params : dict[str, Any]
         Parameters to be passed to `func`.
 
@@ -315,17 +299,13 @@ def remove_background(
     numpy.ndarray
         Estimated background removed from the image.
     """
-    bg = func(img, **params)
+    bg = func(**params)
     res = img - bg
     return res, bg
 
 
-# ---
-
 # %% [markdown]
 # ## 6 - Code reproducibility
-#
-# Time: 10 minutes
 #
 # Keep enough information to understand how results were produced:
 #
@@ -345,10 +325,9 @@ def remove_background(
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#
 #   Try to run the following code multiple times, what do you observe?
 #
-#   Try passing a number to `default_rng()`.
+#   Then pass a number to `default_rng()`.
 # </div>
 #
 # <div style="
@@ -366,9 +345,9 @@ def remove_background(
 # %%
 import numpy as np
 
-# Exercise !
-# Pass a number to `default_rng`
-rng = np.random.default_rng()
+# -- Exercise
+rng = np.random.default_rng(42)
+# ---
 
 # Here are some experimental results
 results = np.asarray([0.1, 4.5, 6.1, 2.1, 0.5, 6.3, 4.2, 6.2, 9.1, 0.8, 4.2, 2.7])
@@ -389,22 +368,18 @@ print("Approximate 95% CI:", ci_95)
 # %% [markdown]
 # ## 7 - Advanced package features
 #
-# Time: 10 minutes
-#
 # Here are some advanced software engineering features worth mentioning to improve code
-# quality, reproducibility and maintainability. We will not use them here.
+# quality, reproducibility and maintainability. We will not use them here, but it is useful to know that they exist and what they might be used for.
 #
 #
 # - Tests are a suite of small functions that validate that each piece of software does
-# exactly what was intended. They are used to catch bugs and change of behaviors.
+# exactly what was intended. They are used to catch bugs and change of behaviours.
 # - Continuous Integration (CI) is the automation of the tests to continuously run them
 # against the latest changes.
 # - Continuous Deployment (CD) is the automation of the package release.
 
 # %% [markdown]
 # ## 8 - A small release checklist
-#
-# Time: 10 minutes
 #
 # Use a checklist before making a repository public or submitting a manuscript:
 #
@@ -417,7 +392,7 @@ print("Approximate 95% CI:", ci_95)
 # <input type="checkbox" checked> A lockfile is provided <br/>
 # <input type="checkbox" checked> Example data has been released (e.g. Zenodo or BioImage Archive) <br/>
 # <input type="checkbox" checked> Example code runs on the example data <br/>
-# <input type="checkbox" checked> Reproducibility (and deterministic) scripts are provided <br/>
+# <input type="checkbox" checked> Reproducible (and deterministic) scripts are provided <br/>
 # <input type="checkbox" checked> Core functionalities and output generation are not mixed <br/>
 # <input type="checkbox" checked> A release tag is created for the submitted pre-print/paper <br/>
 # <input type="checkbox" checked> Citation instructions are present <br/>
