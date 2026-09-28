@@ -25,6 +25,7 @@ dependencies = [
     "tifffile>=2026.3.3",
     "pooch>=1.9.0",
     "cmap>=0.7.2",
+    "bioio-ome-zarr>=3.8.1",
 ]
 
 [project.scripts]
