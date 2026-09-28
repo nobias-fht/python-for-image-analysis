@@ -94,6 +94,19 @@ from skimage.filters import gaussian
 # ## 2 - Inspecting an image
 #
 # Time: 10 minutes
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add `scipy`, `pandas` and `cmap` to the project.
+# </div>
 
 # %%
 # --- Import what we need

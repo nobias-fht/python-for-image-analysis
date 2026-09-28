@@ -183,6 +183,19 @@ print(f"itemsize: {a.itemsize}")
 # - the physical size represented by each pixel is 0.29 micrometers in the Z axis and 0.26 micrometers in the X and Y axes, this means the data is ***anisotropic*** (physical pixel lengths are not equal),
 # - the two channels record cell membranes and nuclei, and
 # - the data is stored as unsigned 16-bit integers.
+#
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add `scikit-image` and `matplotlib` to the project.
+# </div>
 
 # %%
 # import Sci-Kit image to access the data

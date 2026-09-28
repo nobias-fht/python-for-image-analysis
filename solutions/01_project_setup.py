@@ -241,6 +241,23 @@ print("NumPy version:", np.__version__)
 # </div>
 
 # %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add the following dependencies that we need to the project:
+#
+#   - `pooch`
+#   - `rich`
+# </div>
+
+# %% [markdown]
 # ## 3 - Lock files and reproducibility
 #
 # Time: 10 minutes
