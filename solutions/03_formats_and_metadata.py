@@ -10,60 +10,33 @@
 # Much of this information will be essential in any downstream processing!
 # In this section we will explore some of these formats, and the tools we can use to open them.
 #
-#
 # The BioFormats team keeps a list of file formats and some infomation about each [here](https://bio-formats.readthedocs.io/en/v8.5.0/supported-formats.html).
 # At current count there are more than 160 file formats, and that's just the ones that can be read by BioFormats!
 #
+# ### Question
 #
-
-# %%
-
-
-def image_with_background(noise_level: int = 1_000) -> np.ndarray:
-    """Add noise and background to a cells3d slice.
-
-    Used in module 05.
-    """
-    rng = np.random.default_rng()
-
-    img = data.cells3d()
-    img_slice = img[30, 1]
-
-    # generate background as a single gaussian
-    yy, xx = np.indices(img_slice.shape)
-    bg = np.zeros_like(img_slice)
-    cy = 0.4 * img_slice.shape[0]
-    cx = 0.7 * img_slice.shape[1]
-    sigma = 80
-
-    bg = np.exp(-((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * sigma**2))
-    bg = img_slice.mean() * bg  # controls background strength
-
-    # # generate background by averaging, smoothing and scaling
-    # bg = np.sum(img[:15, 1], axis=0)
-    # bg = filters.gaussian(bg, sigma=10)
-    # bg = 10 * bg * img_slice.mean() / bg.mean()
-
-    # use Poisson distributed noise
-    noisy = img_slice + rng.normal(0, noise_level, img_slice.shape)
-
-    # generate final image with same mean as the original
-    tot_float = noisy + bg
-    tot_float_norm = img_slice.mean() * tot_float / tot_float.mean()
-
-    return np.floor(tot_float_norm)
-
+# How can we open different file formats?
+#
+# ### Objectives
+#
+# - Learn about different file formats.
+# - Learn how to use `bioio` to extract useful metadata and load data.
 
 # %%
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import CenteredNorm
 import numpy as np
-from skimage import io, util
-from skimage import data, filters
+import skimage
+
+# Where we will save some example data
+DATA_DIR = Path("../data")
 
 # %% [markdown]
-# ## Format landscape
+# ## 1 - Format landscape
+#
+# Time: 5 minutes
 #
 # Some of the more common file formats you might encounter are:
 #
@@ -93,7 +66,9 @@ from skimage import data, filters
 #
 
 # %% [markdown]
-# ## Metadata checklist
+# ## 2 - Metadata checklist
+#
+# Time: 10 minutes
 #
 # Before measuring anything, ask:
 #
@@ -103,49 +78,72 @@ from skimage import data, filters
 # - What is the physical pixel size in x, y, and z?
 # - Are there multiple scenes, positions, time points, or pyramid levels?
 # - Was compression used? If yes, was it lossless?
+# - Has any pre-processing already been applied to the image? This is sometimes an option at acquisition time.
 # - Did the export preserve metadata or only pixel values?
 
 # %% [markdown]
-# ## Simulate saving and opening an image
+# ## 3 - Saving and Loading images with SciKit-Image
 #
-# This example writes a toy TIFF so every student can run the cell. Real
-# microscopy data should usually be read with format-aware tools that preserve
-# metadata, but the basic principle is the same: read, inspect, and only then
-# analyze.
+# Time: 5 minute
+#
+# Sci-Kit image has an `io` module that can be used to conveniently open and save a variety of common image format with the `skimage.io.imread` and `skimage.io.imsave` functions.
+#
+# Real microscopy data should usually be read with format-aware tools that preserve metadata, but the basic principle is the same: read, inspect, and only then analyze.
+#
+# Nevertheless, let's save the previously introduced example data and then save it again.
 
 # %%
+image = skimage.data.cells3d()
 
-image = data.cells3d()
+output_dir = Path("../data/outputs")
+output_dir.mkdir(exist_ok=True, parents=True)
 
-output_dir = Path("scratch_outputs")
-output_dir.mkdir(exist_ok=True)
-
-# image = image_with_background()
-uint16_image = util.img_as_uint(image)
+uint16_image = skimage.util.img_as_uint(image)  # make sure the image is uint16
 tif_path = output_dir / "synthetic_cells.tif"
-io.imsave(tif_path, uint16_image)
+skimage.io.imsave(tif_path, uint16_image)  # save the data
 
-loaded = io.imread(tif_path)
+loaded = skimage.io.imread(tif_path)  # load the data we just saved
 print("loaded:", loaded.shape, loaded.dtype, loaded.min(), loaded.max())
 
 # %% [markdown]
-# ## JPEG compression is visually convenient, not measurement-safe
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What did `imread` return?
+#
+#   Is there other information related to the data which would be useful to have access to when performing analysis?
+# </div>
+
+# %% [markdown]
+# ## 4 - JPEG compression is convenient, not measurement-safe
+#
+# Time: 10 minutes
 #
 # Lossy compression changes pixel values. That may be acceptable for a figure,
 # but it is usually not acceptable for intensity measurement, segmentation, or
 # reproducibility.
+#
+# If we save the example data again, this time as a JPEG, we see that the resulting image no longer has the same pixel values as the original.
 
 # %%
-jpg_path = output_dir / "synthetic_cells.jpg"
-
 image_original = loaded[30, 1, :, :]
 
-io.imsave(jpg_path, util.img_as_ubyte(image_original), quality=25)
-jpeg_loaded = io.imread(jpg_path)
+# save the data in JPEG format
+jpg_path = output_dir / "synthetic_cells.jpg"
+skimage.io.imsave(jpg_path, skimage.util.img_as_ubyte(image_original), quality=25)
+jpeg_loaded = skimage.io.imread(jpg_path)
 
+# we will display the difference to see where each image is greater than the other
 difference = (
     image_original.astype(float) / image_original.max()
-    - jpeg_loaded.astype(float) / 255
+    - jpeg_loaded.astype(float) / jpeg_loaded.max()
 )
 print("mean absolute JPEG difference:", np.abs(difference).mean())
 
@@ -154,7 +152,7 @@ axes[0].imshow(image_original, cmap="gray")
 axes[0].set_title("TIFF")
 axes[1].imshow(jpeg_loaded, cmap="gray")
 axes[1].set_title("JPEG")
-axes[2].imshow(difference, cmap="coolwarm")
+axes[2].imshow(difference, cmap="bwr", norm=CenteredNorm(), interpolation="none")
 axes[2].set_title("difference")
 for ax in axes:
     ax.axis("off")
@@ -162,7 +160,23 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# And if we look closer at the image, we can see the result of the JPEG compression. Do you want to quantify this image?
+# <div style="
+#   background: #fff8db;
+#   border-left: 6px solid #e2b200;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #8a6a00;
+# ">
+#   <strong style="color: #8a6a00;">Note</strong><br>
+#
+#   Where the difference display is red or blue shows where either the TIFF or JPEG image is greater, respectively.
+#
+#   We see that most of the pixels did not retain there original value.
+# </div>
+
+# %% [markdown]
+# And if we look closer at the image, we can see the result of the JPEG compression. Would you want to quantify this image?
 
 # %%
 fig, axes = plt.subplots(figsize=(3, 3))
@@ -170,12 +184,14 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 
 
 # %% [markdown]
-# ## Reader examples for real microscopy formats
+# ## 5 - Reader examples for real microscopy formats
+#
+# Time: 10 minutes
 #
 # Now we will example some vendor microscopy formats. The three you will commonly run into are `.lif` (Leica),
 # `.nd2` (Nikon), and `.czi` (Zeiss). Luckily, there is a python package that can read them all (and others!)
 #
-# In this course we will use the `BioIO` plugin. The documentation can be found [here](https://bioio-devs.github.io/bioio/index.html)
+# In this course we will use the `BioIO` package. The documentation can be found [here](https://bioio-devs.github.io/bioio/index.html).
 #
 # We can install BioIO into our environment using .
 #
@@ -186,7 +202,7 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 # However, BioIO has a modular framework, so we will also need to install the individual reader plugins for each format.
 # We can do this all in one line by using:
 # ```bash
-# uv add bioio bioio-ome-tiff bioio-ome-zarr bioio-lif bioio-nd2 bioio-czi
+# uv add bioio bioio-tifffile bioio-ome-zarr bioio-lif bioio-nd2 bioio-czi
 # ```
 #
 # Once installed, the common pattern is:
@@ -196,16 +212,24 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 #
 # img = BioImage("path/to/file")
 # print(img.scenes)
-# print(img.dims.order, img.shape)
+# print(img.dims, img.shape)
 # data = img.get_image_data("CZYX", T=0)
 # ```
 #
 # Here we generate a `BioImage` object that contains not just the image data, but also associated metadata.
 
 # %% [markdown]
-# ## Let's try opening some real file formats!
+# ### Let's try opening some real file formats!
 #
 #
+
+# %%
+import logging
+
+# Switching off some logging from bioio
+logging.getLogger("bioio_lif.reader").setLevel(logging.ERROR)
+logging.getLogger("bioio_czi.standard_metadata").setLevel(logging.ERROR)
+logging.getLogger("bioio_nd2.reader").setLevel(logging.ERROR)
 
 # %% [markdown]
 # <div style="
@@ -221,17 +245,38 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 # </div>
 
 # %%
-test_czi_path = "/facility/imganfac/Damian/test_vendor_formats/test.czi"
-
-# %%
 from bioio import BioImage
+from python_for_ia import download_data
 
+# Downloading an example CZI file (it might take a minute)
+test_czi_path = download_data.example_czi(DATA_DIR)
+
+# Open the czi file, inspect the dimensions and load the data.
+# --- Exercise
 czi = BioImage(test_czi_path)
 czi_data = czi.get_image_data("CZYX")
+print(czi.dims)
 print(czi_data.shape)
+# ---
 
 # %% [markdown]
-# ## Inspect the file types
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   Read the docs for the `BioImage.get_image_data` method.
+#
+#   What happens if you request an axes that was not originally present in the data?
+# </div>
+
+# %% [markdown]
+# ### Inspect the file types
 #
 # <div style="
 #   background: #accffb;
@@ -242,15 +287,32 @@ print(czi_data.shape)
 #   color: #21457f;
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
-#  Inspect the type of each of the objects ('czi' and 'czi_data'). Why are they different?
+#
+#   Inspect the type of the loaded data.
 # </div>
 
 # %%
-print(type(czi))
+# --- Exercise
 print(type(czi_data))
+# ---
 
 # %% [markdown]
-# ## Reading Metadata
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What is the type of `bioio`'s representation of an file? Why might `bioio` not want to directly return all of the image data?
+# </div>
+#
+
+# %% [markdown]
+# ### Reading Metadata
 #
 # One advantage of using microscope vendor formats is that they come with a lot of metadata that can be inspected. Let's look at some of the metadata from our images.
 #
@@ -262,12 +324,22 @@ print(type(czi_data))
 # metadata = img.metadata
 # ```
 #
-# In this case this returns an XML document
+# In this case this returns an XML document which will have a different structure for each file format.
 
 # %%
 metadata = czi.metadata
 
 print(type(metadata))
+
+# Manually exploring the tree
+print(metadata.tag, metadata.attrib)
+print(list(metadata))
+print("-" * 5)
+print(metadata[0].tag, metadata.attrib)
+print(list(metadata[0]))
+print("-" * 5)
+print(metadata[0][2].tag, metadata.attrib)
+print(list(metadata[0][2]))
 
 
 # %% [markdown]
@@ -286,14 +358,16 @@ print(type(metadata))
 # </div>
 
 # %%
+# --- Exercise
 print(czi.physical_pixel_sizes.X)
 print(czi.physical_pixel_sizes.Y)
+# ---
 
 # %% [markdown]
 # BioIO also exposes a list of standard metadata, which can be access using
 #
 # ```python
-# standard_metadata = dir(czi.standard_metadata)
+# standard_metadata = czi.standard_metadata
 # ```
 #
 # From here we can see all the associated metadata, and access it diretcly using, for example:
@@ -316,17 +390,17 @@ print(czi.physical_pixel_sizes.Y)
 # </div>
 
 # %%
-standard_properties = dir(czi.standard_metadata)
-print(standard_properties)
-print(czi.standard_metadata.imaged_by)
-
+# --- Exercise
+czi.standard_metadata
+czi.standard_metadata.imaged_by
+# ---
 
 # %% [markdown]
-# ## Other file formats
+# ## 6 - Other file formats
+#
+# Time: 10 minutes
 #
 # Try opening some other file formats with BioIO. Access the metadata and see what it contains.
-
-# %%
 
 # %% [markdown]
 #
@@ -347,10 +421,105 @@ print(czi.standard_metadata.imaged_by)
 # first_time = nd2.get_image_data("CZYX", T=0)
 # ```
 #
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
 #
+#   Explore some of the example data, what can you learn from the metadata? e.g. if it has channels, can you find more information about what the channel record?
+#
+#   Can you display a slice?
+#
+#   <b>Tip: </b>Try to also explore the `.ome_metadata` property (and subproperties).
+# </div>
+#
+# Use the `download_data` module that we imported above, downloading might take a minute, it contains the functions:
+# - `example_czi_1`
+# - `example_czi_2`
+# - `example_nd2_1`
+# - `example_nd2_2`
+# - `example_lif_1`
+# - `example_lif_2`
+#
+# Download the data to the `DATA_DIR` path we defined above, e.g.
+#
+# ```python
+# path = download_data.example_czi_1(DATA_DIR)
+# ```
+
+# %%
+data_root = DATA_DIR
+SUBDIR = "example_formats"
+import pooch
+
+public_url = "https://pub-2ac5a4b342a7472da9d44847263e1a56.r2.dev"
+fname = "s_1_t_4_c_2_z_1.lif"
+data_path = pooch.retrieve(
+    url=public_url + f"/{fname}",
+    # known_hash="97cea3e600476492e3224101d4929781f4ab4a26218c57e10b0fc1aaf5190ddba",
+    fname=fname,
+    path=data_root / SUBDIR,
+)
+
+# %%
+# --- Exercise
+import matplotlib.pyplot as plt
+
+path = download_data.example_czi_1(DATA_DIR)
+file = BioImage(path)
+print(file.dims)
+print(file.standard_metadata)
+print(file.ome_metadata)
+print(file.channel_names)
+print(file.ome_metadata.images[0].pixels.channels)
+
+data = file.get_image_data("YXC")
+plt.imshow(data[..., :3] / data[..., :3].max())
+# ---
 
 # %% [markdown]
-# ## When a reader fails
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   Get the OME-Zarr URL from `download_data.example_ome_zarr_url()`
+#
+#   <b>Tip: </b>You can simply instantiate the `BioImage` class with the URL!
+# </div>
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+#   What happens when you call `get_image_data` and you do not request all of the data?
+# </div>
+
+# %%
+# --- Exercise
+# Play with ome-zarr example
+# ---
+
+# %% [markdown]
+# ## 7 - When a reader fails
+#
+# Time: 5 minutes
 #
 # Practical troubleshooting order:
 #
@@ -359,41 +528,3 @@ print(czi.standard_metadata.imaged_by)
 # 3. Try reading a single scene or plane before loading the whole dataset.
 # 4. Convert a copy to OME-TIFF or OME-Zarr and record the conversion command.
 # 5. Never overwrite the raw acquisition file.
-
-# %% [markdown]
-# ## Optional exercises
-#
-# 1. Save the synthetic image as PNG and compare its dtype after loading.
-# 2. List five metadata fields you would want before measuring cell area.
-# 3. Write a pseudocode function `open_first_scene(path)` that returns a
-#    `CZYX` array from a BioIO-readable file.
-# 4. Explain why JPEG is risky for threshold-based segmentation.
-
-# %%
-# Answer sketch (optional, removable)
-png_path = output_dir / "synthetic_cells.png"
-io.imsave(png_path, util.img_as_ubyte(image))
-png_loaded = io.imread(png_path)
-print(png_loaded.shape, png_loaded.dtype)
-
-metadata_fields = [
-    "axis order",
-    "pixel size x/y/z",
-    "channel names",
-    "time interval",
-    "compression",
-]
-print(metadata_fields)
-
-
-def open_first_scene_pseudocode(path: str) -> str:
-    return (
-        "from bioio import BioImage\n"
-        f"img = BioImage({path!r})\n"
-        "img.set_scene(0)\n"
-        "data = img.get_image_data('CZYX', T=0)"
-    )
-
-
-print(open_first_scene_pseudocode("example.czi"))
-print("JPEG can shift intensities near the threshold and create false edges or holes.")

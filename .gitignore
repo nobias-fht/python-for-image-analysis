@@ -12,4 +12,4 @@ __pycache__/
 scratch_outputs/
 solutions/data/
 solutions/csv_logs/
-data/practical_project
+data/*
