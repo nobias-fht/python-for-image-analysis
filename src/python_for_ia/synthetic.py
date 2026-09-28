@@ -3,10 +3,21 @@
 from pathlib import Path
 import numpy as np
 from skimage import data
+import pooch
+from pooch.processors import ZipFile
 
 
-def project_data() -> list[Path]:
-    return list(Path("../data/practical_project/noisy").glob("*.tif"))
+def project_data(path: Path) -> Path:
+    data_path = pooch.retrieve(
+        url="https://download.fht.org/jug/teaching_pia/practical_project_data.zip",
+        known_hash="021f949c31fa443bfa2fab629a93058e8912d205760fd2e9656f6219308472c9",
+        path=path,
+        processor=pooch.Unzip(),
+    )
+
+    root = Path(sorted(data_path)[0]).parent
+
+    return root / "noisy"
 
 
 def images_with_problematic_hist() -> list[np.ndarray]:
@@ -58,7 +69,9 @@ def image_with_background(noise_level: int = 1_000, bg_level=1) -> np.ndarray:
     return np.floor(tot_float_norm)
 
 
-def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
+def images_with_various_degradations() -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
     rng = np.random.default_rng()
 
     img = data.cells3d()
@@ -86,3 +99,10 @@ def images_with_various_degradations() -> tuple[np.ndarray, np.ndarray]:
     img_all = np.floor(img_bg * illumination) + offset
 
     return img_slice, img_offset, img_bg, img_uneven, img_all
+
+
+def images_with_noise() -> np.ndarray:
+    rng = np.random.default_rng(24)
+    img = data.cells3d()[:, 0, ...]
+
+    return np.clip(img + rng.normal(0, int(img.mean()), img.shape), 0, None)

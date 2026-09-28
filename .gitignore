@@ -1,5 +1,8 @@
 **/*.csv
 **/*.ckpt
+**/*.zip
+**/*.png
+**/.DS_Store
 **/*.ipynb
 **.egg-info
 __pycache__/
@@ -7,3 +10,6 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 scratch_outputs/
+solutions/data/
+solutions/csv_logs/
+data/practical_project

@@ -18,10 +18,12 @@
 #
 # ### Objective
 #
-# - Learn how to manage dependecies with `uv`.
-# - Learn what is a lock file and why is it important.
+# - Learn how to manage dependencies with `uv`.
+# - Learn what a lock file is and why it is important.
 #
 # ## 1 - Initialize the project
+#
+# Time: 10 minutes
 #
 # You can use a terminal with VS Code by selecting from the toolbar **Terminal -> New Terminal**.
 #
@@ -38,11 +40,8 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Initialize the project by running in the terminal:
-#
-# ```bash
-# uv init
-# ```
+# - Make sure you are in the `python-for-image-analysis` directory
+# - Initialize the project by running in the terminal: `uv init`
 #
 # </div>
 #
@@ -65,26 +64,6 @@
 # What project name and Python version requirement appear in your `pyproject.toml`? What is in its dependency list so far?
 #
 # </div>
-#
-# <div style="
-#   background: #fff8db;
-#   border-left: 6px solid #e2b200;
-#   padding: 12px 16px;
-#   border-radius: 8px;
-#   margin: 12px 0;
-#   color: #8a6a00;
-# ">
-#   <strong style="color: #8a6a00;">Note</strong><br>
-#
-# If you do not already have a project directory, you can run:
-#
-# ```bash
-# uv init <project name>
-# ```
-#
-# and `uv` will create the project directory for you.
-#
-# </div>
 
 # %% [markdown]
 # <div style="
@@ -99,7 +78,7 @@
 #
 # Run the starter script:
 #
-# ```bash
+# ```
 # uv run main.py
 # ```
 #
@@ -123,6 +102,8 @@
 
 # %% [markdown]
 # ## 2 - Environments and packages
+#
+# Time: 10 minutes
 #
 # A **virtual environment** holds a project's Python interpreter and installed packages. Keeping a separate environment for each project lets different analyses use different library versions.
 #
@@ -151,17 +132,11 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Run the command:
-#
-# ```bash
-# uv add jupyter
-# ```
+# Run the command: `uv add jupyter`
 #
 # </div>
 #
 # In the top right of the notebook you should see a "Select Kernel" button; use this to select the `python-for-image-analysis` Python environment.
-#
-# ![Select Kernel](../assets/select_kernel.png)
 
 # %% [markdown]
 # <div style="
@@ -189,7 +164,7 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Print a message in the cell below. Click its play button or press **Shift+Enter** to run it.
+# Print a message in the cell below using Python. Click its play button or press **Shift+Enter** to run it.
 #
 # <details>
 # <summary>
@@ -268,6 +243,8 @@ print("NumPy version:", np.__version__)
 # %% [markdown]
 # ## 3 - Lock files and reproducibility
 #
+# Time: 10 minutes
+#
 # The three parts of our setup serve different purposes:
 #
 # | Item | Purpose |
@@ -304,13 +281,7 @@ print("NumPy version:", np.__version__)
 # uv sync
 # ```
 #
-# This creates or updates `.venv` from the lockfile. If the project requirements have changed, `uv sync` may update the lockfile too. To require an up-to-date lockfile without allowing changes to it, use:
-#
-# ```bash
-# uv sync --locked
-# ```
-#
-# This reports an error if the lockfile is missing or no longer matches the project requirements. `uv run` also checks the lockfile and environment automatically before running a command.
+# This creates or updates `.venv` from the lockfile. If the project requirements have changed, `uv sync` may update the lockfile too.
 #
 # See the [uv locking and syncing guide](https://docs.astral.sh/uv/concepts/projects/sync/) for details.
 
@@ -359,12 +330,13 @@ print("NumPy version:", np.__version__)
 # ">
 #   <strong style="color: #1f5f2c;">Question</strong><br>
 #
-# A colleague receives your notebook and `pyproject.toml`, but no lockfile. Why might they install different package versions? Could a lockfile alone reproduce your cell counts without the original images and analysis settings?
-#
+# A colleague receives your notebook and `pyproject.toml`, but no lockfile. Why might they install different package versions?
 # </div>
 
 # %% [markdown]
 # ## 4 - Script dependencies
+#
+# Time: 5 minutes
 #
 # For this course, several notebooks share the same packages, so we keep dependencies together in `pyproject.toml` and use one project environment.
 #
@@ -402,9 +374,24 @@ print("NumPy version:", np.__version__)
 # The header is a dependency declaration, not a lockfile. To record resolved versions for the script, run `uv lock --script array_demo.py`; this creates `array_demo.py.lock` alongside it.
 #
 # See the [uv script guide](https://docs.astral.sh/uv/guides/scripts/).
+#
+# <div style="
+#   background: #e8f7ec;
+#   border-left: 6px solid #2f9e44;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #1f5f2c;
+# ">
+#   <strong style="color: #1f5f2c;">Question</strong><br>
+#
+# Can you think of any-use cases for declaring script level dependencies?
+# </div>
 
 # %% [markdown]
 # ## 5 - `juv` for standalone notebooks
+#
+# Time: 10 minutes
 #
 # [`juv`](https://github.com/manzt/juv) brings a similar approach to Jupyter notebooks: dependencies travel with the notebook, and `juv` uses `uv` to prepare an environment when launching it. It can also store a dependency lockfile in the notebook's metadata.
 #
