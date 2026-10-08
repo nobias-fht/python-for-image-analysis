@@ -8,7 +8,7 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 .venv/
-solutions/*.ipynb
+solutions/*.py
 scratch_outputs/
 solutions/data/
 solutions/csv_logs/
