@@ -37,7 +37,7 @@
 # %%
 import matplotlib.pyplot as plt
 
-from careamics.careamist import CAREamist
+from careamics import CAREamist
 from careamics.plotting import plot_loss
 
 from python_for_ia import images_with_noise

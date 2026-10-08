@@ -256,11 +256,6 @@ plt.figure()
 plt.hist(intensity_no_outliers, bins=30, color="steelblue", edgecolor="black")
 plt.xlabel("Value")
 plt.ylabel("Count")
-plt.title("Distribution without outlier")
+plt.title("Distribution without outliers")
 
 plt.show()
-
-# %%
-plt.imshow(lbl == val)
-
-# %%
