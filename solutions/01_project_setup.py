@@ -48,6 +48,7 @@
 # You will see that a few new files have been created, including:
 #
 # - `pyproject.toml`: which holds the project's metadata, including dependencies.
+# - `.python-version`: specifies the default python veresion.
 
 # %% [markdown]
 # <div style="
@@ -75,29 +76,25 @@
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-# Run the starter script:
+# Create the environment for the first time, run:
 #
 # ```
-# uv run main.py
+# uv sync
 # ```
 #
 # </div>
 
 # %% [markdown]
-# The console output should look something like this:
+# The first few lines of your console output should look something like this:
 #
 # ```console
-# Using CPython 3.13.3 interpreter at: /opt/homebrew/opt/python@3.13/bin/python3.13
+# Using CPython 3.13.13 interpreter at: /Users/melisande.croft/miniforge3/bin/python
 # Creating virtual environment at: .venv
-# Installed 1 package in 51ms
-# Hello from python-for-image-analysis!
+# Resolved 1 package in 20ms
 # ```
 #
 # The Python version, path, and installation details may differ on your computer.
-# Notice the line `Creating virtual environment at: .venv`: running the script
-# created the project's environment in the `.venv` directory.
-#
-# You can now delete the generated `main.py` in the VS Code file explorer; we will work in notebooks.
+# Notice the line `Creating virtual environment at: .venv`, if you look in the project directory should indeed see a `.env` folder, this is the python environment for the project.
 
 # %% [markdown]
 # ## 2 - Environments and packages
@@ -106,11 +103,10 @@
 #
 # A **virtual environment** holds a project's Python interpreter and installed packages. Keeping a separate environment for each project lets different analyses use different library versions.
 #
-# When you use the `uv run` command it automatically first locks the dependencies and then syncs the environment.
-# You can also do this manually with the commands:
+# Running the sync command will first automatically lock the environment, creating a lock file, you should see a `uv.lock` file in the project directory.
 #
-# - `uv lock`: resolves all the dependencies into a lock file (this created a `uv.lock` file, which we will discuss shortly).
-# - `uv sync`: updates (or creates) the current environment.
+# You can also manually create the lock file with the command:
+# - `uv lock`: this resolves all the dependencies into a lock file (which we will discuss shortly).
 #
 # You can find more information about these commands in the [uv command reference](https://docs.astral.sh/uv/reference/cli/).
 #
@@ -254,6 +250,28 @@ print("NumPy version:", np.__version__)
 #
 #   - `pooch`
 #   - `rich`
+# </div>
+
+# %% [markdown]
+# ### The `run` command
+#
+# We can use `uv` to run python scripts or any other tool that we need a python environment for.
+#
+# Everytime we call `uv run` it will first automatically `lock` and `sync` our environment, so if we didn't have one already, it will create it!
+#
+# **Note:** There is no need to activate the environment like we would have had to using `conda` or standard python virtual envs.
+#
+# <div style="
+#   background: #f3f4f6;
+#   border-left: 6px solid #6b7280;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #374151;
+# ">
+#   <strong>Optional Exercise</strong><br>
+#
+#   Create a `simple_script.py` file that prints a message, run it with `uv run simple_script.py`.
 # </div>
 
 # %% [markdown]
