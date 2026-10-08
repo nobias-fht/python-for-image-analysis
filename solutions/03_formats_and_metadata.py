@@ -96,7 +96,7 @@ DATA_DIR = Path("../data")
 image = skimage.data.cells3d()
 
 output_dir = Path("../data/outputs")
-output_dir.mkdir(exist_ok=True)
+output_dir.mkdir(exist_ok=True, parents=True)
 
 uint16_image = skimage.util.img_as_uint(image)  # make sure the image is uint16
 tif_path = output_dir / "synthetic_cells.tif"
@@ -188,12 +188,12 @@ axes.imshow(jpeg_loaded[150:200, 150:200], cmap="gray")
 #
 # Time: 10 minutes
 #
-# Now we will example some vendor microscopy formats. The three you will commonly run into are `.lif` (Leica),
+# Now we will see some examples of vendor microscopy formats. The three you will commonly run into are `.lif` (Leica),
 # `.nd2` (Nikon), and `.czi` (Zeiss). Luckily, there is a python package that can read them all (and others!)
 #
 # In this course we will use the `BioIO` package. The documentation can be found [here](https://bioio-devs.github.io/bioio/index.html).
 #
-# We can install BioIO into our environment using .
+# We can install BioIO into our environment using:
 #
 #
 # ```bash
@@ -431,7 +431,7 @@ czi.standard_metadata.imaged_by
 # ">
 #   <strong style="color: #21457f;">Exercise</strong><br>
 #
-#   Explore some of the example data, what can you learn from the metadata? e.g. if it has channels, can you find more information about what the channel record?
+#   Explore some of the example data, what can you learn from the metadata? e.g. if it has channels, can you find more information about what the channels record?
 #
 #   Can you display a slice?
 #
@@ -451,20 +451,6 @@ czi.standard_metadata.imaged_by
 # ```python
 # path = download_data.example_czi_1(DATA_DIR)
 # ```
-
-# %%
-data_root = DATA_DIR
-SUBDIR = "example_formats"
-import pooch
-
-public_url = "https://pub-2ac5a4b342a7472da9d44847263e1a56.r2.dev"
-fname = "s_1_t_4_c_2_z_1.lif"
-data_path = pooch.retrieve(
-    url=public_url + f"/{fname}",
-    # known_hash="97cea3e600476492e3224101d4929781f4ab4a26218c57e10b0fc1aaf5190ddba",
-    fname=fname,
-    path=data_root / SUBDIR,
-)
 
 # %%
 # --- Exercise

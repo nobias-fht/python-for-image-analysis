@@ -95,6 +95,20 @@ from skimage.filters import gaussian
 #
 # Time: 10 minutes
 
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add `scipy`, `pandas` and `cmap` to the project.
+# </div>
+
 # %%
 # --- Import what we need
 import matplotlib.pyplot as plt
@@ -836,7 +850,7 @@ plt.tight_layout()
 img_slice = image_cells[30, 1]
 
 # absolute threshold
-threshold = 8_000  # 30_000
+threshold = 30_000  # Find a better threshold to separate the cells from the background!
 
 # --- Exercise
 # Threshold the image and plot it as an overlay

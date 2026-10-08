@@ -45,10 +45,9 @@
 #
 # </div>
 #
-# You will see that two new files have been created:
+# You will see that a few new files have been created, including:
 #
-# - `pyproject.toml`: holds the project's metadata, including dependencies.
-# - `main.py`: a small script added by `uv`.
+# - `pyproject.toml`: which holds the project's metadata, including dependencies.
 
 # %% [markdown]
 # <div style="
@@ -238,6 +237,23 @@ print("NumPy version:", np.__version__)
 #   <strong style="color: #8a6a00;">Note</strong><br>
 #
 #   You will need to check on each package's website or PyPI what the install name is. Most of the time it will be intuitive but it is better to check than installing something unknown onto your machine. There is a cyber attack often called "typosquatting", where bad actors will release malicious software under the name of a mistyped popular package.
+# </div>
+
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add the following dependencies that we need to the project:
+#
+#   - `pooch`
+#   - `rich`
 # </div>
 
 # %% [markdown]

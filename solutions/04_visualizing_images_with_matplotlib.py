@@ -303,6 +303,7 @@ plt.colorbar()
 # </div>
 
 # %%
+# Set vmin and vmax in plt.imshow, display the colorbar
 # --- Exercise
 lower_percentile = 1
 upper_percentile = 99
@@ -479,7 +480,7 @@ plt.colorbar()
 # %%
 from matplotlib.colors import CenteredNorm
 
-# ---
+# --- Exercise
 plt.imshow(median_diff, cmap="bwr", norm=CenteredNorm(clip=True))
 plt.colorbar()
 # ---
@@ -497,7 +498,7 @@ plt.colorbar()
 #
 #   `cmap` is a great package for color maps that can be passed directly to matplotlib. [Try it out](https://cmap-docs.readthedocs.io/en/stable/catalog/).
 #
-#   <b>Hint</b>: e.g. `Colormap("viridis").to_mpl()`
+#   <b>Tip</b>: e.g. `Colormap("viridis").to_mpl()`
 # </div>
 
 # %%

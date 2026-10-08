@@ -184,6 +184,20 @@ print(f"itemsize: {a.itemsize}")
 # - the two channels record cell membranes and nuclei, and
 # - the data is stored as unsigned 16-bit integers.
 
+# %% [markdown]
+# <div style="
+#   background: #accffb;
+#   border-left: 6px solid #2f80ed;
+#   padding: 12px 16px;
+#   border-radius: 8px;
+#   margin: 12px 0;
+#   color: #21457f;
+# ">
+#   <strong style="color: #21457f;">Exercise</strong><br>
+#
+#   Add `scikit-image` and `matplotlib` to the project.
+# </div>
+
 # %%
 # import Sci-Kit image to access the data
 import skimage
